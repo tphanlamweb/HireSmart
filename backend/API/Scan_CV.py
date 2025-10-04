@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, APIRouter
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,21 +10,12 @@ import base64
 import pandas as pd
 import os
 
-app = FastAPI()
-
-# Cho phép frontend gọi API
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 CSV_FILE = "demo_data.csv"
 
 static_dir = os.path.dirname(os.path.abspath(__file__))
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+router.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 GEMINI_API_KEY = os.getenv(
     "GEMINI_API_KEY",
@@ -140,7 +131,7 @@ def extract_with_regex(full_text: str) -> dict:
     except Exception:
         return {}
 
-@app.post("/upload_cv")
+@router.post("/upload_cv")
 async def upload_cv(file: UploadFile = File(...)):
     if not file.filename.endswith(".pdf"):
         return {"error": "Chỉ chấp nhận file PDF"}
@@ -207,10 +198,3 @@ async def upload_cv(file: UploadFile = File(...)):
         "parsed": {k: record.get(k, "") for k in columns if k not in ("filename", "content")},
         "text": text_content[:500] + "..." if len(text_content) > 500 else text_content
     }
-
-@app.get("/", response_class=HTMLResponse)
-def read_root():
-    index_path = os.path.join(static_dir, "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
-    return HTMLResponse("<pre>API is running. Use /upload_cv to submit PDF CV.</pre>")
