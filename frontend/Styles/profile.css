@@ -1,0 +1,202 @@
+body {
+    background: #f4f4f4;
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+.profile-container {
+    display: flex;
+    min-height: 100vh;
+}
+.sidebar {
+    background: #165ba8;
+    color: #fff;
+    width: 270px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 20px 0;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+.logo-section {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0 10px 0;
+}
+.logo {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.avatar {
+    width: 60px;
+    height: 60px;
+    background: #e0e0e0;
+    border-radius: 50%;
+    margin: 0 auto 10px auto;
+    background-image: url('https://cdn-icons-png.flaticon.com/512/149/149071.png');
+    background-size: cover;
+    background-position: center;
+}
+.sidebar-name {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+.sidebar-nav {
+    width: 100%;
+    flex: 1;
+}
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 30px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1em;
+    border-radius: 6px 0 0 6px;
+    margin-bottom: 6px;
+    transition: background 0.2s;
+}
+.sidebar-item .icon {
+    margin-right: 12px;
+    font-size: 1.1em;
+}
+.sidebar-item.active, .sidebar-item:hover {
+    background: #ffd600;
+    color: #165ba8;
+    font-weight: bold;
+}
+.logout-btn {
+    width: 90%;
+    background: #ff2d2d;
+    color: #fff;
+    border: none;
+    padding: 12px 0;
+    border-radius: 8px;
+    font-size: 1em;
+    margin: 20px auto 0 auto;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+.logout-btn .icon {
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+.logout-btn:hover {
+    background: #d90000;
+}
+.profile-main {
+    flex: 1;
+    background: #fff;
+    margin: 30px 0 30px 0;
+    border-radius: 8px;
+    box-shadow: 0 0 0 2px #e0e0e0;
+    padding: 40px 50px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.profile-header {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 30px;
+    margin-bottom: 30px;
+}
+.profile-avatar {
+    width: 90px;
+    height: 90px;
+    background: #e0e0e0;
+    border-radius: 50%;
+    margin-right: 40px;
+    background-image: url('https://cdn-icons-png.flaticon.com/512/149/149071.png');
+    background-size: cover;
+    background-position: center;
+}
+.profile-info h2 {
+    margin: 0 0 8px 0;
+    font-size: 2em;
+    font-weight: bold;
+}
+.profile-info > div {
+    margin-bottom: 7px;
+    color: #444;
+    font-size: 1.08em;
+}
+.profile-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px 60px;
+}
+.profile-section {
+    margin-bottom: 18px;
+}
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.section-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+.edit-icon {
+    font-size: 1.2em;
+    color: #888;
+    cursor: pointer;
+}
+.skills {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+.skill-btn {
+    border: 2px solid #165ba8;
+    background: #fff;
+    color: #165ba8;
+    border-radius: 20px;
+    padding: 7px 22px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: default;
+    margin-bottom: 6px;
+    transition: background 0.2s, color 0.2s;
+}
+.skill-btn:hover {
+    background: #165ba8;
+    color: #fff;
+}
+.profile-section ul {
+    margin: 0;
+    padding-left: 18px;
+    color: #444;
+}
+.profile-section strong {
+    font-weight: bold;
+}
+@media (max-width: 900px) {
+    .profile-container {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        min-height: 0;
+        padding: 0;
+        height: 80px;
+    }
+    .profile-main {
+        padding: 20px 10px;
+        margin: 0;
+    }
+    .profile-details {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
