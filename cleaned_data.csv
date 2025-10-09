@@ -1,15 +1,10 @@
-filename,name,email,phone,skills,experience,education,certificate,project,content
-PhanVanThanh_CV.pdf,PHAN VAN THANH,pvthanh186@gmail.com,0905360586,"Programming:
+filename,name,email,phone,cv_text,projects,education,certificates,portfolio,full_text
+PhanVanThanh_CV.pdf,PHAN VAN THANH,pvthanh186@gmail.com,0905360586,"Programming
 Front-End: html, css, javascript
 Back-End / API: Python, Java / Java Android, C#
 Database Management Language: T-SQL, MySQL
 Design: Figma, Canva
 Management: Trello, Jira, Github","MOTOGO app | Team Leader | Jan 2025 - March 2025
-Kotlin/Java - MySQL
-Integration Dashboard | Team Leader | March 2025 - May 2025
-Python - MySQL & T-SQL","Duy Tan University | 2022-2026
-Bachelor of Management Information System
-GPA 3.0","MOS Certificate, 5.0 IELTS","MOTOGO app | Team Leader | Jan 2025 - March 2025
 Kotlin/Java - MySQL
 Short description: To build a software for renting and booking motorbike.
 My responsibilites:
@@ -31,7 +26,14 @@ Create models to connect with database
 Build an API to get all salary info from Payroll System.
 Build an API to get all Employees information from Human System.
 Connect with FrontEnd by Python and displays the extracted necessary information.
-Create login function using Middleware to authentication.","PHAN VAN THANH
+Create login function using Middleware to authentication.","Duy Tan University | 2022-2026
+Bachelor of Management Information System
+GPA 3.0","MOS Certificate, 5.0 IELTS","MOTOGO app | Team Leader | Jan 2025 - March 2025
+Kotlin/Java - MySQL
+Short description: To build a software for renting and booking motorbike.
+Integration Dashboard | Team Leader | March 2025 - May 2025
+Python - MySQL & T-SQL
+Short description: To create a Dashboard web for manage data from both Payroll System and Human System.","PHAN VAN THANH
 BUSINESS ANALYST
 OBJECTIVE
 I am a final-year Management Information Systems student at Duy

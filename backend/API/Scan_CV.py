@@ -12,8 +12,12 @@ import os
 
 router = APIRouter()
 
-CSV_FILE = "demo_data.csv"
 
+
+CSV_FILE = os.path.join(os.path.dirname(__file__), "..", "results", "demo_data.csv")
+
+
+# Static
 static_dir = os.path.dirname(os.path.abspath(__file__))
 router.mount("/static", StaticFiles(directory=static_dir), name="static")
 
@@ -29,18 +33,67 @@ GEMINI_API_URL = (
 async def extract_cv_with_gemini(full_text: str = "", pdf_bytes: bytes | None = None) -> dict:
     """Call Gemini to extract structured CV fields as JSON."""
     system_instruction = (
-        "Bạn là công cụ trích xuất thông tin CV. Hãy trả về JSON hợp lệ duy nhất,"
-        " không kèm giải thích hay markdown. Nếu thiếu thông tin, để rỗng."
+        """
+    You are an information extraction assistant. 
+    Your task is to extract information from a Vietnamese CV and return the result strictly in JSON format with the following fields:
+
+    {
+    "full_name": "...",
+    "email": "...",
+    "phone_number": "...",
+    "date_of_birth": "...",
+    "gender": "...",
+    "nationality": "...",
+    "hometown": "...",
+    "permanent_address": "...",
+    "skills": "...",
+    "education": "...",
+    "work_experience": "...",
+    "certifications": "...",
+     "languages": "...",
+    "other_info": "..."
+    }
+
+    ⚠️ Important extraction rules:
+    - Only extract **information explicitly found** in the CV.
+    - If a field is **missing or cannot be found**, set its value to `"n/a"`.
+    - Do not hallucinate or guess missing data.
+    - Do not return extra fields beyond the ones listed above.
+    - Clean and normalize the data as much as possible (e.g., remove formatting artifacts, multiple spaces, bullet symbols, etc.)
+    - If multiple pieces of information are found for the same field (e.g., several certifications), join them into a single string separated by semicolons.
+
+    Return ONLY valid JSON. Do not add any explanation or text outside the JSON.
+    """
     )
+    
     json_schema_hint = {
-        "name": "",
+        "full_name": "",
         "email": "",
         "phone": "",
-        "skills": "",
-        "experience": "",
-        "education": "",
-        "certificate": "",
-        "project": ""
+        "date_of_birth": "",
+        "gender": "",
+        "address": "",
+        "linkedin_url": "",
+        "portfolio_url": "",
+
+        "technical_skills": "",
+        "soft_skills": "",
+        "tools_and_technologies": "",
+        "programming_languages": "",
+        "frameworks_and_libraries": "",
+
+        "work_experience_summary": "",
+        "education_summary": "",
+        "certifications_summary": "",
+        "expired_certifications": "",
+        "languages_summary": "",
+        "notable_projects": "",
+        "awards_and_honors": "",
+        "publications": "",
+        "volunteer_experience": "",
+        "hobbies_and_interests": "",
+
+        "cv_summary": ""
     }
 
     prompt = (
@@ -153,34 +206,56 @@ async def upload_cv(file: UploadFile = File(...)):
 
     # Chuẩn hoá cột và điền giá trị mặc định nếu thiếu
     columns = [
-        "filename",
-        "name",
-        "email",
-        "phone",
-        "skills",
-        "experience",
-        "education",
-        "certificate",
-        "project",
-        "content"
+        "email", "full_name", "phone", "date_of_birth", "gender", "address",
+        "linkedin_url", "portfolio_url",
+        "technical_skills", "soft_skills", "tools_and_technologies",
+        "programming_languages", "frameworks_and_libraries",
+        "work_experience_summary", "education_summary",
+        "certifications_summary", "expired_certifications", "languages_summary",
+        "notable_projects", "awards_and_honors", "publications",
+        "volunteer_experience", "hobbies_and_interests",
+        "filename", "cv_summary", "file_size", "mimetype"
     ]
 
     record = {
-        "filename": file.filename,
-        "name": "",
         "email": "",
+        "full_name": "",
         "phone": "",
-        "skills": "",
-        "experience": "",
-        "education": "",
-        "certificate": "",
-        "project": "",
-        "content": text_content or ""
+        "date_of_birth": "",
+        "gender": "",
+        "address": "",
+        "linkedin_url": "",
+        "portfolio_url": "",
+
+        "technical_skills": "",
+        "soft_skills": "",
+        "tools_and_technologies": "",
+        "programming_languages": "",
+        "frameworks_and_libraries": "",
+
+        "work_experience_summary": "",
+        "education_summary": "",
+        "certifications_summary": "",
+        "expired_certifications": "",
+        "languages_summary": "",
+        "notable_projects": "",
+        "awards_and_honors": "",
+        "publications": "",
+        "volunteer_experience": "",
+        "hobbies_and_interests": "",
+
+        "filename": file.filename,
+        "cv_summary": "",
+        "file_size": len(pdf_bytes),
+        "mimetype": file.content_type or "application/pdf"
     }
+    
     if isinstance(parsed_info, dict):
         for k, v in parsed_info.items():
             if k in record and v:
                 record[k] = v
+                
+
     for k, v in fallback_info.items():
         if k in record and not record[k] and v:
             record[k] = v
@@ -192,6 +267,9 @@ async def upload_cv(file: UploadFile = File(...)):
         new_data.to_csv(CSV_FILE, index=False)
     else:
         new_data.to_csv(CSV_FILE, mode='a', header=False, index=False)
+        print( f"Đã trích xuất và lưu {file.filename} vào {CSV_FILE}")
+        print( {k: record.get(k, "") for k in columns if k not in ("filename", "content")})
+        print( text_content[:500] + "..." if len(text_content) > 500 else text_content)
 
     return {
         "message": f"Đã trích xuất và lưu {file.filename} vào {CSV_FILE}",
