@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tải lên CV (PDF)</title>
+    <title>Tải lên CV hoặc Ảnh</title>
     <link rel="stylesheet" href="/frontend/Styles/style.css" />
 </head>
 <body>
     <div class="container">
-        <h1>Tải lên CV (PDF)</h1>
+        <h1>Tải lên CV hoặc Ảnh</h1>
 
         <div class="api-config">
             <label for="apiUrl">API URL:</label>
@@ -18,8 +18,13 @@
 
         <form id="uploadForm">
             <div class="field">
-                <label for="fileInput">Chọn file PDF:</label>
-                <input id="fileInput" type="file" accept="application/pdf,.pdf,.png,.jpg,.docx" required />
+                <label for="fileInput">Chọn file (PDF, PNG, JPG, DOCX):</label>
+                <input 
+                    id="fileInput" 
+                    type="file" 
+                    accept="application/pdf,.pdf,.png,.jpg,.jpeg,.docx" 
+                    required 
+                />
             </div>
             <button type="submit">Tải lên</button>
         </form>
@@ -34,7 +39,7 @@
         const apiUrlInput = document.getElementById('apiUrl');
         const resultEl = document.getElementById('result');
 
-        // Mặc định dùng origin hiện tại nếu truy cập qua http(s)
+        // Thiết lập URL mặc định
         try {
             const defaultOrigin = window.location.origin;
             if (defaultOrigin && defaultOrigin.startsWith('http')) {
@@ -55,18 +60,22 @@
             e.preventDefault();
             const file = fileInput.files && fileInput.files[0];
             if (!file) {
-                setResult('Vui lòng chọn một file PDF.', 'error');
+                setResult('Vui lòng chọn một file.', 'error');
                 return;
             }
-            if (!file.name.toLowerCase().endsWith('.pdf')) {
-                setResult('Chỉ chấp nhận file PDF.', 'error');
+
+            // Kiểm tra định dạng được phép
+            const allowedExt = ['.pdf', '.png', '.jpg', '.jpeg', '.docx'];
+            const fileName = file.name.toLowerCase();
+            const isValid = allowedExt.some(ext => fileName.endsWith(ext));
+            if (!isValid) {
+                setResult('Định dạng file không hợp lệ. Chỉ chấp nhận: PDF, PNG, JPG, DOCX.', 'error');
                 return;
             }
-            
+
             const defaultOrigin = window.location.origin.includes('8000')
                 ? window.location.origin
                 : 'http://127.0.0.1:8000';
-
 
             const baseUrl = apiUrlInput.value = defaultOrigin;
             const endpoint = `${baseUrl}/upload_cv`;
@@ -78,11 +87,11 @@
             setResult('Đang tải lên...', 'info');
 
             try {
-                e.preventDefault();
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 });
+
                 const contentType = response.headers.get('content-type') || '';
                 if (!response.ok) {
                     const text = await response.text();
@@ -92,22 +101,17 @@
                 if (contentType.includes('application/json')) {
                     const data = await response.json();
                     const preview = data.text ? `\n\nXem trước nội dung (tối đa 500 ký tự):\n${data.text}` : '';
-                    setResult((data.message || 'Thành công.') + preview, 'success');
+                    setResult((data.message || 'Tải lên thành công.') + preview, 'success');
                 } else {
                     const text = await response.text();
                     setResult(text || 'Tải lên thành công.', 'success');
-                    console.log(text);
                 }
             } catch (err) {
                 setResult(`Lỗi: ${err.message || err}`, 'error');
-                console.log(err)
-                e.preventDefault();
-
+                console.error(err);
             }
         });
     })();
     </script>
 </body>
 </html>
-
-
