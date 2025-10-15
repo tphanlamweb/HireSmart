@@ -119,7 +119,22 @@ Hãy phân tích và trả về đúng JSON, KHÔNG có giải thích.
 Đặc biệt: 
 - Trường 'skills' phải được liệt kê rõ ràng, cách nhau bằng dấu phẩy, không viết liền nhau.
 - Email phải đúng định dạng.
-- Các đoạn văn bản nên giữ đúng câu, không tự ý chèn khoảng trắng sau dấu chấm."""
+- Các đoạn văn bản nên giữ đúng câu, không tự ý chèn khoảng trắng sau dấu chấm.
+- phần references mỗi thông tin cách nhau bằng dấu |
+- Chỉ trả về các trường sau(nếu không có dữ liệu thì đặt "n/a"):
+    1. full_name
+    2. phone
+    3. email
+    4. contact
+    5. experience
+    6. education
+    7. hard_skills
+    8. soft_skills
+    9. activities
+    10. certificates
+    11. tools
+    12. cv_summary
+    """
 
     json_schema_hint = {
         "Name": "",
@@ -205,8 +220,6 @@ def extract_with_regex(full_text: str) -> dict:
             name = ln
             break
     return {
-        "email": fix_email_format(email_match.group(0)) if email_match else "",
-        "phone": phone_match.group(0) if phone_match else "",
         "full_name": name
     }
 
