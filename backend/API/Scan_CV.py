@@ -5,6 +5,7 @@ from PIL import Image
 import pytesseract
 import docx2txt
 from io import BytesIO
+from rapidfuzz import process
 
 router = APIRouter()
 
@@ -37,13 +38,15 @@ def clean_text(text) -> str:
     text = str(text)
     text = text.replace("\\n", " ").replace("\n", " ")
     text = re.sub(r"\s+", " ", text)
+    # Xóa khoảng trắng thừa trước dấu câu, giữ 1 khoảng trắng sau dấu chấm
+    text = re.sub(r"\s+([.,;:!?])", r"\1", text)
+    text = re.sub(r"([.,;:!?])(?=\S)", r"\1 ", text)
     return text.strip()
 
 def deduplicate_fields(record: dict) -> dict:
     """Loại bỏ lặp trong các trường text dài (education, skills, v.v.)"""
     for key, value in record.items():
         if isinstance(value, str) and len(value) > 20:
-            # tách theo dấu chấm hoặc xuống dòng để lọc trùng
             parts = re.split(r"[.\n]", value)
             seen = set()
             result = []
@@ -55,15 +58,71 @@ def deduplicate_fields(record: dict) -> dict:
             record[key] = ". ".join(result)
     return record
 
+def fix_email_format(email: str) -> str:
+    """Chỉnh sửa các lỗi thường gặp trong email do OCR."""
+    if not email:
+        return ""
+    email = email.strip().replace(" ", "").replace("..", ".")
+    email = email.replace("gmaicom", "gmail.com").replace("gmai.com", "gmail.com")
+    email = re.sub(r"(@[A-Za-z0-9.-]+)\.$", r"\1", email)
+    # Thêm .com nếu thiếu
+    if re.match(r".+@.+\.[a-zA-Z]{2,}$", email) is None and not email.endswith(".com"):
+        email += ".com"
+    match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', email)
+    return match.group(0) if match else ""
+
+def ensure_sentence_end(text: str) -> str:
+    """Bổ sung dấu chấm cuối nếu thiếu"""
+    if text and not re.search(r"[.?!]$", text):
+        return text + "."
+    return text
+
 # ==========================
-# 1️⃣ Gọi Gemini
+# 🧠 Chuẩn hóa kỹ năng
+# ==========================
+KNOWN_SKILLS = [
+    "Laravel Framework", "Back End", "Bootstrap", "React", "Vue.js",
+    "Machine Learning", "Big Data", "PHP", "Node.js",
+    "Microsoft Word", "Microsoft Excel", "Digital Illustration",
+    "Typography", "Branding and Identity Design"
+]
+
+def clean_skills_text(raw_text: str) -> str:
+    """Chuẩn hóa danh sách kỹ năng, sửa lỗi OCR nhẹ & chuẩn format."""
+    if not raw_text:
+        return ""
+    # Tách sơ bộ theo dấu phẩy hoặc xuống dòng
+    parts = re.split(r"[,\n;]+", raw_text)
+    cleaned_skills = []
+    for p in parts:
+        skill = p.strip()
+        if not skill:
+            continue
+        # So khớp gần đúng với KNOWN_SKILLS
+        match, score, _ = process.extractOne(skill, KNOWN_SKILLS)
+        cleaned_skills.append(match if score > 70 else skill)
+    # Loại trùng lặp, giữ thứ tự
+    seen = set()
+    final = []
+    for s in cleaned_skills:
+        if s not in seen:
+            seen.add(s)
+            final.append(s)
+    return ", ".join(final)
+
+# ==========================
+# 1️⃣ Gọi Gemini (Prompt chỉnh)
 # ==========================
 async def extract_cv_with_gemini(full_text: str = "", file_bytes: bytes | None = None, mime_type: str = None) -> dict:
     system_instruction = """Bạn là trợ lý trích xuất thông tin từ CV tiếng Việt. 
-Trả về đúng JSON với các trường đã định, không có giải thích thêm."""
+Hãy phân tích và trả về đúng JSON, KHÔNG có giải thích. 
+Đặc biệt: 
+- Trường 'skills' phải được liệt kê rõ ràng, cách nhau bằng dấu phẩy, không viết liền nhau.
+- Email phải đúng định dạng.
+- Các đoạn văn bản nên giữ đúng câu, không tự ý chèn khoảng trắng sau dấu chấm."""
 
     json_schema_hint = {
-        "full_name": "",
+        "Name": "",
         "email": "",
         "phone": "",
         "date_of_birth": "",
@@ -87,11 +146,12 @@ Trả về đúng JSON với các trường đã định, không có giải thí
         "publications": "",
         "volunteer_experience": "",
         "hobbies_and_interests": "",
-        "cv_summary": ""
+        "cv_summary": "",
+        "skills": ""  # thêm rõ ràng
     }
 
     parts = [
-        {"text": f"{system_instruction}\n\nVăn bản CV:\n{full_text[:15000]}"},
+        {"text": f"{system_instruction}\n\nDưới đây là văn bản CV:\n{full_text[:15000]}"},
     ]
 
     if (not full_text or len(full_text.strip()) < 20) and file_bytes and mime_type:
@@ -145,7 +205,7 @@ def extract_with_regex(full_text: str) -> dict:
             name = ln
             break
     return {
-        "email": email_match.group(0) if email_match else "",
+        "email": fix_email_format(email_match.group(0)) if email_match else "",
         "phone": phone_match.group(0) if phone_match else "",
         "full_name": name
     }
@@ -207,6 +267,17 @@ async def upload_cv(file: UploadFile = File(...)):
 
     # Loại bỏ lặp nội dung trong các trường dài
     record = deduplicate_fields(record)
+
+    # Hậu xử lý cụ thể
+    if record.get("email"):
+        record["email"] = fix_email_format(record["email"])
+
+    if record.get("skills"):
+        record["skills"] = clean_skills_text(record["skills"])
+
+    for key in ["objective", "cv_summary", "experience", "education"]:
+        if record.get(key):
+            record[key] = ensure_sentence_end(record[key])
 
     # Ghi CSV theo dạng key,value dễ đọc
     with open(CSV_FILE, "a", encoding="utf-8") as f:

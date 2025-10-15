@@ -1,83 +1,31 @@
-filename: 061-light-blue-marketing-manager.jpg
+filename: 061-light-blue-marketing-manager. jpg
 file_size: 106740
-mimetype: image/jpeg
-cv_summary: 
-email: ngtrucquynhmy@gmail.com
-phone: 
-full_name: Nguyễn Chí Thanh, Phường 6,
-personal_information: {'phone': '+123-456-7890', 'email': 'ngtrucquynhmy@gmail.com', 'birth_date': '27/01/1998', 'address': 'Nguyễn Chí Thanh, Phường 6,\nQuận 10, TP.HCM', 'name': 'Nguyễn Trúc\nQuỳnh My'}
-education: [{'degree': 'Master of Business Marketing', 'time': '2016 - 2018', 'note': 'Loại tốt nghiệp', 'school': 'Tên trường học Borcelle University'}, {'degree': 'Bachelor of Science in Marketing', 'time': '2012- 2016', 'note': 'Loại tốt nghiệp', 'school': 'Tên trường học Borcelle University'}]
-skills: {'informatics': ['Microsoft Word 4', 'Microsoft Excel 4.5'], 'languages': ['Tiếng Anh. Trung cấp', 'Tiếng Trung Sơ cấp'], 'other': ['Branding and Identity Design', 'Digital illustration', 'Typography']}
-career_objective: Tôi là một nhân viên bán hàng chuyên nghiệp, đam mê trong
-việc xây dựng mối quan hệ với khách hàng và đạt được mục tiêu
-doanh số. Mục tiêu của tôi là phát triển sự nghiệp trong lĩnh vực
-bán hàng, áp dụng kỹ năng giao tiếp mạnh mẽ và khả năng
-thuyết phục để tạo ra giá trị cho khách hàng và đóng góp vào
-sự thành công của tổ chức.
-experience: [{'company': 'Larana Studios', 'position': 'Marketing Manager', 'time': 'Jun 2019 - Jan 2020', 'description': 'Phụ trách việc tìm kiếm và khai thác thị trường mới, xây dựng\ndanh sách khách hàng tiềm năng: Tại công ty ABC, tôi đã\nchịu trách nhiệm tìm kiếm và khai thác các thị trường mới, từ\nđó tạo ra danh sách khách hàng tiềm năng. Tôi đã nghiên\ncứu và đánh giá các xu hướng thị trường để xác định các cơ\nhội kinh doanh mới. Tôi đã áp dụng các kỹ thuật tiếp thị và\nxây dựng mạng lưới khách hàng để tăng doanh sổ bán hàng.'}, {'company': 'Larana Studios', 'position': 'Marketing Manager', 'time': 'Jun 2019 - Jan 2020', 'description': 'Phu trách việc tim kiếm và khai thác thị trường mới, xây dựng\ndanh sách khách hàng tiềm năng: Tại công ty ABC, tôi đã\nchịu trách nhiệm tìm kiếm và khai thác các thị trường mới, từ\nđó tạo ra danh sách khách hàng tiềm năng. Tôi đã nghiên\ncứu và đánh giá các xu hưởng thị trường để xác định các cơ\nhội kinh doanh mới. Tôi đã áp dụng các kỹ thuật tiếp thị và\nxây dựng mạng lưới khách hàng để tăng doanh sé bán hàng.'}]
-----------------------------------------
-filename: mau-cv-lap-trinh-vien-11.png
-file_size: 208700
-mimetype: image/png
-cv_summary: 
-email: hoangtan@gmaicom
-phone: (+84) 829 699 769
-full_name: faster and more stable.
-name: NGUYEN MINH TRUNG
-job_title: IT DEVELOPER
-experience: [{'company': 'FreeC Asia', 'title': 'Senior Developer', 'start_date': '2018', 'end_date': '2021', 'location': 'Ho Chi Minh', 'description': 'Control the system of processors, run data development programs'}, {'company': 'FreeC Asia', 'title': 'Junior Developer', 'start_date': '2015', 'end_date': '2017', 'location': 'Ho Chi Minh', 'description': 'Implement Machine Learning, Big Data projects\n+ Develop projects related to programming languages, specifically PHP'}]
-education: [{'school': 'FPT University', 'degree': 'Bachelor of Information Technology', 'start_date': '2013', 'end_date': '2017', 'gpa': '3,14'}]
-skills: ['PHP', 'Vuejs', 'React', 'Node js']
-languages: ['English', 'French']
-----------------------------------------
-filename: web-developer-mau-2-453x640.jpg
-file_size: 27911
 mimetype: image/jpeg
 cv_summary: 
 email: 
 phone: 
-full_name: 17 Great Portiand see,
-name: CHRISTOPHER MORGAN
-contact: {'address': '17 Great Portiand see, Landon MSW go', 'phone': 'MA|0)401466885%', 'email': 'taper mae com'}
-languages: ['Spanish']
-summary: Web Developer specializing in front end development. Highly experienced in managing the development effort for multiple projects. Well-versed in numerous programming languages including HTML, PHP OOP Java, ES, MSO. Strong background in project management and customer care.
-skills: ['HTML', 'PHP OOP', 'Java', 'ES', 'MSO', 'Project Management', 'Customer Care', 'Strong communication skills', 'Excellent mathematical skills']
-experience: [{'title': 'Web Developer', 'start_date': '09/2015', 'end_date': '05/2017', 'company': 'tuna web, New York', 'description': ['Develop project concepts and optimal workflow solutions', 'Worked with senior developers to manage large, complex web projects for corporate clients', 'Completed detailed programming and development tasks for front end code and internal website tools', 'Developed backend server code']}]
-education: [{'degree': 'Bachelor of Science Computer Information System', 'start_date': None, 'end_date': '2014', 'university': 'Columbia University, NY'}]
-certifications: ['Frameworks (Zend, Codeigniter, Symfony)']
-programming_languages: ['Java', 'HTML', 'PHP OOP', 'CSS', 'MySQL']
-----------------------------------------
-filename: webdeveloper-itviec-453x640.jpg
-file_size: 20106
-mimetype: image/jpeg
-cv_summary: 
-email: youremail@gmail.com
-phone: +01 1234 56789
 full_name: 
-name: Nguyen Le Nguyen
-job_title: Web Developer
-birth_date: 21 Mar 1965
-address: 223 Man St. Apt 101, New York
-website: www.yourdomain.com
-skills: ['MVC/MVVM', 'PHP', 'Slim Framework', 'HTML5 & CSS3', 'JavaScript', 'Angularjs', 'Photoshop', 'Illustrator', 'UI UX Design', 'Creative', 'Teamwork', 'Innovative', 'Organization', 'Communication']
-education: [{'year': '2001', 'school': 'School/ University', 'degree': 'Your Degree'}, {'year': '2001', 'school': 'School/ University', 'degree': 'Your Degree'}, {'year': '2001', 'school': 'School/ University', 'degree': 'Your Degree'}, {'year': '2001', 'school': 'School/ University', 'degree': 'Your Degree'}]
-experience: [{'year': '2001', 'company': 'Company Name', 'position': 'Your Position'}, {'year': '2001', 'company': 'Company Name', 'position': 'Your Position'}, {'year': '2001', 'company': 'Company Name', 'position': 'Your Position'}]
+contact: {"phone": "+123-456-7890", "email": "ngtrucquynhmy@gmail. com"}
+personal_info: {"birth_date": "27/01/1998", "address": "Nguyễn Chí Thanh, Phường 6, Quận 10, TP. HCM"}
+education: {'degree': 'Master of Business Marketing', 'start_date': '2016', 'end_date': '2018', 'major': None, 'university': 'Borcelle University', 'graduation_rank': 'Loại tốt nghiệp'} {'degree': 'Bachelor of Science in Marketing', 'start_date': '2012', 'end_date': '2016', 'major': None, 'university': 'Borcelle University', 'graduation_rank': 'Loại tốt nghiệp'}.
+skills: Microsoft Word, Microsoft Excel, Branding and Identity Design, Digital Illustration, Typography
+languages: {'language': 'Tiếng Anh', 'level': 'Trung cấp'} {'language': 'Tiếng Trung', 'level': 'Sơ cấp'}
+experience: {'company': 'Larana Studios', 'position': 'Marketing Manager', 'start_date': 'Jun 2019', 'end_date': 'Jan 2020', 'description': 'Phụ trách việc tìm kiếm và khai thác thị trường mới, xây dựng danh sách khách hàng tiềm năng: Tại công ty ABC, tôi đã chịu trách nhiệm tìm kiếm và khai thác các thị trường mới, từ đó tạo ra danh sách khách hàng tiềm năng. Tôi đã nghiên cứu và đánh giá các xu hướng thị trường để xác định các cơ hội kinh doanh mới. Tôi đã áp dụng các kỹ thuật tiếp thị và xây dựng mạng lưới khách hàng để tăng doanh sổ bán hàng. '} {'company': 'Larana Studios', 'position': 'Marketing Manager', 'start_date': 'Jun 2019', 'end_date': 'Jan 2020', 'description': 'Phu trách việc tim kiếm và khai thác thị trường mới, xây dựng danh sách khách hàng tiềm năng: Tại công ty ABC, tôi đã chịu trách nhiệm tìm kiếm và khai thác các thị trường mới, từ đó tạo ra danh sách khách hàng tiềm năng. Tôi đã nghiên cứu và đánh giá các xu hưởng thị trường để xác định các cơ hội kinh doanh mới. Tôi đã áp dụng các kỹ thuật tiếp thị và xây dựng mạng lưới khách hàng để tăng doanh sé bán hàng. '}.
+objective: Tôi là một nhân viên bán hàng chuyên nghiệp, đam mê trong việc xây dựng mối quan hệ với khách hàng và đạt được mục tiêu doanh số. Mục tiêu của tôi là phát triển sự nghiệp trong lĩnh vực bán hàng, áp dụng kỹ năng giao tiếp mạnh mẽ và khả năng thuyết phục để tạo ra giá trị cho khách hàng và đóng góp vào sự thành công của tổ chức.
+reference: Nguyễn Trúc Quỳnh My NHÂN VIÊN BÁN HÀNG
 ----------------------------------------
-
-filename: phanvanthanh_cv.pdf
-file_size: 133538
-mimetype: application/pdf
+filename: mau-cv-lap-trinh-vien-11. png
+file_size: 208700
+mimetype: image/png
 cv_summary: 
-email: pvthanh186@gmail.com
-phone: 0905360586
+email: hoangtan@gmail.com
+phone: +84 829 699 769
 full_name: 
-name: Phan Van Thanh
-title: Business Analyst
-objective: I am a final-year Management Information Systems student at Duy Tan University. I always strive to achieve the GPA 3. 0. I have led many group projects during University, developing my leadership and teamwork skills. I always learning to develop myself and ready contribute to organization. My goal is to begin as a intern and grow into roles like Project Manager, Business Intelligence or Business Analyst, applying my knowledge and leadership skills to support organizational success
-contact: {"phone": "0905360586", "email": "pvthanh186@gmail. com", "address": "Thanh Khe, Da Nang, Viet Nam", "linkedin": "www. reallygreatsite. com"}
-projects: {'name': 'MOTOGO app', 'team_role': 'Team Leader', 'time': 'Jan 2025 - March 2025', 'tech_stack': 'Kotlin/Java - MySQL', 'description': 'To build a software for renting and booking motorbike. ', 'responsibilities': ['Manage and assign tasks via Trello', 'Manage the project by Scrum process', 'Build FrontEnd for app', 'Create an OCR for Extracted information from citizen identification (By character recognition technology)', 'Create Booking function include: Date booking Collect information from a form', 'Build History, Log']} {'name': 'Integration Dashboard', 'team_role': 'Team Leader', 'time': 'March 2025 - May 2025', 'tech_stack': 'Python - MySQL & T-SQL', 'description': 'To create a Dashboard web for manage data from both Payroll System and Human System. ', 'responsibilities': ['Manage and assign tasks via Jira. ', 'Manage version of software by Github. ', 'Create models to connect with database', 'Build an API to get all salary info from Payroll System. ', 'Build an API to get all Employees information from Human System. ', 'Connect with FrontEnd by Python and displays the extracted necessary information. ', 'Create login function using Middleware to authentication. ']}
-activities: {'name': 'Dev Day (2024)', 'role': 'Supporter', 'description': 'The biggest technology event of central region in 2024'} {'name': 'P2A International - Hybrid Mobility (2024)', 'role': 'member of team 4', 'description': 'A competition for student of countries ASEAN group'} {'name': 'Duy Tan University - XFactor (2034)', 'role': 'Top 10', 'description': 'A play ground for student to show off their English skills'}
-academic_history: {"university": "Duy Tan University", "time": "2022-2026", "major": "Management Information System", "gpa": "3. 0"}
-certificate: {'name': 'English', 'score': '5. 0 IELTS'} {'name': 'Office informatics', 'description': 'MOS Certificate'}
-skills: {"programming_front_end": ["html", "css", "javascript"], "programming_back_end_api": ["Python", "Java / Java Android", "C#"], "database_management_language": ["T-SQL", "MySQL"], "design": ["Figma", "Canva"], "management": ["Trello", "Jira", "Github"], "soft_skills": ["Communication", "Flexible communication in English and Vietnamese", "Prompting AI", "ChatGPT, Copilot,. ", "Problem - solving", "Self - learning"]}
+name: NGUYEN MINH TRUNG
+title: IT DEVELOPER
+skills: PHP, Bootstrap, React, Vue.js, Node.js, Machine Learning, Big Data
+experience: {'start_date': '2018', 'end_date': '2021', 'location': 'Ho Chi Minh', 'title': 'Senior Developer', 'company': 'FreeC Asia', 'description': 'Control the system of processors, run data development programs. '} {'start_date': '2015', 'end_date': '2017', 'location': 'Ho Chi Minh', 'title': 'Junior Developer', 'company': 'FreeC Asia', 'description': 'React. '}.
+education: {'start_date': '2013', 'end_date': '2017', 'institution': 'FPT University', 'gpa': '3, 14', 'degree': 'Bachelor of Information Technology'}.
+languages: English French
+objective: Desire to become a PM Lead team with 5 to 10 employees to upgrade products to run. Working in a dynamic, creative environment, respecting independent thinking and effective teamwork; along with friendly colleagues, and the best benefits.
 ----------------------------------------
