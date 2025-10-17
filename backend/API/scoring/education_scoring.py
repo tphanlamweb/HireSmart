@@ -78,7 +78,6 @@ def score_education_semantic(cv_text: str, target_description: str) -> float:
 # ===== Kết hợp =====
 def score_education(cv_text: str, jd_text: str, target_description: str) -> float:
     relevant_keywords = generate_relevant_keywords(jd_text)
-    print("Relevant keywords for education scoring:", relevant_keywords)
 
     rule_score = score_education_rule(cv_text, relevant_keywords)
     print("Rule-based education score:", rule_score)
@@ -90,14 +89,3 @@ def score_education(cv_text: str, jd_text: str, target_description: str) -> floa
     print("Final combined education score:", final_score)
 
     return round(final_score, 2)
-
-
-# ==== Test ví dụ ====
-if __name__ == "__main__":
-    cv_text_vi = "Nguyễn Văn A, Thạc sĩ Quản trị Kinh doanh, Đại học Duy Tân, chuyên ngành Marketing"
-    cv_text_en = "John Doe, Master of Business Administration, Duy Tan University, major in Marketing"
-    jd_text = "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing."
-    target_description = "Ứng viên có trình độ đại học hoặc cao hơn trong lĩnh vực quản trị kinh doanh, tài chính, marketing hoặc công nghệ thông tin"
-
-    print("\n📄 CV Tiếng Việt:", score_education(cv_text_vi, jd_text, target_description))
-    print("\n📄 CV Tiếng Anh:", score_education(cv_text_en, jd_text, target_description))

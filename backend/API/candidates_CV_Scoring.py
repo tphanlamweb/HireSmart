@@ -1,6 +1,10 @@
 import re
 from typing import Dict
 import os
+from langdetect import detect
+import json
+import scoring.education_scoring as ec
+
 
 
 def clean_text(text: str) -> str:
@@ -85,12 +89,35 @@ def get_last_candidate(file_path: str) -> Dict[str, str]:
     last_block = blocks[-1]
     return parse_candidate_block(last_block)
 
+def scoring_education(e_data):
+    jd_text = "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing."
+    target_description = "Ứng viên có trình độ đại học hoặc cao hơn trong lĩnh vực quản trị kinh doanh, tài chính, marketing hoặc công nghệ thông tin"
+    print("e data = ",e_data)
+    print("\njd text: ", jd_text, "\n\ntarget description: ", target_description,"\n")
+    return ec.score_education(e_data, jd_text, target_description)
+
+
+def detect_language(text: str) -> str:
+    try:
+        lang = detect(text)
+        return lang  # 'vi', 'en', 'fr', ...
+    except:
+        return 'unknown'
+
 
 if __name__ == "__main__":
     filename = 'demo_data.csv'
     file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f'../results/{filename}'))
     candidate = get_last_candidate(file_path)
-
+    
+    #print(detect_language(json.dumps(candidate, ensure_ascii=False)))
+    
     print("\n=== DỮ LIỆU ỨNG VIÊN CUỐI ===")
+
+    e_data = ''
     for key, value in candidate.items():
-        print(f"\n{key.upper()}:\n{value}")
+        if key == "education":
+            e_data = json.dumps(value, ensure_ascii=False)
+            
+    print("final education score:", scoring_education(e_data))
+    
