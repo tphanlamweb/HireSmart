@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(180deg, #1e5a8e 0%, #134168 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .logo-section {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-pic {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .profile-info h3 {
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .features-title {
+            font-size: 14px;
+            margin: 20px 0 10px;
+            opacity: 0.7;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .menu-item.active {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .menu-item .badge {
+            position: absolute;
+            right: 15px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background: #ff4444;
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 100px 30px 30px;
+            overflow-y: auto;
+        }
+
+        .top-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            background: white;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 24px;
+        }
+
+        .dropdown {
+            background: #2d4a8c;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .icon-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            font-size: 20px;
+        }
+
+        .icon-btn.notification {
+            background: #2d4a8c;
+            color: white;
+        }
+
+        .icon-btn.settings {
+            background: #ffc107;
+            color: white;
+        }
+
+        .icon-btn.messages {
+            background: #4caf50;
+            color: white;
+        }
+
+        .icon-btn .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .btn-create {
+            background: #ffc107;
+            color: #000;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-create:hover {
+            background: #ffca28;
+            transform: translateY(-2px);
+        }
+
+        .btn-list, .btn-news {
+            background: #e8eef7;
+            color: #000;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-list:hover, .btn-news:hover {
+            background: #d1ddef;
+        }
+
+        .back-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .stats-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .stats-header h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .stats-header p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2d4a8c;
+        }
+
+        .form-section h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #e8e8e8;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #000;
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #333;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-bar {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header style="background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: fixed; width: 100%; top: 0; z-index: 1000;">
+        <nav style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <img src="../templates/logo-2.png" alt="Logo" style="width: 100px; height: auto; object-fit: contain;">
+                <span style="font-size: 1.6rem; font-weight: bold; color: #2563eb;">HireSmart</span>
+            </div>
+            <ul style="display: flex; list-style: none; gap: 2rem;">
+                <li><a href="Home.html" style="text-decoration: none; color: #333; font-weight: 500;">Trang chủ</a></li>
+                <li><a href="Recruitment.html" style="text-decoration: none; color: #333; font-weight: 500;">Jobs</a></li>
+                <li><a href="Create_job.html" style="text-decoration: none; color: #2563eb; font-weight: 500;">Dashboard HR</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="logo">
+                <img src="../templates/logo-2.png" alt="HireSmart Logo" style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
+            </div>
+            <div class="profile">
+                <div class="profile-pic"></div>
+                <div class="profile-info">
+                    <h3>Name</h3>
+                    <p>Admin</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-title">Features</div>
+        
+        <div class="menu-item">
+            <span>📊</span>
+            <span>Dashboard</span>
+        </div>
+
+        <div class="menu-item">
+            <span>✉️</span>
+            <span>Messages</span>
+            <span class="badge">18</span>
+        </div>
+
+        <div class="menu-item active">
+            <span>💼</span>
+            <span>Jobs</span>
+        </div>
+
+        <div class="menu-item">
+            <span>👥</span>
+            <span>Candidates</span>
+        </div>
+
+        <div class="menu-item">
+            <span>📄</span>
+            <span>Resumes</span>
+        </div>
+
+        <div class="menu-item">
+            <span>📈</span>
+            <span>Report</span>
+        </div>
+
+        <button class="logout-btn">
+            <span>🔓</span>
+            <span>Log Out</span>
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <button class="menu-toggle">☰</button>
+            <select class="dropdown">
+                <option>Select Option</option>
+                <option>Option 1</option>
+                <option>Option 2</option>
+            </select>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <div class="icon-buttons">
+                <button class="icon-btn notification">
+                    🔔
+                    <span class="badge">3</span>
+                </button>
+                <button class="icon-btn settings">
+                    🔧
+                </button>
+                <button class="icon-btn messages">
+                    ✉️
+                    <span class="badge">18</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn-create" onclick="toggleForm()">Create new JD</button>
+            <button class="btn-list" onclick="window.location.href='Job_list.html'">Job List</button>
+            <button class="btn-news">News</button>
+        </div>
+
+        <button class="back-btn">Back</button>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="stats-header">
+                <h2>Job Management</h2>
+                <p>Create, manage, and track your job postings and CV applications.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Jobs</div>
+                    <div class="stat-value" id="totalJobs">3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Jobs</div>
+                    <div class="stat-value" id="activeJobs">3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total CVs Paid</div>
+                    <div class="stat-value" id="totalCVs">3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg CVs per Job</div>
+                    <div class="stat-value" id="avgCVs">3</div>
+                </div>
+            </div>
+
+            <!-- Create Job Form -->
+            <div class="form-section" id="jobForm">
+                <h3>Create New Job Description</h3>
+                <form onsubmit="handleSubmit(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Job Title</label>
+                            <input type="text" id="jobTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" id="department" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Salary</label>
+                            <input type="text" id="salary" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>CVs paid</label>
+                            <input type="number" id="cvsPaid" value="0" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Job Description</label>
+                            <textarea id="jobDescription" required></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">Create job</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check login status before allowing access to Dashboard
+        window.addEventListener('load', function() {
+            const user = localStorage.getItem('loggedInUser');
+            if (!user) {
+                alert('Bạn cần đăng nhập HR để truy cập Dashboard!');
+                window.location.href = '../html/Login.html';
+                return;
+            }
+            console.log('HR Dashboard accessed by:', user);
+        });
+
+        // Jobs data storage
+        let jobs = [
+            {id: 1, title: 'Senior Developer', status: 'active', cvs: 5},
+            {id: 2, title: 'Marketing Manager', status: 'active', cvs: 3},
+            {id: 3, title: 'HR Specialist', status: 'active', cvs: 2}
+        ];
+
+        // Update statistics
+        function updateStats() {
+            const totalJobs = jobs.length;
+            const activeJobs = jobs.filter(j => j.status === 'active').length;
+            const totalCVs = jobs.reduce((sum, j) => sum + j.cvs, 0);
+            const avgCVs = totalJobs > 0 ? Math.round(totalCVs / totalJobs) : 0;
+
+            document.getElementById('totalJobs').textContent = totalJobs;
+            document.getElementById('activeJobs').textContent = activeJobs;
+            document.getElementById('totalCVs').textContent = totalCVs;
+            document.getElementById('avgCVs').textContent = avgCVs;
+        }
+
+        // Toggle form visibility
+        function toggleForm() {
+            const form = document.getElementById('jobForm');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        // Handle form submission
+        function handleSubmit(event) {
+            event.preventDefault();
+            
+            const newJob = {
+                id: jobs.length + 1,
+                title: document.getElementById('jobTitle').value,
+                department: document.getElementById('department').value,
+                location: document.getElementById('location').value,
+                salary: document.getElementById('salary').value,
+                status: document.getElementById('status').value,
+                cvs: parseInt(document.getElementById('cvsPaid').value),
+                description: document.getElementById('jobDescription').value
+            };
+
+            jobs.push(newJob);
+            updateStats();
+
+            // Persist to localStorage for Recruitment page consumption
+            try {
+                const storageKey = 'createdJobs';
+                const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                existing.push({
+                    title: newJob.title,
+                    department: newJob.department,
+                    location: newJob.location,
+                    salary: newJob.salary,
+                    status: newJob.status,
+                    description: newJob.description
+                });
+                localStorage.setItem(storageKey, JSON.stringify(existing));
+            } catch (e) {
+                console.error('Failed to save job to localStorage', e);
+            }
+
+            alert('Job created successfully!');
+            event.target.reset();
+            // Navigate to Jobs page so the new posting is visible
+            window.location.href = 'Recruitment.html';
+        }
+
+        // Menu item click handler
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Logout functionality
+        document.querySelector('.logout-btn').addEventListener('click', function() {
+            localStorage.removeItem('loggedInUser');
+            window.location.href = '../html/Login.html';
+        });
+
+        // Initialize
+        updateStats();
+    </script>
+</body>
+</html>

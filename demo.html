@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuyển dụng - Ứng tuyển ngay</title>
+    <link rel="stylesheet" href="../Styles/recuitment.css">
+    <script src="../Styles/recuitment.js"></script>
+
+</head>
+<body>
+    <div class="container">
+        <!-- Landing Page -->
+        <div id="landingPage" class="landing-page">
+            <div class="hero">
+                <h1>Chào mừng đến với Công ty ABC</h1>
+                <p>Tìm kiếm cơ hội nghề nghiệp tuyệt vời và phát triển cùng chúng tôi!</p>
+                <button class="cta-button" onclick="showApplicationForm()">Ứng tuyển ngay</button>
+            </div>
+
+            <div class="job-list">
+                <h2>Các vị trí đang tuyển dụng</h2>
+                <div class="job-item">
+                    <h3>💼 Senior Backend Developer</h3>
+                    <p>📍 Hà Nội | 💰 Lương: Thỏa thuận | ⏰ Full-time</p>
+                    <button class="view-jd-btn" onclick="showJD('backend')">Xem mô tả công việc</button>
+                </div>
+                <div class="job-item">
+                    <h3>🎨 UI/UX Designer</h3>
+                    <p>📍 Hồ Chí Minh | 💰 Lương: Thỏa thuận | ⏰ Full-time</p>
+                    <button class="view-jd-btn" onclick="showJD('designer')">Xem mô tả công việc</button>
+                </div>
+                <div class="job-item">
+                    <h3>📱 Mobile Developer (React Native)</h3>
+                    <p>📍 Đà Nẵng | 💰 Lương: Thỏa thuận | ⏰ Full-time</p>
+                    <button class="view-jd-btn" onclick="showJD('mobile')">Xem mô tả công việc</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Form -->
+        <div id="applicationForm" class="application-form">
+            <h2>📝 Form Ứng Tuyển</h2>
+            <form id="candidateForm">
+                <div class="form-group">
+                    <label>Họ và tên <span class="required">*</span></label>
+                    <input type="text" id="fullName" required placeholder="Nhập họ tên đầy đủ">
+                </div>
+
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <input type="email" id="email" required placeholder="example@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại (Zalo) <span class="required">*</span></label>
+                    <input type="tel" id="phone" required placeholder="0123456789">
+                </div>
+
+                <div class="form-group">
+                    <label>Địa chỉ <span class="required">*</span></label>
+                    <input type="text" id="address" required placeholder="Nhập địa chỉ hiện tại">
+                </div>
+
+                <div class="form-group">
+                    <label>Vị trí ứng tuyển <span class="required">*</span></label>
+                    <select id="position" required>
+                        <option value="">-- Chọn vị trí --</option>
+                        <option value="backend">Senior Backend Developer</option>
+                        <option value="designer">UI/UX Designer</option>
+                        <option value="mobile">Mobile Developer (React Native)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload CV (PDF/DOCX) <span class="required">*</span></label>
+                    <div class="file-upload">
+                        <input type="file" id="cvFile" accept=".pdf,.doc,.docx" required onchange="displayFileName()">
+                        <label for="cvFile" class="file-upload-label">
+                            📎 Chọn file CV của bạn
+                        </label>
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="backToLanding()">Quay lại</button>
+                    <button type="submit" class="btn btn-primary">Nộp đơn ứng tuyển</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Confirmation Page -->
+        <div id="confirmationPage" class="confirmation-page">
+            <div class="success-icon">✓</div>
+            <h2>Nộp CV thành công!</h2>
+            <p>Cảm ơn bạn đã ứng tuyển vào công ty chúng tôi. Chúng tôi sẽ xem xét hồ sơ và liên hệ với bạn trong thời gian sớm nhất.</p>
+
+            <div class="review-section">
+                <h3>Thông tin ứng tuyển của bạn</h3>
+                <div class="review-item">
+                    <div class="review-label">Họ và tên:</div>
+                    <div class="review-value" id="reviewName"></div>
+                </div>
+                <div class="review-item">
+                    <div class="review-label">Email:</div>
+                    <div class="review-value" id="reviewEmail"></div>
+                </div>
+                <div class="review-item">
+                    <div class="review-label">Số điện thoại:</div>
+                    <div class="review-value" id="reviewPhone"></div>
+                </div>
+                <div class="review-item">
+                    <div class="review-label">Địa chỉ:</div>
+                    <div class="review-value" id="reviewAddress"></div>
+                </div>
+                <div class="review-item">
+                    <div class="review-label">Vị trí ứng tuyển:</div>
+                    <div class="review-value" id="reviewPosition"></div>
+                </div>
+                <div class="review-item">
+                    <div class="review-label">File CV:</div>
+                    <div class="review-value" id="reviewCV"></div>
+                </div>
+            </div>
+
+            <button class="cta-button" onclick="backToLanding()">Quay về trang chủ</button>
+        </div>
+    </div>
+
+    <!-- Modal for JD -->
+    <div id="jdModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeJD()">&times;</span>
+            <h2 id="jdTitle" style="color: #667eea; margin-bottom: 20px;"></h2>
+            <div id="jdContent"></div>
+        </div>
+    </div>
+</body>
+</html>
