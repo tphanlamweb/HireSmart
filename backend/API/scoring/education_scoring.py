@@ -12,7 +12,8 @@ degrees = {
     "phd": 100, "tiến sĩ": 100,
     "master": 80, "thạc sĩ": 80,
     "bachelor": 60, "đại học": 60,
-    "college": 40, "cao đẳng": 40
+    "college": 40, "cao đẳng": 40,
+    "phổ thông": 20, "trung cấp": 20
 }
 
 # Danh sách mẫu ngành học phổ biến (tiếng Việt + Anh)
