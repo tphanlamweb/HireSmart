@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidates Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header - Fixed */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .header .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header .logo-container img {
+            width: 100px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .header .logo-container span {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .header ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .header ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .header ul li a:hover,
+        .header ul li a.active {
+            color: #2563eb;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            margin-top: 80px;
+            flex: 1;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e5a8e 0%, #134168 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 80px;
+            bottom: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 999;
+            transform: translateX(-100%);
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .logo-section {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-pic {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-info h3 {
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .features-title {
+            font-size: 14px;
+            margin: 20px 0 10px;
+            opacity: 0.7;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.active {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .menu-item .badge {
+            position: absolute;
+            right: 15px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background: #ff4444;
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            padding: 30px;
+            overflow-y: auto;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Desktop only - shift content when sidebar open */
+        @media (min-width: 769px) {
+            .main-content.with-sidebar {
+                margin-left: 280px;
+            }
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .menu-toggle {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown {
+            background: #2d4a8c;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            transition: width 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: visible;
+        }
+
+        .search-container.expanded {
+            width: 350px;
+        }
+
+        .search-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: 12px 20px 12px 55px;
+            border: 2px solid #245ee6;
+            border-radius: 25px;
+            font-size: 16px;
+            background: white;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .search-container.expanded .search-input {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #2d4a8c;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 2;
+            background: white;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid #245ee6;
+            transition: all 0.3s ease;
+        }
+
+        .search-container.expanded .search-icon {
+            border-radius: 25px 0 0 25px;
+            border-right: none;
+        }
+
+        .icon-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .icon-btn.notification {
+            background: #2d4a8c;
+            color: white;
+        }
+
+        .icon-btn.settings {
+            background: #ffc107;
+            color: white;
+        }
+
+        .icon-btn.messages {
+            background: #4caf50;
+            color: white;
+        }
+
+        .icon-btn .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-create {
+            background: #ffc107;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-create:hover {
+            background: #ffca28;
+            transform: translateY(-2px);
+        }
+
+        .btn-list,
+        .btn-news {
+            background: #e8eef7;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-list:hover,
+        .btn-news:hover {
+            background: #d1ddef;
+        }
+
+        .back-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #45a049;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-header h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .stats-header p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2d4a8c;
+        }
+
+        /* Form Section */
+        .form-section {
+            display: block;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-section h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #e8e8e8;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #000;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #333;
+        }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .header ul {
+                gap: 1rem;
+            }
+
+            .header ul li a {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header nav {
+                padding: 0.8rem 1rem;
+            }
+
+            .header .logo-container img {
+                width: 60px;
+            }
+
+            .header .logo-container span {
+                font-size: 1.2rem;
+            }
+
+            .header ul {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .main-content.with-sidebar {
+                margin-left: 0;
+            }
+
+            .top-bar {
+                gap: 10px;
+            }
+
+            .search-container {
+                width: 45px;
+                height: 45px;
+            }
+
+            .search-container.expanded {
+                position: fixed;
+                top: 90px;
+                left: 10px;
+                right: 10px;
+                width: calc(100% - 20px);
+                z-index: 1001;
+            }
+
+            .search-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+
+            .icon-buttons {
+                gap: 5px;
+            }
+
+            .icon-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .action-buttons {
+                gap: 10px;
+            }
+
+            .btn-create,
+            .btn-list,
+            .btn-news,
+            .back-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-section {
+                padding: 20px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav>
+            <div class="logo-container">
+                <img src="../templates/logo-2.png" alt="Logo">
+                <span>HireSmart</span>
+            </div>
+            <ul>
+                <li><a href="Home.html">Trang chủ</a></li>
+                <li><a href="Recruitment.html">Jobs</a></li>
+                <li><a href="Create_job.html" class="active">Dashboard HR</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="../templates/logo-2.png" alt="HireSmart Logo"
+                        style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
+                </div>
+                <div class="profile">
+                    <div class="profile-pic"></div>
+                    <div class="profile-info">
+                        <h3>Name</h3>
+                        <p>Admin</p>
+                    </div>
+                </div>
+            </div>
+            <div class="features-title">Features</div>
+            <div class="menu-item">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item">
+                <span>✉️</span>
+                <span>Messages</span>
+                <span class="badge">18</span>
+            </div>
+            <div class="menu-item active">
+                <span>💼</span>
+                <span>Jobs</span>
+            </div>
+            <div class="menu-item">
+                <span>👥</span>
+                <span>Candidates</span>
+            </div>
+            <div class="menu-item">
+                <span>📄</span>
+                <span>Resumes</span>
+            </div>
+            <div class="menu-item">
+                <span>📈</span>
+                <span>Report</span>
+            </div>
+            <button class="logout-btn">
+                <span>🔓</span>
+                <span>Log Out</span>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+
+            </div>
+
+
+            <!-- Stats Section -->
+<!-- Candidate Management Section -->
+<div class="stats-section">
+  <div class="stats-header">
+    <h2>Candidate Management</h2>
+    <p>Filter, search, and manage all candidate CVs in one place.</p>
+  </div>
+
+  <!-- Filter Buttons -->
+  <div class="action-buttons">
+    <button class="btn-list" onclick="filterByStatus('all')">All</button>
+    <button class="btn-list" onclick="filterByStatus('suitable')">Suitable</button>
+    <button class="btn-list" onclick="filterByStatus('inviting')">Inviting</button>
+    <button class="btn-list" onclick="filterByStatus('accepted')">Accepted</button>
+    <button class="btn-list" onclick="filterByStatus('rejected')">Rejected</button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="top-bar" style="margin-top: 20px;">
+    <input 
+      type="text" 
+      id="candidateSearchInput" 
+      placeholder="Search by name, points, experience..." 
+      style="flex:1; padding: 10px; border:1px solid #ccc; border-radius:8px;"
+    >
+  </div>
+
+  <!-- Candidate Table -->
+  <div style="overflow-x: auto; margin-top: 20px;">
+    <table id="candidateTable" style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background:#2d4a8c; color:white; text-align:left;">
+          <th style="padding:12px;">Name</th>
+          <th style="padding:12px;">CV Points</th>
+          <th style="padding:12px;">Experience Summary</th>
+          <th style="padding:12px; text-align:center;">Preview</th>
+          <th style="padding:12px; text-align:center;">Detail</th>
+        </tr>
+      </thead>
+      <tbody id="candidateTableBody">
+        <!-- JS sẽ render dữ liệu -->
+      </tbody>
+    </table>
+  </div>
+</div>
+        </div>
+    </div>
+
+    <script>
+        // Check login status before allowing access to Dashboard
+        window.addEventListener('load', function () {
+            const user = localStorage.getItem('loggedInUser');
+            if (!user) {
+                alert('Bạn cần đăng nhập HR để truy cập Dashboard!');
+                window.location.href = '../html/Login.html';
+                return;
+            }
+            console.log('HR Dashboard accessed by:', user);
+        });
+
+        // Menu toggle functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        let sidebarOpen = false;
+
+        menuToggle.addEventListener('click', function () {
+            sidebarOpen = !sidebarOpen;
+
+            if (sidebarOpen) {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                // Only shift content on desktop
+                if (window.innerWidth > 768) {
+                    mainContent.classList.add('with-sidebar');
+                }
+            } else {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                mainContent.classList.remove('with-sidebar');
+            }
+        });
+
+        // Close sidebar when clicking overlay
+        sidebarOverlay.addEventListener('click', function () {
+            sidebarOpen = false;
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            mainContent.classList.remove('with-sidebar');
+        });
+
+        // Search functionality
+        const searchContainer = document.getElementById('searchContainer');
+        const searchIcon = document.getElementById('searchIcon');
+        const searchInput = document.getElementById('searchInput');
+        let searchOpen = false;
+
+        searchIcon.addEventListener('click', function (e) {
+            e.stopPropagation();
+            searchOpen = !searchOpen;
+
+            if (searchOpen) {
+                searchContainer.classList.add('expanded');
+                setTimeout(() => {
+                    searchInput.focus();
+                }, 300);
+            } else {
+                searchContainer.classList.remove('expanded');
+                searchInput.value = '';
+            }
+        });
+
+        // Close search when clicking outside
+        document.addEventListener('click', function (e) {
+            if (searchOpen && !searchContainer.contains(e.target)) {
+                searchOpen = false;
+                searchContainer.classList.remove('expanded');
+                searchInput.value = '';
+            }
+        });
+
+        // Jobs data
+        let jobs = [
+            { id: 1, title: 'Senior Developer', status: 'active', cvs: 5 },
+            { id: 2, title: 'Marketing Manager', status: 'active', cvs: 3 },
+            { id: 3, title: 'HR Specialist', status: 'active', cvs: 2 }
+        ];
+
+        // Update statistics
+        function updateStats() {
+            const totalJobs = jobs.length;
+            const activeJobs = jobs.filter(j => j.status === 'active').length;
+            const totalCVs = jobs.reduce((sum, j) => sum + j.cvs, 0);
+            const avgCVs = totalJobs > 0 ? Math.round(totalCVs / totalJobs) : 0;
+
+            document.getElementById('totalJobs').textContent = totalJobs;
+            document.getElementById('activeJobs').textContent = activeJobs;
+            document.getElementById('totalCVs').textContent = totalCVs;
+            document.getElementById('avgCVs').textContent = avgCVs;
+        }
+
+        // Toggle form visibility
+        function toggleForm() {
+            const form = document.getElementById('jobForm');
+            form.classList.toggle('active');
+        }
+
+        // Handle form submission
+        function handleSubmit(event) {
+            event.preventDefault();
+            const newJob = {
+                id: jobs.length + 1,
+                title: document.getElementById('jobTitle').value,
+                department: document.getElementById('department').value,
+                location: document.getElementById('location').value,
+                salary: document.getElementById('salary').value,
+                status: document.getElementById('status').value,
+                cvs: parseInt(document.getElementById('cvsPaid').value),
+                description: document.getElementById('jobDescription').value
+            };
+
+            jobs.push(newJob);
+            updateStats();
+
+            // Persist to localStorage
+            try {
+                const storageKey = 'createdJobs';
+                const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                existing.push({
+                    title: newJob.title,
+                    department: newJob.department,
+                    location: newJob.location,
+                    salary: newJob.salary,
+                    status: newJob.status,
+                    description: newJob.description
+                });
+                localStorage.setItem(storageKey, JSON.stringify(existing));
+            } catch (e) {
+                console.error('Failed to save job to localStorage', e);
+            }
+
+            alert('Job created successfully!');
+            event.target.reset();
+            window.location.href = 'Recruitment.html';
+        }
+
+        // Menu item click handler
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function () {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Logout functionality
+        document.querySelector('.logout-btn').addEventListener('click', function () {
+            localStorage.removeItem('loggedInUser');
+            window.location.href = '../html/Login.html';
+        });
+
+        // Initialize
+        updateStats();
+
+// Giả lập dữ liệu từ Python (thực tế bạn sẽ fetch từ API)
+let allCandidates = [
+  { id: 1, name: "Nguyen Van A", cv_points: 850, experience_summary: "3 years in frontend development", status: "suitable" },
+  { id: 2, name: "Tran Thi B", cv_points: 920, experience_summary: "Senior backend engineer", status: "accepted" },
+  { id: 3, name: "Le Van C", cv_points: 780, experience_summary: "Marketing & Sales", status: "inviting" },
+  { id: 4, name: "Pham D", cv_points: 600, experience_summary: "Intern - Data analyst", status: "rejected" }
+];
+
+// Trạng thái hiện tại đang lọc
+let currentStatusFilter = 'all';
+
+// Hàm render bảng
+function renderTable(data) {
+  const tbody = document.getElementById('candidateTableBody');
+  tbody.innerHTML = '';
+
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding:12px; text-align:center;">No candidates found</td></tr>`;
+    return;
+  }
+
+  data.forEach(c => {
+    const row = document.createElement('tr');
+    row.style.borderBottom = '1px solid #eee';
+
+    row.innerHTML = `
+      <td style="padding:12px;">${c.name}</td>
+      <td style="padding:12px;">${c.cv_points}</td>
+      <td style="padding:12px;">${c.experience_summary}</td>
+      <td style="padding:12px; text-align:center;">
+        <button title="Preview CV" onclick="previewCV(${c.id})">👁</button>
+      </td>
+      <td style="padding:12px; text-align:center;">
+        <button title="Detail" onclick="viewDetail(${c.id})">📄</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// Hàm lọc theo status
+function filterByStatus(status) {
+  currentStatusFilter = status;
+  applyFilters();
+}
+
+// Hàm tìm kiếm + lọc kết hợp
+function applyFilters() {
+  const keyword = document.getElementById('candidateSearchInput').value.toLowerCase();
+
+  const filtered = allCandidates.filter(c => {
+    const matchStatus = currentStatusFilter === 'all' || c.status === currentStatusFilter;
+    const matchKeyword = 
+      c.name.toLowerCase().includes(keyword) ||
+      String(c.cv_points).includes(keyword) ||
+      c.experience_summary.toLowerCase().includes(keyword);
+
+    return matchStatus && matchKeyword;
+  });
+
+  renderTable(filtered);
+}
+
+// Preview CV
+function previewCV(id) {
+  const candidate = allCandidates.find(c => c.id === id);
+  alert(`👁 Preview CV for: ${candidate.name}`);
+  // Có thể mở modal hoặc trang mới hiển thị PDF
+}
+
+// View Detail
+function viewDetail(id) {
+  const candidate = allCandidates.find(c => c.id === id);
+  alert(`📄 Detail for: ${candidate.name}`);
+  // Có thể chuyển hướng tới trang detail.html?id=...
+}
+
+// Lắng nghe sự kiện search
+document.getElementById('candidateSearchInput').addEventListener('input', applyFilters);
+
+// Giả lập gọi API từ Python backend
+async function loadCandidates() {
+  // Ví dụ:
+  // const res = await fetch('/api/candidates');
+  // allCandidates = await res.json();
+  renderTable(allCandidates);
+}
+
+// Khởi tạo
+loadCandidates();
+
+
+    </script>
+</body>
+
+</html>
