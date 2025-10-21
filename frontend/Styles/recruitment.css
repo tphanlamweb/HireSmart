@@ -222,7 +222,7 @@ nav {
 
 .file-upload input[type="file"] {
     position: absolute;
-    left: -9999px;
+    visibility: hidden;
 }
 
 .file-upload-label {

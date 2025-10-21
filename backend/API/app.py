@@ -38,7 +38,7 @@ app.include_router(sc)
 # Route gốc trả về index.html nếu tồn tại, else trả thông báo
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    index_path = FRONTEND_DIR / "apply_form.html"
+    index_path = FRONTEND_DIR / "Recruitment.html"
     if index_path.exists():
         return FileResponse(str(index_path))
     return HTMLResponse("<pre>API is running. Use /upload_cv to submit PDF CV.</pre>")
