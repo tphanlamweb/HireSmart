@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <script src="../Styles/recruitment.js" defer></script>
 
 </head>
+
 <body>
     <!-- Header -->
     <header id="header">
@@ -57,7 +59,7 @@
         <!-- Application Form -->
         <div id="applicationForm" class="application-form">
             <h2>📝 Form Ứng Tuyển</h2>
-            <form id="candidateForm">
+            <form id="candidateForm" action="">
                 <div class="form-group">
                     <label>Họ và tên <span class="required">*</span></label>
                     <input type="text" id="fullName" required placeholder="Nhập họ tên đầy đủ" >
@@ -65,18 +67,15 @@
 
                 <div class="form-group">
                     <label>Email <span class="required">*</span></label>
-                    <input type="email" id="email" required placeholder="example@email.com">
+                    <input type="email" id="email" required placeholder="example@email.com" >
                 </div>
 
                 <div class="form-group">
                     <label>Số điện thoại (Zalo) <span class="required">*</span></label>
-                    <input type="tel" id="phone" required placeholder="0123456789">
+                    <input type="tel" id="phone" pattern="[0-9]{10}"
+                        required placeholder="0123456789" >
                 </div>
 
-                <div class="form-group">
-                    <label>Địa chỉ <span class="required">*</span></label>
-                    <input type="text" id="address" required placeholder="Nhập địa chỉ hiện tại">
-                </div>
 
                 <div class="form-group">
                     <label>Vị trí ứng tuyển <span class="required">*</span></label>
@@ -91,17 +90,18 @@
                 <div class="form-group">
                     <label>Upload CV (PDF/DOCX) <span class="required">*</span></label>
                     <div class="file-upload">
-                        <input type="file" id="cvFile" accept=".pdf,.doc,.docx" required onchange="displayFileName()">
-                        <label for="cvFile" class="file-upload-label">
+                        <label for="cvFile" class="file-upload-label" >
                             📎 Chọn file CV của bạn
                         </label>
+                        <input type="file" id="cvFile" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" required onchange="displayFileName()">
+
                         <div class="file-name" id="fileName"></div>
                     </div>
                 </div>
 
                 <div class="btn-group">
-                    <button type="button" class="btn btn-secondary" onclick="backToLanding()">Quay lại</button>
-                    <button type="submit" class="btn btn-primary">Nộp đơn ứng tuyển</button>
+                    <button class="btn btn-secondary" onclick="backToLanding()">Quay lại</button>
+                    <button class="btn btn-primary" type="submit">Nộp đơn ứng tuyển</button>
                 </div>
             </form>
         </div>
@@ -110,7 +110,8 @@
         <div id="confirmationPage" class="confirmation-page">
             <div class="success-icon">✓</div>
             <h2>Nộp CV thành công!</h2>
-            <p>Cảm ơn bạn đã ứng tuyển vào công ty chúng tôi. Chúng tôi sẽ xem xét hồ sơ và liên hệ với bạn trong thời gian sớm nhất.</p>
+            <p>Cảm ơn bạn đã ứng tuyển vào công ty chúng tôi. Chúng tôi sẽ xem xét hồ sơ và liên hệ với bạn trong thời
+                gian sớm nhất.</p>
 
             <div class="review-section">
                 <h3>Thông tin ứng tuyển của bạn</h3>
@@ -155,85 +156,6 @@
 </body>
 
 <script>
-(function () {
-        const form = document.getElementById('candidateForm');
-        const cvFile = document.getElementById('cvFile');
-        const apiUrlInput = 'http://127.0.0.1:8000';
-
-        // Thiết lập URL mặc định
-        try {
-            const defaultOrigin = window.location.origin;
-            if (defaultOrigin && defaultOrigin.startsWith('http')) {
-                apiUrlInput.value = '8000';
-            } else {
-                apiUrlInput.value = 'http://127.0.0.1:8000';
-            }
-        } catch (_) {
-            apiUrlInput.value = 'http://127.0.0.1:8000';
-        }
-
-        function setResult(message, type = 'info') {
-            resultEl.className = `result ${type}`;
-            resultEl.textContent = message;
-        }
-
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const file = cvFile.files && cvFile.files[0];
-            if (!file) {
-                setResult('Vui lòng chọn một file.', 'error');
-                return;
-            }
-
-            // Kiểm tra định dạng được phép
-            const allowedExt = ['.pdf', '.png', '.jpg', '.jpeg', '.docx'];
-            const fileName = file.name.toLowerCase();
-            const isValid = allowedExt.some(ext => fileName.endsWith(ext));
-            if (!isValid) {
-                setResult('Định dạng file không hợp lệ. Chỉ chấp nhận: PDF, PNG, JPG, DOCX.', 'error');
-                return;
-            }
-
-            const defaultOrigin = window.location.origin.includes('8000')
-                ? window.location.origin
-                : 'http://127.0.0.1:8000';
-
-            const baseUrl = apiUrlInput.value = defaultOrigin;
-            const endpoint = `${baseUrl}/upload_cv`;
-            console.log("Gửi request tới:", endpoint);
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            setResult('Đang tải lên...', 'info');
-
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const contentType = response.headers.get('content-type') || '';
-                if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(text || `HTTP ${response.status}`);
-                }
-
-                if (contentType.includes('application/json')) {
-                    const data = await response.json();
-                    const preview = data.text ? `\n\nXem trước nội dung (tối đa 500 ký tự):\n${data.text}` : '';
-                    setResult((data.message || 'Tải lên thành công.') + preview, 'success');
-                } else {
-                    const text = await response.text();
-                    setResult(text || 'Tải lên thành công.', 'success');
-                }
-            } catch (err) {
-                setResult(`Lỗi: ${err.message || err}`, 'error');
-                console.error(err);
-            }
-        });
-    })();
-
 
 </script>
 

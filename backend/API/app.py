@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from API.Scan_CV import router as sc
+from API.scan_CV import router as sc
 # Import router từ file Scan_CV (giả sử scan router khai báo: router = APIRouter() trong Scan_CV.py)
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -23,8 +23,7 @@ app.add_middleware(
 )
 
 # Mount thư mục frontend để truy cập file tĩnh (ví dụ: /frontend/index.html hoặc /frontend/Styles/style.css)
-if FRONTEND_DIR.exists():
-    app.mount("/frontend", StaticFiles(directory=str(FRONTEND_DIR)), name="frontend")
+
 
 # Nếu bạn có thư mục static bên trong frontend (ví dụ frontend/static), có thể mount thêm:
 STATIC_DIR = FRONTEND_DIR / "static"

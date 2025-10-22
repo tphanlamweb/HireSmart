@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.staticfiles import StaticFiles
 import httpx, json, re, pdfplumber, base64, os
 from PIL import Image
@@ -122,18 +122,15 @@ Hãy phân tích và trả về đúng JSON, KHÔNG có giải thích.
 - Các đoạn văn bản nên giữ đúng câu, không tự ý chèn khoảng trắng sau dấu chấm.
 - phần references mỗi thông tin cách nhau bằng dấu |
 - Chỉ trả về các trường sau(nếu không có dữ liệu thì đặt "n/a"):
-    1. full_name
-    2. phone
-    3. email
-    4. contact
-    5. experience
-    6. education
-    7. hard_skills
-    8. soft_skills
-    9. activities
-    10. certificates
-    11. tools
-    12. cv_summary
+    1. address
+    2. experience
+    3. education
+    4. hard_skills
+    5. soft_skills
+    6. activities
+    7. certificates
+    8. tools
+    9. cv_summary
     """
 
     json_schema_hint = {
@@ -211,7 +208,6 @@ Hãy phân tích và trả về đúng JSON, KHÔNG có giải thích.
 def extract_with_regex(full_text: str) -> dict:
     email_match = re.search(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", full_text)
     phone_match = re.search(r"(?:\+?84|0)(?:\s|\.)?(?:\d{3})(?:\s|\.)?\d{3}(?:\s|\.)?\d{3,4}", full_text)
-    name = ""
     first_lines = [ln.strip() for ln in full_text.splitlines()[:10] if ln.strip()]
     for ln in first_lines:
         if (email_match and email_match.group(0) in ln) or (phone_match and phone_match.group(0) in ln):
@@ -220,14 +216,22 @@ def extract_with_regex(full_text: str) -> dict:
             name = ln
             break
     return {
-        "full_name": name
+        "name": name if 'name' in locals() else "",
+        "email": email_match.group(0) if email_match else "",
+        "phone": phone_match.group(0) if phone_match else ""
     }
 
 # ==========================
 # 3️⃣ Upload & xử lý
 # ==========================
 @router.post("/upload_cv")
-async def upload_cv(file: UploadFile = File(...)):
+async def upload_cv(
+    fullName : str = Form(...),
+    email : str = Form(...),
+    phone : str = Form(...),
+    position : str = Form(...),
+    file: UploadFile = File(...)):
+    
     filename = file.filename.lower()
     file_bytes = await file.read()
     text_content = ""
@@ -263,12 +267,17 @@ async def upload_cv(file: UploadFile = File(...)):
 
     # Gộp kết quả
     record = {
+        
         "filename": filename,
         "file_size": len(file_bytes),
         "mimetype": mime_type,
         "cv_summary": "",
         **{k: "" for k in fallback_info.keys()},
         **{k: "" for k in parsed_info.keys()},
+        "name": fullName,
+        "email": email,
+        "phone": phone,
+        "position": position
     }
 
     for k, v in parsed_info.items():

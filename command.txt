@@ -1,4 +1,4 @@
 uvicorn:
-    uvicorn API.app:app --reload
+    uvicorn API.app:app
 
     

@@ -221,8 +221,7 @@ nav {
 }
 
 .file-upload input[type="file"] {
-    position: absolute;
-    visibility: hidden;
+    visibility: visible;
 }
 
 .file-upload-label {
@@ -234,6 +233,8 @@ nav {
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
+    width: 100%;
+    position: absolute;
 }
 
 .file-upload-label:hover {
