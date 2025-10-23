@@ -6,7 +6,7 @@ Tự động kết nối và phản chiếu (reflect) các bảng có sẵn tron
 """
 
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy import create_engine, MetaData, Table, select
 from sqlalchemy.orm import sessionmaker, Session
 
 # ============================================================
@@ -108,4 +108,8 @@ def root():
 
 
 datatable = metadata.tables["audit_logs"]  # ⚠️ Đổi tên bảng ở đây
-print( "audit_log tables: \n",datatable.columns.keys())  # In ra tên các cột của bảng
+print( "audit_log tables: \n")  # In ra tên các cột của bảng
+conn = engine.connect()
+for row in conn.execute(select(datatable)).fetchall():
+    print(row)
+
