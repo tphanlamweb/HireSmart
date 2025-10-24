@@ -78,6 +78,7 @@ def score_education_semantic(cv_text: str, target_description: str) -> float:
 
 # ===== Kết hợp =====
 def score_education(cv_text: str, jd_text: str, target_description: str) -> float:
+    print("education scoring:")
     relevant_keywords = generate_relevant_keywords(jd_text)
 
     rule_score = score_education_rule(cv_text, relevant_keywords)

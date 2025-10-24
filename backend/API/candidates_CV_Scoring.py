@@ -120,4 +120,3 @@ if __name__ == "__main__":
             e_data = json.dumps(value, ensure_ascii=False)
             
     print("final education score:", scoring_education(e_data))
-    

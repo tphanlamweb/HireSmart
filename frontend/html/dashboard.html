@@ -953,10 +953,10 @@
             }
         }
 
-    .top-bar h2 {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
+        .top-bar h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
@@ -1134,9 +1134,13 @@
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
-                            <tbody id="candidatesBody">
-                                <!-- Data will be inserted here -->
-                            </tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.user_id }}</td>
+                                <td>{{ user.action }}</td>
+                            </tr>
+                            {% endfor %}
                         </table>
                     </div>
                     <div id="emptyState" class="empty-state" style="display: none;">

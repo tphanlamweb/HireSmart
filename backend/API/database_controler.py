@@ -1,22 +1,9 @@
-"""
-=============================================
-🔗 FastAPI + SQLAlchemy Reflection + MySQL
-Tự động kết nối và phản chiếu (reflect) các bảng có sẵn trong cơ sở dữ liệu.
-=============================================
-"""
-
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import create_engine, MetaData, Table, select
 from sqlalchemy.orm import sessionmaker, Session
 
-# ============================================================
-# 1️⃣ CẤU HÌNH KẾT NỐI DATABASE (Connect String)
-# ------------------------------------------------------------
-# Mẫu connect string chuẩn:
-#   mysql+pymysql://<username>:<password>@<host>:<port>/<database_name>
-# Thay đổi thông tin bên dưới cho phù hợp với máy bạn
-# ============================================================
 
+#   mysql+pymysql://<username>:<password>@<host>:<port>/<database_name>
 DB_USER = "root"                # 🧑‍💻 Tên user MySQL
 DB_PASSWORD = "tPhan186%40"          # 🔑 Mật khẩu MySQL
 DB_HOST = "localhost"           # 🖥️  Địa chỉ server (hoặc IP)
@@ -28,24 +15,11 @@ DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB
 # Tạo engine kết nối đến MySQL
 engine = create_engine(DATABASE_URL)
 
-# ============================================================
-# 2️⃣ TỰ ĐỘNG TẢI CẤU TRÚC CÁC BẢNG CÓ SẴN (REFLECTION)
-# ------------------------------------------------------------
-# MetaData() giúp lưu trữ cấu trúc các bảng trong DB
-# reflect() sẽ quét toàn bộ các bảng hiện có
-# ============================================================
 
 metadata = MetaData()
 metadata.reflect(bind=engine)  # 🔍 Tự động tải cấu trúc tất cả bảng có sẵn
 
-# Kiểm tra xem đã load được bảng nào (có thể in ra để debug)
-print("✅ Loaded tables:", metadata.tables.keys())
 
-# ============================================================
-# 3️⃣ TẠO SESSION LÀM VIỆC VỚI DATABASE
-# ------------------------------------------------------------
-# SessionLocal giúp bạn mở/đóng kết nối với DB khi thực hiện query
-# ============================================================
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -57,18 +31,11 @@ def get_db():
     finally:
         db.close()
 
-# ============================================================
-# 4️⃣ KHỞI TẠO ỨNG DỤNG FASTAPI
-# ============================================================
+
 
 app = FastAPI(title="FastAPI + MySQL Reflection Example")
 
-# ============================================================
-# 5️⃣ VÍ DỤ CỤ THỂ: LẤY DỮ LIỆU TỪ BẢNG CÓ SẴN
-# ------------------------------------------------------------
-# Bạn chỉ cần đổi tên bảng trong dòng:
-#     users_table = metadata.tables["<tên_bảng_của_bạn>"]
-# ============================================================
+
 
 @app.get("/users")
 def read_users(db: Session = Depends(get_db)):
@@ -107,9 +74,9 @@ def root():
     return {"database": DB_NAME, "tables": list(metadata.tables.keys())}
 
 
-datatable = metadata.tables["audit_logs"]  # ⚠️ Đổi tên bảng ở đây
-print( "audit_log tables: \n")  # In ra tên các cột của bảng
+datatable = metadata.tables["candidates"]  # ⚠️ Đổi tên bảng ở đây
+print( "candidates tables: \n")  # In ra tên các cột của bảng
 conn = engine.connect()
-for row in conn.execute(select(datatable)).fetchall():
+for row in conn.execute(select(datatable.c.id,datatable.c.full_name,datatable.c.phone)).fetchall():
     print(row)
 
