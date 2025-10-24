@@ -644,6 +644,101 @@
                 font-size: 24px;
             }
         }
+
+        .user-menu {
+    position: relative;
+    list-style: none;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: #444;
+    font-weight: 500;
+  }
+  
+  .user-info i {
+    font-size: 1.3rem;
+    color: #666;
+  }
+  
+  .dropdown {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    width: 160px;
+    z-index: 100;
+  }
+  
+  .dropdown a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+  }
+  
+  .dropdown a:hover {
+    background: #f5f5f5;
+  }
+  
+  .user-menu.active .dropdown {
+    display: block;
+  }
+
+  /* Language Selector */
+  .language-menu {
+    position: relative;
+  }
+
+  .language-selector {
+    cursor: pointer;
+    padding: 10px 15px;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .language-selector:hover {
+    background-color: #f5f5f5;
+  }
+
+  .language-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    min-width: 150px;
+    z-index: 1000;
+    display: none;
+    overflow: hidden;
+  }
+
+  .language-selector:hover .language-dropdown {
+    display: block;
+  }
+
+  .lang-option {
+    padding: 12px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s;
+  }
+
+  .lang-option:hover {
+    background-color: #f5f5f5;
+  }
     </style>
 </head>
 
@@ -659,6 +754,23 @@
                 <li><a href="Home.html">Trang chủ</a></li>
                 <li><a href="Recruitment.html">Jobs</a></li>
                 <li><a href="Create_job.html" class="active">Dashboard HR</a></li>
+                <li class="language-menu">
+                    <div class="language-selector">
+                        <span id="currentLang">🇻🇳</span>
+                        <div class="language-dropdown">
+                            <div class="lang-option" data-lang="vi" data-flag="🇻🇳">Tiếng Việt</div>
+                            <div class="lang-option" data-lang="en" data-flag="🇺🇸">English</div>
+                        </div>
+                    </div>
+                </li>
+                <li class="user-menu"><a href="#" class="login-btn" onclick="handleHRLogin(event)"
+                        data-i18n="nav.hr_login">Đăng nhập HR</a>
+                    <div class="dropdown" id="dropdownMenu">
+                        <a href="#">Tài Khoản Của Tôi</a>
+                        <a href="Create_job.html" id="dashboardBtn">Dashboard HR</a>
+                        <a href="#" id="logoutBtn">Đăng Xuất</a>
+                    </div>
+                </li>
             </ul>
         </nav>
     </header>
@@ -705,6 +817,10 @@
                 <span>📈</span>
                 <span>Report</span>
             </div>
+            <div class = "menu-item">
+                <span>🔔</span>
+                <span>Notification</span>
+            </div>
             <button class="logout-btn">
                 <span>🔓</span>
                 <span>Log Out</span>
@@ -719,15 +835,7 @@
             <!-- Top Bar -->
             <div class="top-bar">
                 <button class="menu-toggle" id="menuToggle">☰</button>
-                <select class="dropdown">
-                    <option>Select Option</option>
-                    <option>Option 1</option>
-                    <option>Option 2</option>
-                </select>
-                <div class="search-container" id="searchContainer">
-                    <div class="search-icon" id="searchIcon">🔍</div>
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search...">
-                </div>
+
                 <div class="icon-buttons">
                     <button class="icon-btn notification">
                         🔔
@@ -743,13 +851,7 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="btn-create" onclick="toggleForm()">Create new JD</button>
-                <button class="btn-list" onclick="window.location.href='Job_list.html'">Job List</button>
-                <button class="btn-news">News</button>
-            </div>
-            <button class="back-btn">Back</button>
+
 
             <!-- Stats Section -->
             <div class="stats-section">
@@ -757,6 +859,18 @@
                     <h2>Job Management</h2>
                     <p>Create, manage, and track your job postings and CV applications.</p>
                 </div>
+                            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn-create" onclick="toggleForm()">Create new JD</button>
+                <button class="btn-list" onclick="window.location.href='Job_list.html'">Job List</button>
+                <button class="btn-news">News</button>
+
+                <div class="search-container" id="searchContainer">
+                    <div class="search-icon" id="searchIcon">🔍</div>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+                </div>
+            </div>
+
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-label">Total Jobs</div>
@@ -977,6 +1091,53 @@
 
         // Initialize
         updateStats();
+
+    function handleHRLogin(event) {
+    event.preventDefault();
+    // Chuyển đến trang dashboard HR
+    window.location.href = "../html/Login.html";
+    // Hoặc hiển thị form đăng nhập
+    // showLoginForm();
+}
+// Language management
+let currentLanguage = localStorage.getItem('language') || 'vi';
+
+function setLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem('language', lang);
+    updateLanguageUI();
+    translatePage();
+}
+
+function updateLanguageUI() {
+    const currentLangSpan = document.getElementById('currentLang');
+    if (currentLangSpan) {
+        currentLangSpan.textContent = currentLanguage === 'vi' ? '🇻🇳' : '🇺🇸';
+    }
+}
+
+function translatePage() {
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[currentLanguage] && translations[currentLanguage][key]) {
+            element.textContent = translations[currentLanguage][key];
+        }
+    });
+}
+// Initialize language system
+function initializeLanguage() {
+    updateLanguageUI();
+    translatePage();
+    
+    // Add click handlers for language options
+    document.querySelectorAll('.lang-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const lang = this.getAttribute('data-lang');
+            setLanguage(lang);
+        });
+    });
+}
     </script>
 </body>
 

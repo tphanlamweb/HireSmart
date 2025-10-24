@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from API.scan_CV import router as sc
+from API.dashboard import router as db
 # Import router từ file Scan_CV (giả sử scan router khai báo: router = APIRouter() trong Scan_CV.py)
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -32,6 +33,7 @@ if STATIC_DIR.exists():
 
 # Include router chứa /upload_cv và các route khác
 app.include_router(sc)
+app.include_router(db)
 
 
 # Route gốc trả về index.html nếu tồn tại, else trả thông báo

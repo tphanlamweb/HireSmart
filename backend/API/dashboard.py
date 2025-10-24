@@ -1,6 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from sqlalchemy import create_engine, MetaData, Table, select
 from sqlalchemy.orm import sessionmaker, Session
+from fastapi.requests import Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
 
 #   mysql+pymysql://<username>:<password>@<host>:<port>/<database_name>
@@ -18,6 +21,7 @@ engine = create_engine(DATABASE_URL)
 
 metadata = MetaData()
 metadata.reflect(bind=engine)  # 🔍 Tự động tải cấu trúc tất cả bảng có sẵn
+templates = Jinja2Templates(directory="../frontend/html")
 
 
 
@@ -33,18 +37,15 @@ def get_db():
 
 
 
-app = FastAPI(title="FastAPI + MySQL Reflection Example")
+router = APIRouter()
 
 
 
-@app.get("/users")
+@router.get("/candidates")
 def read_users(db: Session = Depends(get_db)):
-    """
-    Ví dụ: Lấy toàn bộ dữ liệu từ bảng 'users'
-    🔸 Chỉ cần đổi 'users' thành tên bảng khác nếu bạn muốn.
-    """
+
     try:
-        users_table = metadata.tables["users"]  # ⚠️ Đổi tên bảng ở đây
+        users_table = metadata.tables["candidates"]  # ⚠️ Đổi tên bảng ở đây
     except KeyError:
         raise HTTPException(status_code=404, detail="Bảng 'users' không tồn tại trong DB!")
 
@@ -52,12 +53,9 @@ def read_users(db: Session = Depends(get_db)):
     return [dict(row._mapping) for row in result]
 
 
-@app.get("/table/{table_name}")
+@router.get("/table/{table_name}")
 def read_table(table_name: str, db: Session = Depends(get_db)):
-    """
-    🔹 API tổng quát: Lấy dữ liệu từ bất kỳ bảng nào bằng tên bảng trên URL.
-    Ví dụ: GET /table/products  → lấy dữ liệu từ bảng 'products'
-    """
+
     if table_name not in metadata.tables:
         raise HTTPException(status_code=404, detail=f"Bảng '{table_name}' không tồn tại!")
 
@@ -66,17 +64,14 @@ def read_table(table_name: str, db: Session = Depends(get_db)):
     return [dict(row._mapping) for row in result]
 
 
-@app.get("/")
-def root():
-    """
-    Trang chào - liệt kê tất cả các bảng hiện có trong database.
-    """
-    return {"database": DB_NAME, "tables": list(metadata.tables.keys())}
+@router.get("/dashboard" , response_class=HTMLResponse)
+def get_candidates_tables(request: Request):
+    datatable = metadata.tables["candidates"]  # ⚠️ Đổi tên bảng ở đây
+    print( "candidates tables: \n")  # In ra tên các cột của bảng
+    conn = engine.connect()
+    data = conn.execute(select(datatable.c.id,datatable.c.full_name,datatable.c.phone)).fetchall()
+    return templates.TemplateResponse("dashboard.html", {"request": request, "users": data})
 
 
-datatable = metadata.tables["candidates"]  # ⚠️ Đổi tên bảng ở đây
-print( "candidates tables: \n")  # In ra tên các cột của bảng
-conn = engine.connect()
-for row in conn.execute(select(datatable.c.id,datatable.c.full_name,datatable.c.phone)).fetchall():
-    print(row)
+    
 
