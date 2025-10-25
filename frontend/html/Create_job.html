@@ -590,7 +590,7 @@
             }
 
             .search-container.expanded {
-                position: fixed;
+                position: sticky;
                 top: 90px;
                 left: 10px;
                 right: 10px;
@@ -1138,6 +1138,65 @@ function initializeLanguage() {
         });
     });
 }
+function checkLoginStatus() {
+    const user = localStorage.getItem('loggedInUser');
+    console.log('Checking login status, user:', user); // Debug log
+    
+    if (user) {
+        console.log('User is logged in:', user);
+        // Hiển thị tên user trong header
+        const loginBtn = document.querySelector('.login-btn');
+        console.log('Found login button:', loginBtn); // Debug log
+        
+        if (loginBtn) {
+            loginBtn.textContent = user;
+            loginBtn.href = '#';
+            loginBtn.onclick = null; // Loại bỏ onclick handler cũ
+            
+            // Thêm event listener cho dropdown
+            const userMenu = document.querySelector('.user-menu');
+            if (userMenu) {
+                userMenu.addEventListener('mouseenter', function() {
+                    this.classList.add('active');
+                });
+                
+                userMenu.addEventListener('mouseleave', function() {
+                    this.classList.remove('active');
+                });
+            }
+            
+            console.log('Updated login button text to:', user); // Debug log
+        }
+    } else {
+        console.log('No user logged in, showing login button');
+        // Không làm gì cả, để hiển thị "Đăng nhập HR" như bình thường
+    }
+}
+function initializeUserAuth() {
+    const user = localStorage.getItem('loggedInUser');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const dashboardBtn = document.getElementById('dashboardBtn');
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('loggedInUser');
+            window.location.href = '../html/Login.html';
+        });
+    }
+
+    if (dashboardBtn) {
+        dashboardBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!localStorage.getItem('loggedInUser')) {
+                alert('Bạn cần đăng nhập HR để truy cập Dashboard!');
+                window.location.href = '../html/Login.html';
+                return;
+            }
+            window.location.href = 'Create_job.html';
+        });
+    }
+}
+
     </script>
 </body>
 
