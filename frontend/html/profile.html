@@ -231,14 +231,8 @@
             <div class="form-group">
                 <label>Gender</label>
                 <div class="radio-group">
-                    <label>
-                        <input type="radio" name="gender" value="male">
-                        Male
-                    </label>
-                    <label>
-                        <input type="radio" name="gender" value="female">
-                        Female
-                    </label>
+                    <label><input type="radio" name="gender" value="male"> Male</label>
+                    <label><input type="radio" name="gender" value="female"> Female</label>
                 </div>
             </div>
             <div class="btn-group">
@@ -247,7 +241,7 @@
             </div>
         </div>
     </div>
-    <!-- Edit CV Modal -->
+
     <div id="editCVModal" class="overlay hidden">
         <div class="modal">
             <h2>Edit CV</h2>
@@ -269,16 +263,14 @@
             </div>
             <div class="form-group">
                 <label>Projects</label>
-                <textarea placeholder="Add your projects">Project: Recipe Suggestion Web
+                <textarea placeholder="Add your projects">Recipe Suggestion Web
 Python + MySQL + HTML/CSS
 Build a recipe suggestion website based on available ingredients.</textarea>
             </div>
             <div class="form-group">
-                <label>Certificate</label>
+                <label>Certificates</label>
                 <button class="btn-add-link">+ Add link Github</button>
-                <div class="upload-box" style="margin-top: 10px;">
-                    <p>📎 Upload file</p>
-                </div>
+                <div class="upload-box"><p>📎 Upload file</p></div>
             </div>
             <div class="btn-group">
                 <button class="btn btn-cancel" onclick="closeEditCV()">Cancel</button>
@@ -286,6 +278,7 @@ Build a recipe suggestion website based on available ingredients.</textarea>
             </div>
         </div>
     </div>
+
     <script>
         function openPersonalInfo() {
             document.getElementById('personalInfoModal').classList.remove('hidden');

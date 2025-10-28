@@ -21,7 +21,7 @@ engine = create_engine(DATABASE_URL)
 
 metadata = MetaData()
 metadata.reflect(bind=engine)  # 🔍 Tự động tải cấu trúc tất cả bảng có sẵn
-templates = Jinja2Templates(directory="../frontend/html")
+templates = Jinja2Templates(directory="./frontend/html")
 
 
 
@@ -69,7 +69,7 @@ def get_candidates_tables(request: Request):
     datatable = metadata.tables["candidates"]  # ⚠️ Đổi tên bảng ở đây
     print( "candidates tables: \n")  # In ra tên các cột của bảng
     conn = engine.connect()
-    data = conn.execute(select(datatable.c.id,datatable.c.full_name,datatable.c.phone)).fetchall()
+    data = conn.execute(select(datatable.c.overall_cv_score,datatable.c.full_name,datatable.c.address)).fetchall()
     return templates.TemplateResponse("dashboard.html", {"request": request, "users": data})
 
 

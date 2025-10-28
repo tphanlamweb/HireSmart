@@ -1,93 +1,165 @@
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
+import numpy as np
+from functools import lru_cache
+from typing import List, Tuple
 
-# ✅ Dùng mô hình LaBSE để hỗ trợ đa ngôn ngữ tốt hơn
-# Bạn có thể thay bằng "distiluse-base-multilingual-cased-v2" nếu muốn nhẹ hơn
-model_name = 'sentence-transformers/LaBSE'
-model = SentenceTransformer(model_name)
 
-# Rule-based degrees
-degrees = {
-    "phd": 100, "tiến sĩ": 100,
-    "master": 80, "thạc sĩ": 80,
-    "bachelor": 60, "đại học": 60,
-    "college": 40, "cao đẳng": 40,
-    "phổ thông": 20, "trung cấp": 20
-}
+class EducationScorer:
+    """Tối ưu bằng cách cache model và embeddings"""
 
-# Danh sách mẫu ngành học phổ biến (tiếng Việt + Anh)
-field_list = [
-    "kế toán","accounting",
-    "tài chính","finance",
-    "quản trị","management",
-    "marketing",
-    "công nghệ thông tin","information technology","it",
-    "data science",
-    "machine learning",
-    "ngôn ngữ","language",
-    "thiết kế","design",
-    "kinh tế","economics",
-    "logistics",
-    "nhân sự","human resources",
-    "bán hàng","sales"
-]
+    def __init__(self, model_name: str = "sentence-transformers/LaBSE"):
+        # ✅ Load model một lần duy nhất
+        self.model = SentenceTransformer(model_name)
 
-def clean_text(text: str) -> str:
-    text = text.lower()
-    text = re.sub(r'[^\w\s]', ' ', text)
-    return text
+        # ✅ Compile regex một lần
+        self.clean_pattern = re.compile(r"[^\w\s]")
 
-# ===== AI-generated relevant keywords from JD =====
-def generate_relevant_keywords(jd_text: str, threshold: float = 0.6) -> list:
-    """
-    Tự động chọn các ngành học liên quan từ JD dựa trên embedding cosine similarity.
-    threshold: mức similarity để coi là ngành liên quan
-    """
-    jd_text = clean_text(jd_text)
-    jd_emb = model.encode([jd_text])[0]
+        # Rule-based degrees
+        self.degrees = {
+            "phd": 100,
+            "tiến sĩ": 100,
+            "master": 80,
+            "thạc sĩ": 80,
+            "bachelor": 60,
+            "đại học": 60,
+            "college": 40,
+            "cao đẳng": 40,
+            "phổ thông": 20,
+            "trung cấp": 20,
+        }
 
-    keywords = []
-    for field in field_list:
-        field_emb = model.encode([field])[0]
-        sim = cosine_similarity([jd_emb], [field_emb])[0][0]
-        if sim >= threshold:
-            keywords.append(field)
-            print(f"[DEBUG] Matched field: {field} (similarity={sim:.2f})")
-    return keywords
+        # Field list
+        self.field_list = [
+            "kế toán",
+            "accounting",
+            "tài chính",
+            "finance",
+            "quản trị",
+            "management",
+            "marketing",
+            "công nghệ thông tin",
+            "information technology",
+            "it",
+            "data science",
+            "machine learning",
+            "ngôn ngữ",
+            "language",
+            "thiết kế",
+            "design",
+            "kinh tế",
+            "economics",
+            "logistics",
+            "nhân sự",
+            "human resources",
+            "bán hàng",
+            "sales",
+        ]
 
-# ===== Rule-based nâng cao =====
-def score_education_rule(cv_text: str, relevant_keywords: list) -> float:
-    cv_text = clean_text(cv_text)
-    score = 0
-    for degree, base_score in degrees.items():
-        if degree in cv_text:
-            score = base_score
-            break
-    if any(keyword in cv_text for keyword in relevant_keywords):
-        score += 10
-    return min(score, 100)
+        # ✅ Pre-compute và cache embeddings của tất cả fields
+        print("🔄 Pre-computing field embeddings...")
+        self.field_embeddings = self.model.encode(
+            self.field_list,
+            batch_size=32,  # Batch processing
+            show_progress_bar=False,
+            convert_to_numpy=True,
+        )
+        print("✅ Field embeddings cached!")
 
-# ===== Semantic similarity =====
-def score_education_semantic(cv_text: str, target_description: str) -> float:
-    cv_text = clean_text(cv_text)
-    target_description = clean_text(target_description)
-    embeddings = model.encode([cv_text, target_description])
-    sim = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
-    return float(sim * 100)
+    @lru_cache(maxsize=1000)
+    def clean_text(self, text: str) -> str:
+        """Cache kết quả clean text"""
+        text = text.lower()
+        text = self.clean_pattern.sub(" ", text)
+        return " ".join(text.split())  # Remove extra whitespace
 
-# ===== Kết hợp =====
-def score_education(cv_text: str, jd_text: str, target_description: str) -> float:
-    print("education scoring:")
-    relevant_keywords = generate_relevant_keywords(jd_text)
+    def generate_relevant_keywords(
+        self, jd_text: str, threshold: float = 0.6
+    ) -> List[str]:
+        """
+        Tối ưu: encode JD một lần, so sánh với tất cả fields cùng lúc
+        """
+        jd_text = self.clean_text(jd_text)
 
-    rule_score = score_education_rule(cv_text, relevant_keywords)
-    print("Rule-based education score:", rule_score)
+        # ✅ Encode JD một lần
+        jd_emb = self.model.encode([jd_text], convert_to_numpy=True)[0]
 
-    semantic_score = score_education_semantic(cv_text, target_description)
-    print("Semantic education score:", semantic_score)
+        # ✅ Tính similarity với tất cả fields cùng lúc (vectorized)
+        similarities = cosine_similarity([jd_emb], self.field_embeddings)[0]
 
-    final_score = 0.7 * rule_score + 0.3 * semantic_score
-    print("Final combined education score:", final_score)
+        # ✅ Filter và return
+        keywords = []
+        for field, sim in zip(self.field_list, similarities):
+            if sim >= threshold:
+                keywords.append(field)
+                print(f"[DEBUG] Matched field: {field} (similarity={sim:.2f})")
 
-    return round(final_score, 2)
+        return keywords
+
+    def score_education_rule(self, cv_text: str, relevant_keywords: List[str]) -> float:
+        """Rule-based scoring"""
+        cv_text = self.clean_text(cv_text)
+        score = 0
+
+        # Tìm degree cao nhất
+        for degree, base_score in self.degrees.items():
+            if degree in cv_text:
+                score = base_score
+                break
+
+        # Bonus nếu có keyword liên quan
+        if any(keyword in cv_text for keyword in relevant_keywords):
+            score += 10
+
+        return min(score, 100)
+
+    def score_education_semantic(self, cv_text: str, target_description: str) -> float:
+        """Semantic similarity scoring"""
+        cv_text = self.clean_text(cv_text)
+        target_description = self.clean_text(target_description)
+
+        # ✅ Batch encode cả 2 texts cùng lúc
+        embeddings = self.model.encode(
+            [cv_text, target_description], convert_to_numpy=True
+        )
+
+        sim = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
+        return float(sim * 100)
+
+    def score_education(
+        self,
+        cv_text: str,
+        jd_text: str,
+        rule_weight: float = 0.7,
+        semantic_weight: float = 0.3,
+    ) -> Tuple[float, dict]:
+        """
+        Kết hợp rule-based và semantic scoring
+        Returns: (final_score, details_dict)
+        """
+        print("📊 Education scoring:")
+
+        # Step 1: Extract relevant keywords
+        relevant_keywords = self.generate_relevant_keywords(jd_text)
+
+        # Step 2: Rule-based score
+        rule_score = self.score_education_rule(cv_text, relevant_keywords)
+        print(f"  Rule-based score: {rule_score}")
+
+        # Step 3: Semantic score
+        semantic_score = self.score_education_semantic(cv_text, jd_text)
+        print(f"  Semantic score: {semantic_score:.2f}")
+
+        # Step 4: Combine
+        final_score = rule_weight * rule_score + semantic_weight * semantic_score
+        print(f"  ✅ Final score: {final_score:.2f}")
+
+        details = {
+            "rule_score": rule_score,
+            "semantic_score": semantic_score,
+            "relevant_keywords": relevant_keywords,
+            "final_score": round(final_score, 2),
+        }
+
+        return round(final_score, 2), details

@@ -1129,16 +1129,16 @@
                                 <tr>
                                     <th>Tên ứng viên</th>
                                     <th>Điểm CV</th>
-                                    <th>Kinh nghiệm</th>
+                                    <th>Địa chỉ</th>
                                     <th>Trạng thái</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
                             {% for user in users %}
                             <tr>
-                                <td>{{ user.id }}</td>
                                 <td>{{ user.full_name }}</td>
-                                <td>{{ user.phone }}</td>
+                                <td>{{ user.overall_cv_score }}</td>
+                                <td>{{ user.address }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -1181,74 +1181,7 @@
 
     <script>
         // Sample data
-        let candidates = [
-            {
-                id: 1,
-                name: "Nguyễn Văn A",
-                cv_points: 92,
-                experience_summary: "5 năm kinh nghiệm Python, Django, FastAPI. Đã làm việc tại các công ty lớn.",
-                status: "suitable",
-                email: "nguyenvana@email.com",
-                phone: "0901234567",
-                education: "Đại học Bách Khoa",
-                skills: ["Python", "Django", "FastAPI", "PostgreSQL"]
-            },
-            {
-                id: 2,
-                name: "Trần Thị B",
-                cv_points: 85,
-                experience_summary: "3 năm React, Node.js. Chuyên về frontend development và UX/UI.",
-                status: "inviting",
-                email: "tranthib@email.com",
-                phone: "0902345678",
-                education: "Đại học Công Nghệ",
-                skills: ["React", "Node.js", "JavaScript", "CSS"]
-            },
-            {
-                id: 3,
-                name: "Lê Văn C",
-                cv_points: 78,
-                experience_summary: "2 năm Java Spring Boot. Junior developer với tiềm năng cao.",
-                status: "suitable",
-                email: "levanc@email.com",
-                phone: "0903456789",
-                education: "Đại học Khoa Học Tự Nhiên",
-                skills: ["Java", "Spring Boot", "MySQL"]
-            },
-            {
-                id: 4,
-                name: "Phạm Thị D",
-                cv_points: 95,
-                experience_summary: "7 năm Full-stack, Team Lead. Kinh nghiệm quản lý dự án lớn.",
-                status: "accepted",
-                email: "phamthid@email.com",
-                phone: "0904567890",
-                education: "Đại học Bách Khoa TP.HCM",
-                skills: ["Full-stack", "Leadership", "AWS", "Microservices"]
-            },
-            {
-                id: 5,
-                name: "Hoàng Văn E",
-                cv_points: 65,
-                experience_summary: "1 năm kinh nghiệm PHP. Mới tốt nghiệp, cần thêm đào tạo.",
-                status: "rejected",
-                email: "hoangvane@email.com",
-                phone: "0905678901",
-                education: "Cao đẳng FPT",
-                skills: ["PHP", "Laravel", "MySQL"]
-            },
-            {
-                id: 6,
-                name: "Đỗ Thị F",
-                cv_points: 88,
-                experience_summary: "4 năm DevOps, CI/CD. Chuyên về automation và infrastructure.",
-                status: "inviting",
-                email: "dothif@email.com",
-                phone: "0906789012",
-                education: "Đại học Bách Khoa Hà Nội",
-                skills: ["Docker", "Kubernetes", "Jenkins", "AWS"]
-            }
-        ];
+        
 
         let currentFilter = {
             status: 'all',

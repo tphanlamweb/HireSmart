@@ -134,7 +134,7 @@ Hãy phân tích và trả về đúng JSON, KHÔNG có giải thích.
     """
 
     json_schema_hint = {
-        "Name": "",
+        "full_name": "",
         "email": "",
         "phone": "",
         "date_of_birth": "",
@@ -216,7 +216,7 @@ def extract_with_regex(full_text: str) -> dict:
             name = ln
             break
     return {
-        "name": name if 'name' in locals() else "",
+        "full_name": name if 'full_name' in locals() else "",
         "email": email_match.group(0) if email_match else "",
         "phone": phone_match.group(0) if phone_match else ""
     }
@@ -274,7 +274,7 @@ async def upload_cv(
         "cv_summary": "",
         **{k: "" for k in fallback_info.keys()},
         **{k: "" for k in parsed_info.keys()},
-        "name": fullName,
+        "full_name": fullName,
         "email": email,
         "phone": phone,
         "position": position
