@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - HireSmart</title>
+    <link rel="stylesheet" href="../Styles/profile.css">
+    <link rel="stylesheet" href="../Styles/notification.css">
+</head>
+<body>
+   <!-- Header -->
+    <header class="header">
+        <nav>
+            <div class="logo-container">
+                <img src="../templates/logo-2.png" alt="Logo">
+                <span>HireSmart</span>
+            </div>
+            <ul>
+                <li><a href="Home.html">Trang chủ</a></li>
+                <li><a href="Recruitment.html">Jobs</a></li>
+                <li><a href="Create_job.html" class="active">Dashboard HR</a></li>
+                <li class="language-menu">
+                    <div class="language-selector">
+                        <span id="currentLang">🇻🇳</span>
+                        <div class="language-dropdown">
+                            <div class="lang-option" data-lang="vi" data-flag="🇻🇳">Tiếng Việt</div>
+                            <div class="lang-option" data-lang="en" data-flag="🇺🇸">English</div>
+                        </div>
+                    </div>
+                </li>
+                <li class="user-menu"><a href="#" class="login-btn" onclick="handleHRLogin(event)"
+                        data-i18n="nav.hr_login">Đăng nhập HR</a>
+                    <div class="dropdown" id="dropdownMenu">
+                        <a href="#">Tài Khoản Của Tôi</a>
+                        <a href="Create_job.html" id="dashboardBtn">Dashboard HR</a>
+                        <a href="#" id="logoutBtn">Đăng Xuất</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="../templates/logo-2.png" alt="HireSmart Logo"
+                        style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
+                </div>
+                <div class="profile">
+                    <div class="profile-pic"></div>
+                    <div class="profile-info">
+                        <h3>Name</h3>
+                        <p>Admin</p>
+                    </div>
+                </div>
+            </div>
+            <div class="features-title">Features</div>
+            <div class="menu-item">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item">
+                <span>✉️</span>
+                <span>Messages</span>
+                <span class="badge">18</span>
+            </div>
+            <div class="menu-item">
+                <a href="Job_list.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
+                    <span>💼</span>
+                    <span>Jobs</span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <span>👥</span>
+                <span>Candidates</span>
+            </div>
+            <div class="menu-item">
+                <span>📄</span>
+                <span>Resumes</span>
+            </div>
+            <div class="menu-item">
+                <span>📈</span>
+                <span>Report</span>
+            </div>
+            <div class="menu-item active">
+                <a href="notification.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
+                    <span>🔔</span>
+                    <span>Notification</span>
+                </a>
+            </div>
+            <button class="logout-btn">
+                <span>🔓</span>
+                <span>Log Out</span>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+
+                <div class="icon-buttons">
+                    <button class="icon-btn notification">
+                        🔔
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="icon-btn settings">
+                        🔧
+                    </button>
+                    <button class="icon-btn messages">
+                        ✉️
+                        <span class="badge">18</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notification Content -->
+            <div class="notification-container">
+                <div class="notification-header">
+                    <h2>Thông báo của bạn</h2>
+                    <div class="notification-actions">
+                        <button class="btn-mark-read" onclick="markAllAsRead()">
+                            <span>✓</span> Đánh dấu tất cả đã đọc
+                        </button>
+                        <button class="btn-delete" onclick="clearAllNotifications()">
+                            <span>🗑️</span> Xóa tất cả
+                        </button>
+                    </div>
+                </div>
+
+                <div class="notification-filters">
+                    <button class="filter-btn active" data-filter="all">
+                        Tất cả <span class="count">(3)</span>
+                    </button>
+                    <button class="filter-btn" data-filter="unread">
+                        Chưa đọc <span class="count">(2)</span>
+                    </button>
+                    <button class="filter-btn" data-filter="read">
+                        Đã đọc <span class="count">(1)</span>
+                    </button>
+                </div>
+
+                <div class="notification-list" id="notificationsList">
+                    <!-- Sample notification item -->
+                    <div class="notification-item unread">
+                        <div class="notification-icon application">
+                            📝
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">
+                                Ứng viên mới cho vị trí Developer
+                            </div>
+                            <div class="notification-message">
+                                Nguyễn Văn A đã ứng tuyển vào vị trí Full Stack Developer
+                            </div>
+                            <div class="notification-time">5 phút trước</div>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="btn-mark-read" title="Đánh dấu đã đọc">
+                                ✓
+                            </button>
+                            <button class="btn-delete" title="Xóa thông báo">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <script>
+       
+        // Add to your existing script
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        let sidebarOpen = false;
+
+        menuToggle.addEventListener('click', function() {
+            sidebarOpen = !sidebarOpen;
+            
+            if (sidebarOpen) {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                if (window.innerWidth > 768) {
+                    mainContent.classList.add('with-sidebar');
+                }
+            } else {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                mainContent.classList.remove('with-sidebar');
+            }
+        });
+
+        sidebarOverlay.addEventListener('click', function() {
+            sidebarOpen = false;
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            mainContent.classList.remove('with-sidebar');
+        });
+
+        // Auto toggle sidebar on large screens
+        function checkScreenSize() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.add('active');
+                mainContent.classList.add('with-sidebar');
+                sidebarOpen = true;
+            } else {
+                sidebar.classList.remove('active');
+                mainContent.classList.remove('with-sidebar');
+                sidebarOpen = false;
+            }
+        }
+
+        // Check on load and resize
+        window.addEventListener('load', checkScreenSize);
+        window.addEventListener('resize', checkScreenSize);
+
+        // Notification functionality
+        let notifications = [
+            {
+                id: 1,
+                title: 'Ứng viên mới cho vị trí Developer',
+                message: 'Nguyễn Văn A đã ứng tuyển vào vị trí Full Stack Developer',
+                time: '5 phút trước',
+                type: 'application',
+                unread: true
+            },
+            {
+                id: 2,
+                title: 'Lịch phỏng vấn đã được xác nhận',
+                message: 'Ứng viên Trần Thị B đã xác nhận lịch phỏng vấn vào ngày 31/10/2023',
+                time: '30 phút trước',
+                type: 'interview',
+                unread: true
+            },
+            {
+                id: 3,
+                title: 'Nhắc nhở: Đánh giá hồ sơ',
+                message: 'Bạn có 5 hồ sơ ứng viên đang chờ đánh giá',
+                time: '2 giờ trước',
+                type: 'reminder',
+                unread: false
+            }
+        ];
+
+        function renderNotifications() {
+            const notificationsList = document.getElementById('notificationsList');
+            const currentFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            
+            // Filter notifications
+            const filteredNotifications = notifications.filter(notification => {
+                if (currentFilter === 'unread') return notification.unread;
+                if (currentFilter === 'read') return !notification.unread;
+                return true;
+            });
+
+            // Clear list
+            notificationsList.innerHTML = '';
+
+            // Show empty state if no notifications
+            if (filteredNotifications.length === 0) {
+                notificationsList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+                        <h3>Không có thông báo</h3>
+                        <p>Bạn chưa có thông báo nào trong mục này</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render notifications
+            filteredNotifications.forEach(notification => {
+                const notificationItem = document.createElement('div');
+                notificationItem.className = `notification-item ${notification.unread ? 'unread' : ''}`;
+                
+                notificationItem.innerHTML = `
+                    <div class="notification-icon">
+                        ${getNotificationIcon(notification.type)}
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notification.title}</div>
+                        <div class="notification-message">${notification.message}</div>
+                        <div class="notification-time">${notification.time}</div>
+                    </div>
+                    <div class="notification-actions">
+                        ${notification.unread ? 
+                            `<button class="btn-mark-read" onclick="markAsRead(${notification.id})" title="Đánh dấu đã đọc">
+                                <span>✓</span>
+                            </button>` : ''
+                        }
+                        <button class="btn-delete" onclick="deleteNotification(${notification.id})" title="Xóa thông báo">
+                            <span>🗑️</span>
+                        </button>
+                    </div>
+                `;
+                
+                notificationsList.appendChild(notificationItem);
+            });
+
+            updateUnreadCount();
+            updateFilterCounts();
+        }
+
+        function getNotificationIcon(type) {
+            switch(type) {
+                case 'application': return '📝';
+                case 'interview': return '👥';
+                case 'reminder': return '⏰';
+                default: return '🔔';
+            }
+        }
+
+        function markAsRead(id) {
+            notifications = notifications.map(notification =>
+                notification.id === id ? {...notification, unread: false} : notification
+            );
+            renderNotifications();
+        }
+
+        function markAllAsRead() {
+            notifications = notifications.map(notification => ({...notification, unread: false}));
+            renderNotifications();
+        }
+
+        function deleteNotification(id) {
+            notifications = notifications.filter(notification => notification.id !== id);
+            renderNotifications();
+        }
+
+        function clearAllNotifications() {
+            if (confirm('Bạn có chắc muốn xóa tất cả thông báo?')) {
+                notifications = [];
+                renderNotifications();
+            }
+        }
+
+        function updateUnreadCount() {
+            const unreadCount = notifications.filter(n => n.unread).length;
+            const badge = document.querySelector('.notification .badge');
+            if (badge) {
+                badge.textContent = unreadCount;
+                badge.style.display = unreadCount > 0 ? 'block' : 'none';
+            }
+        }
+
+        function updateFilterCounts() {
+            const counts = {
+                all: notifications.length,
+                unread: notifications.filter(n => n.unread).length,
+                read: notifications.filter(n => !n.unread).length
+            };
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const filter = btn.dataset.filter;
+                const countSpan = btn.querySelector('.count');
+                if (countSpan) {
+                    countSpan.textContent = `(${counts[filter]})`;
+                }
+            });
+        }
+
+        // Event listeners for filter buttons
+        document.querySelectorAll('.filter-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                renderNotifications();
+            });
+        });
+
+        // Initialize notifications
+        window.addEventListener('load', renderNotifications);
+
+        // User Menu Toggle
+        const userMenu = document.querySelector('.user-menu');
+        userMenu.addEventListener('click', function(e) {
+            if (e.target.closest('.login-btn')) return;
+            this.classList.toggle('active');
+            e.stopPropagation();
+        });
+
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                userMenu.classList.remove('active');
+            }
+            if (!e.target.closest('.search-container')) {
+                const searchContainer = document.querySelector('.search-container');
+                if (searchContainer) {
+                    searchContainer.classList.remove('expanded');
+                }
+            }
+        });
+
+        // Language selector
+        const langOptions = document.querySelectorAll('.lang-option');
+        const currentLang = document.getElementById('currentLang');
+
+        langOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const flag = this.getAttribute('data-flag');
+                const lang = this.getAttribute('data-lang');
+                currentLang.textContent = flag;
+                // You can add more logic here for language switching
+            });
+        });
+
+        // Mobile responsive menu
+        function initMobileMenu() {
+            const header = document.querySelector('.header');
+            if (window.innerWidth <= 768) {
+                header.classList.add('mobile');
+            } else {
+                header.classList.remove('mobile');
+            }
+        }
+
+        window.addEventListener('resize', initMobileMenu);
+        initMobileMenu();
+
+        // Handle HR Login
+        function handleHRLogin(event) {
+            event.preventDefault();
+            // Add your login logic here
+            console.log('HR Login clicked');
+        }
+
+        // Menu item click handler
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function () {
+                if (!this.classList.contains('active')) {
+                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Logout functionality
+        function handleLogout() {
+            // Clear user session/token
+            localStorage.removeItem('userToken');
+            sessionStorage.removeItem('userToken');
+            // Clear any other user-related data
+            localStorage.removeItem('userData');
+            sessionStorage.removeItem('userData');
+            
+            // Redirect to login page
+            window.location.href = 'Login.html';
+        }
+
+        // Add logout event listeners to both sidebar and dropdown menu logout buttons
+        const logoutButtons = [
+            document.querySelector('.logout-btn'),
+            document.getElementById('logoutBtn')
+        ];
+
+        logoutButtons.forEach(button => {
+            if (button) {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleLogout();
+                });
+            }
+        });
+
+        // Handle Dashboard navigation
+        document.getElementById('dashboardBtn').addEventListener('click', function(e) {
+            // You can add specific dashboard navigation logic here
+            console.log('Dashboard navigation');
+        });
+
+        // Handle notification clicks
+        const notificationBtn = document.querySelector('.notification');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', function() {
+                // Add your notification handling logic here
+                console.log('Notification clicked');
+            });
+        }
+
+        // Handle settings clicks
+        const settingsBtn = document.querySelector('.settings');
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', function() {
+                // Add your settings handling logic here
+                console.log('Settings clicked');
+            });
+        }
+    </script>
+</body>
+</html>
