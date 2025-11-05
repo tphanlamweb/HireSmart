@@ -213,6 +213,23 @@ def extract_with_regex(full_text: str) -> dict:
     }
 
 
+def normalize_phone_number(phone: str) -> str:
+    # Bỏ tất cả ký tự không phải số
+    digits = re.sub(r'\D', '', phone)
+
+    # Chuẩn hóa đầu số theo quy ước Việt Nam
+    if digits.startswith("84"):
+        digits = "0" + digits[2:]
+    elif digits.startswith("0"):
+        pass  # giữ nguyên
+    else:
+        # Trường hợp số không có 0 hoặc 84 ở đầu → tự thêm số 0
+        # Bạn có thể thay đổi logic tùy nhu cầu
+        digits = "0" + digits
+
+    return digits
+
+
 @router.post("/upload_cv")
 async def upload_cv(
     fullName : str = Form(...),
@@ -253,11 +270,13 @@ async def upload_cv(
     # Gọi Gemini
     parsed_info = await extract_cv_with_gemini(text_content, file_bytes, mime_type)
     fallback_info = extract_with_regex(text_content)
+    clear_phone = normalize_phone_number(phone)
+    clear_filename = filename.replace(" ", "")
 
     # Gộp kết quả
     record = {
         
-        "filename": filename,
+        "filename": clear_filename,
         "file_size": len(file_bytes),
         "mimetype": mime_type,
         "cv_summary": "",
@@ -265,7 +284,7 @@ async def upload_cv(
         **{k: "" for k in parsed_info.keys()},
         "full_name": fullName,
         "email": email,
-        "phone": phone,
+        "phone": clear_phone,
         "position": position
     }
 
