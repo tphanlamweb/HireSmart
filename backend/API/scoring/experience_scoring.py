@@ -314,45 +314,6 @@ def _calculate_relevance_score(cv_data, jd_data):
 
 
 def score_experience(cv_data, jd_data, max_score=100, weights=None):
-    """
-    Hàm chính: Chấm điểm phần Experience của CV với thang điểm tùy chỉnh
-    
-    Args:
-        cv_data (dict): Dictionary chứa thông tin CV với các keys:
-            - experience: String mô tả kinh nghiệm
-            - position: Vị trí ứng tuyển
-            - hard_skills: Kỹ năng chuyên môn
-            - soft_skills: Kỹ năng mềm
-            ... (các trường khác tùy chọn)
-        
-        jd_data (dict or str): Dictionary hoặc String chứa thông tin JD
-            Nếu là dict, có thể chứa:
-            - title: Tên vị trí
-            - description: Mô tả công việc
-            - requirements: Yêu cầu
-            - skills: Kỹ năng cần có
-        
-        max_score (int): Điểm tối đa cho phần Experience (mặc định: 100)
-            Ví dụ: max_score=30 sẽ cho điểm từ 0-30
-        
-        weights (dict): Tỉ trọng từng tiêu chí (mặc định: None - tự động chia đều)
-            Nếu None: tự động chia theo tỉ lệ 50:30:20
-            Nếu custom: {'relevance': 0.6, 'duration': 0.3, 'level': 0.1}
-            Tổng weights phải = 1.0
-    
-    Returns:
-        dict: {
-            'total_score': float (0 đến max_score),
-            'max_score': int,
-            'breakdown': {
-                'relevance_score': float,
-                'duration_score': float,
-                'level_score': float
-            },
-            'years_of_experience': float,
-            'details': str
-        }
-    """
     
     # Thiết lập weights mặc định
     if weights is None:

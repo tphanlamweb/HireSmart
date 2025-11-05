@@ -8,6 +8,7 @@ import json
 
 #from scoring.education_scoring import EducationScorer
 import scoring.experience_scoring as ex
+import scoring.technical_skill_scoring as ts
 
 #ec = EducationScorer()
 
@@ -129,6 +130,13 @@ def scoring_experience(exp_data):
     print("JD : ",jd_text)
     return ex.score_experience(exp_data, jd_text, 250)
 
+def scoring_technical_skills(cv_data):
+    jd_data = {
+        'title': 'Senior Backend Developer',
+        'requirements': 'Required: PHP, Laravel, MySQL. Prefer: Docker, AWS',
+        'skills': 'PHP Laravel MySQL REST API'
+    }
+    return ts.score_technical_skills(cv_data, jd_data, 250)
 
 def main():
     filename = 'demo_data.csv'
@@ -164,11 +172,11 @@ def main():
 
     #------ EXPERIENCE SCORING ------
     print("\n=== CHẤM ĐIỂM KINH NGHIỆM ===")
-    print("candidates: ",candidate_name)
-    for key, value in scoring_experience(candidate).items():
-
-        print(f"{key}: {value}\n")
+    #print(scoring_experience(candidate)["total_score"])
     
-
+    #------ TECHNICAL SKILLS SCORING ------
+    print("\n=== CHẤM ĐIỂM KỸ NĂNG CHUYÊN MÔN ===")
+    for key , value in scoring_technical_skills(candidate).items():
+        print(f"\n{key}: {value}")
 
 main()

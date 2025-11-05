@@ -24,9 +24,6 @@ GEMINI_API_URL = (
     f"gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
 )
 
-# ==========================
-# 🧹 HÀM LÀM SẠCH CHUỖI
-# ==========================
 def clean_text(text) -> str:
     """Làm sạch chuỗi, xử lý cả list/dict."""
     if text is None:
@@ -65,7 +62,7 @@ def fix_email_format(email: str) -> str:
     email = email.strip().replace(" ", "").replace("..", ".")
     email = email.replace("gmaicom", "gmail.com").replace("gmai.com", "gmail.com")
     email = re.sub(r"(@[A-Za-z0-9.-]+)\.$", r"\1", email)
-    # Thêm .com nếu thiếu
+
     if re.match(r".+@.+\.[a-zA-Z]{2,}$", email) is None and not email.endswith(".com"):
         email += ".com"
     match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', email)
@@ -77,9 +74,7 @@ def ensure_sentence_end(text: str) -> str:
         return text + "."
     return text
 
-# ==========================
-# 🧠 Chuẩn hóa kỹ năng
-# ==========================
+
 KNOWN_SKILLS = [
     "Laravel Framework", "Back End", "Bootstrap", "React", "Vue.js",
     "Machine Learning", "Big Data", "PHP", "Node.js",
@@ -91,14 +86,12 @@ def clean_skills_text(raw_text: str) -> str:
     """Chuẩn hóa danh sách kỹ năng, sửa lỗi OCR nhẹ & chuẩn format."""
     if not raw_text:
         return ""
-    # Tách sơ bộ theo dấu phẩy hoặc xuống dòng
     parts = re.split(r"[,\n;]+", raw_text)
     cleaned_skills = []
     for p in parts:
         skill = p.strip()
         if not skill:
             continue
-        # So khớp gần đúng với KNOWN_SKILLS
         match, score, _ = process.extractOne(skill, KNOWN_SKILLS)
         cleaned_skills.append(match if score > 70 else skill)
     # Loại trùng lặp, giữ thứ tự
@@ -111,7 +104,7 @@ def clean_skills_text(raw_text: str) -> str:
     return ", ".join(final)
 
 # ==========================
-# 1️⃣ Gọi Gemini (Prompt chỉnh)
+# Gọi Gemini API để trích xuất CV
 # ==========================
 async def extract_cv_with_gemini(full_text: str = "", file_bytes: bytes | None = None, mime_type: str = None) -> dict:
     system_instruction = """Bạn là trợ lý trích xuất thông tin từ CV tiếng Việt. 
@@ -159,7 +152,7 @@ Hãy phân tích và trả về đúng JSON, KHÔNG có giải thích.
         "volunteer_experience": "",
         "hobbies_and_interests": "",
         "cv_summary": "",
-        "skills": ""  # thêm rõ ràng
+        "skills": ""
     }
 
     parts = [
@@ -202,9 +195,7 @@ Hãy phân tích và trả về đúng JSON, KHÔNG có giải thích.
         except:
             return {}
 
-# ==========================
-# 2️⃣ Regex fallback
-# ==========================
+
 def extract_with_regex(full_text: str) -> dict:
     email_match = re.search(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", full_text)
     phone_match = re.search(r"(?:\+?84|0)(?:\s|\.)?(?:\d{3})(?:\s|\.)?\d{3}(?:\s|\.)?\d{3,4}", full_text)
@@ -221,9 +212,7 @@ def extract_with_regex(full_text: str) -> dict:
         "phone": phone_match.group(0) if phone_match else ""
     }
 
-# ==========================
-# 3️⃣ Upload & xử lý
-# ==========================
+
 @router.post("/upload_cv")
 async def upload_cv(
     fullName : str = Form(...),
