@@ -1,4 +1,4 @@
 uvicorn:
-    uvicorn API.app:app
+    uvicorn backend.API.app:app
 
     
