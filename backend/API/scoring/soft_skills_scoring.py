@@ -1,848 +1,386 @@
-import re
-import numpy as np
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
+"""
+soft_skills_scoring_ollama.py
+AI-Enhanced Soft Skills Scoring with Ollama (Local LLM)
+Hybrid: Rule-based (fast) + Ollama (smart, free, local)
+"""
+
+import requests
+import json
+import os
+
+# ============= OLLAMA CONFIGURATION =============
+
+OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
+OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'llama3.2:1b')  # Lightweight model
+USE_AI = True  # Always available if Ollama is running
 
 
-# ============= CONFIGURATION =============
-
-_embedding_model = None
-
-def get_embedding_model():
-    """Load embedding model (lazy loading)"""
-    global _embedding_model
-    if _embedding_model is None:
-        _embedding_model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
-    return _embedding_model
+def _check_ollama_available():
+    """Check if Ollama is running"""
+    try:
+        response = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=2)
+        return response.status_code == 200
+    except:
+        return False
 
 
-# ============= SOFT SKILLS DATABASE =============
-
-SOFT_SKILLS_CATEGORIES = {
-    'communication': [
-        'communication', 'verbal communication', 'written communication', 
-        'presentation', 'public speaking', 'articulate', 'listening',
-        'negotiation', 'persuasion', 'reporting',
-        'giao tiếp', 'trình bày', 'thuyết trình', 'đàm phán'
-    ],
-    'teamwork': [
-        'teamwork', 'team player', 'collaboration', 'cooperative', 
-        'team collaboration', 'cross-functional', 'interpersonal',
-        'partnership', 'team building',
-        'làm việc nhóm', 'hợp tác', 'đồng đội'
-    ],
-    'leadership': [
-        'leadership', 'lead', 'manage', 'mentor', 'coaching', 
-        'team lead', 'project management', 'delegation', 'motivate',
-        'supervise', 'guide', 'influence', 'inspire',
-        'lãnh đạo', 'quản lý', 'dẫn dắt', 'chỉ đạo'
-    ],
-    'problem_solving': [
-        'problem solving', 'analytical', 'critical thinking', 'troubleshooting',
-        'decision making', 'logical thinking', 'creative thinking',
-        'strategic thinking', 'root cause analysis',
-        'giải quyết vấn đề', 'phân tích', 'tư duy', 'quyết định'
-    ],
-    'time_management': [
-        'time management', 'organization', 'prioritization', 'planning',
-        'multitasking', 'deadline', 'efficient', 'productivity',
-        'scheduling', 'task management',
-        'quản lý thời gian', 'tổ chức', 'ưu tiên', 'sắp xếp'
-    ],
-    'adaptability': [
-        'adaptability', 'flexibility', 'learning agility', 'quick learner',
-        'open-minded', 'resilience', 'versatile', 'change management',
-        'pivot', 'adjust',
-        'thích nghi', 'linh hoạt', 'học hỏi', 'thay đổi'
-    ],
-    'creativity': [
-        'creativity', 'innovative', 'creative thinking', 'imagination',
-        'out-of-box thinking', 'brainstorming', 'ideation', 'design thinking',
-        'sáng tạo', 'đổi mới', 'ý tưởng'
-    ],
-    'attention_to_detail': [
-        'attention to detail', 'detail-oriented', 'meticulous', 'thorough',
-        'accuracy', 'precision', 'quality-focused', 'careful',
-        'tỉ mỉ', 'cẩn thận', 'chính xác', 'chi tiết'
-    ],
-    'work_ethic': [
-        'work ethic', 'dedicated', 'committed', 'reliable', 'responsible',
-        'self-motivated', 'proactive', 'initiative', 'disciplined',
-        'driven', 'persistent',
-        'trách nhiệm', 'tận tâm', 'chủ động', 'kiên trì'
-    ],
-    'emotional_intelligence': [
-        'emotional intelligence', 'empathy', 'self-awareness', 'social skills',
-        'conflict resolution', 'patience', 'understanding', 'compassion',
-        'thấu hiểu', 'đồng cảm', 'kiên nhẫn'
-    ]
-}
-
-SOFT_SKILL_SYNONYMS = {
-    'communicate': 'communication',
-    'communicator': 'communication',
-    'present': 'presentation',
-    'presenter': 'presentation',
-    'collaborate': 'collaboration',
-    'cooperative': 'teamwork',
-    'team work': 'teamwork',
-    'leader': 'leadership',
-    'leading': 'leadership',
-    'manage': 'leadership',
-    'manager': 'leadership',
-    'solve problems': 'problem solving',
-    'problem-solving': 'problem solving',
-    'analytical thinking': 'analytical',
-    'organize': 'organization',
-    'organized': 'organization',
-    'adapt': 'adaptability',
-    'flexible': 'flexibility',
-    'creative': 'creativity',
-    'detail oriented': 'attention to detail',
-    'detail-oriented': 'attention to detail',
-    'hard working': 'work ethic',
-    'hardworking': 'work ethic',
-    'hard-working': 'work ethic',
-}
-
-# Role-specific soft skills importance
-ROLE_SOFT_SKILLS = {
-    'backend': ['problem solving', 'attention to detail', 'analytical', 'teamwork'],
-    'frontend': ['creativity', 'attention to detail', 'communication', 'problem solving'],
-    'fullstack': ['problem solving', 'time management', 'adaptability', 'teamwork'],
-    'lead': ['leadership', 'communication', 'decision making', 'mentoring'],
-    'senior': ['leadership', 'mentoring', 'problem solving', 'communication'],
-    'manager': ['leadership', 'communication', 'time management', 'delegation'],
-    'devops': ['problem solving', 'adaptability', 'teamwork', 'proactive'],
-    'designer': ['creativity', 'communication', 'attention to detail', 'empathy'],
-    'qa': ['attention to detail', 'analytical', 'communication', 'patience'],
-}
-
-
-# ============= ACTION VERBS MAPPING =============
-
-ACTION_VERBS_TO_SOFT_SKILLS = {
-    # Leadership verbs
-    'led': ['leadership', 'decision making'],
-    'lead': ['leadership', 'decision making'],
-    'managed': ['leadership', 'time management'],
-    'manage': ['leadership', 'time management'],
-    'coordinated': ['leadership', 'organization'],
-    'coordinate': ['leadership', 'organization'],
-    'supervised': ['leadership'],
-    'supervise': ['leadership'],
-    'directed': ['leadership', 'decision making'],
-    'delegated': ['leadership', 'time management'],
-    'mentored': ['leadership', 'communication'],
-    'coached': ['leadership', 'communication'],
-    'trained': ['leadership', 'communication'],
-    'guided': ['leadership'],
-    'inspired': ['leadership', 'emotional intelligence'],
-    
-    # Teamwork verbs
-    'collaborated': ['teamwork', 'communication'],
-    'cooperated': ['teamwork'],
-    'partnered': ['teamwork', 'communication'],
-    'contributed': ['teamwork', 'work ethic'],
-    'assisted': ['teamwork'],
-    'supported': ['teamwork', 'emotional intelligence'],
-    'worked with': ['teamwork'],
-    
-    # Communication verbs
-    'presented': ['communication'],
-    'communicated': ['communication'],
-    'explained': ['communication'],
-    'discussed': ['communication'],
-    'negotiated': ['communication', 'problem solving'],
-    'persuaded': ['communication'],
-    'reported': ['communication'],
-    'documented': ['communication', 'attention to detail'],
-    'articulated': ['communication'],
-    
-    # Problem solving verbs
-    'solved': ['problem solving'],
-    'resolved': ['problem solving'],
-    'analyzed': ['problem solving', 'analytical'],
-    'investigated': ['problem solving', 'analytical'],
-    'troubleshot': ['problem solving'],
-    'debugged': ['problem solving', 'attention to detail'],
-    'optimized': ['problem solving', 'analytical'],
-    'improved': ['problem solving', 'creativity'],
-    'enhanced': ['problem solving', 'creativity'],
-    'redesigned': ['problem solving', 'creativity'],
-    'refactored': ['problem solving', 'attention to detail'],
-    
-    # Initiative/Proactivity verbs
-    'initiated': ['work ethic', 'leadership'],
-    'proposed': ['creativity', 'communication'],
-    'drove': ['leadership', 'work ethic'],
-    'pioneered': ['creativity', 'leadership'],
-    'launched': ['leadership', 'work ethic'],
-    'introduced': ['creativity', 'communication'],
-    'established': ['leadership', 'work ethic'],
-    
-    # Achievement verbs
-    'achieved': ['work ethic', 'problem solving'],
-    'accomplished': ['work ethic'],
-    'delivered': ['work ethic', 'time management'],
-    'completed': ['work ethic', 'time management'],
-    'exceeded': ['work ethic'],
-    'attained': ['work ethic'],
-    
-    # Organization verbs
-    'organized': ['organization', 'time management'],
-    'planned': ['organization', 'time management'],
-    'scheduled': ['time management'],
-    'prioritized': ['time management', 'decision making'],
-    'streamlined': ['organization', 'problem solving'],
-    
-    # Adaptability verbs
-    'adapted': ['adaptability'],
-    'adjusted': ['adaptability'],
-    'pivoted': ['adaptability', 'problem solving'],
-    'transformed': ['adaptability', 'creativity'],
-    'migrated': ['adaptability', 'problem solving'],
-}
-
-
-# ============= ACHIEVEMENT PATTERNS =============
-
-ACHIEVEMENT_PATTERNS = {
-    'quantified': [
-        r'(\d+)%\s+(?:increase|improvement|growth|boost|enhancement)',
-        r'(?:increased|improved|grew|boosted|enhanced)\s+(?:by\s+)?(\d+)%',
-        r'(?:reduced|decreased|cut)\s+(?:by\s+)?(\d+)%',
-        r'saved\s+\$?(\d+(?:,\d{3})*(?:\.\d+)?)',
-        r'generated\s+\$?(\d+(?:,\d{3})*)',
-        r'managed\s+(?:team\s+of\s+)?(\d+)\s+(?:people|members|developers|engineers)',
-        r'led\s+(?:team\s+of\s+)?(\d+)',
-        r'completed\s+(\d+)\s+projects',
-        r'delivered\s+(\d+)\s+(?:projects|features|releases)',
-    ],
-    'time_based': [
-        r'(?:delivered|completed|finished)\s+(?:on\s+time|ahead\s+of\s+schedule)',
-        r'reduced\s+(?:delivery\s+)?time\s+(?:by\s+)?(\d+)%',
-        r'faster\s+(?:by\s+)?(\d+)%',
-        r'within\s+(?:deadline|timeline|schedule)',
-    ],
-    'quality_based': [
-        r'improved\s+quality',
-        r'zero\s+(?:defects|bugs|errors)',
-        r'(\d+)%\s+(?:accuracy|precision)',
-        r'enhanced\s+(?:user\s+)?(?:experience|satisfaction)',
-    ],
-    'scale_based': [
-        r'scaled\s+(?:to\s+)?(\d+)',
-        r'handled\s+(\d+(?:,\d{3})*)\s+(?:users|requests|transactions)',
-        r'managed\s+(\d+)\s+(?:projects|tasks)',
-    ],
-    'recognition': [
-        r'awarded?',
-        r'recognized',
-        r'promoted',
-        r'selected',
-        r'nominated',
-        r'won',
-        r'received\s+(?:award|recognition)',
-    ]
-}
-
-
-# ============= HELPER FUNCTIONS =============
-
-def _normalize_soft_skill(skill):
-    """Chuẩn hóa soft skill"""
-    if not skill:
-        return ''
-    
-    skill_lower = skill.lower().strip()
-    skill_lower = re.sub(r'[^\w\s\-]', '', skill_lower)
-    skill_lower = re.sub(r'\s+', ' ', skill_lower)
-    
-    if skill_lower in SOFT_SKILL_SYNONYMS:
-        return SOFT_SKILL_SYNONYMS[skill_lower]
-    
-    return skill_lower
-
-
-def _extract_soft_skills_from_text(text):
-    """Trích xuất soft skills từ text"""
-    if not text or text.lower() == 'n/a':
-        return []
-    
-    text_lower = text.lower()
-    found_skills = []
-    
-    # Check all known soft skills
-    for category, skills in SOFT_SKILLS_CATEGORIES.items():
-        for skill in skills:
-            pattern = r'\b' + re.escape(skill) + r'\b'
-            if re.search(pattern, text_lower):
-                normalized = _normalize_soft_skill(skill)
-                if normalized not in found_skills:
-                    found_skills.append(normalized)
-    
-    # Extract from common patterns
-    patterns = [
-        r'soft skills?:?\s*([^.\n]+)',
-        r'key strengths?:?\s*([^.\n]+)',
-        r'personal skills?:?\s*([^.\n]+)',
-        r'core competenc(?:y|ies):?\s*([^.\n]+)',
-    ]
-    
-    for pattern in patterns:
-        matches = re.findall(pattern, text_lower)
-        for match in matches:
-            skills = re.split(r'[,;|]', match)
-            for skill in skills:
-                normalized = _normalize_soft_skill(skill.strip())
-                if normalized and len(normalized) > 2:
-                    found_skills.append(normalized)
-    
-    return list(set(found_skills))
-
-
-def _get_soft_skill_category(skill):
-    """Xác định category của soft skill"""
-    skill_norm = _normalize_soft_skill(skill)
-    
-    for category, skills in SOFT_SKILLS_CATEGORIES.items():
-        for known_skill in skills:
-            if skill_norm == known_skill or skill_norm in known_skill or known_skill in skill_norm:
-                return category
-    
-    return 'other'
-
-
-# ============= 1. EVIDENCE-BASED SCORING (40%) =============
-
-def _detect_skill_evidence(text, skill):
+def _llm_extract_soft_skills(text, jd_context=""):
     """
-    Tìm bằng chứng về soft skill trong experience/activities
-    Returns: evidence score (0-100)
+    Dùng Ollama để extract soft skills + evidence
+    Chỉ gọi khi cần (unknown terms, complex context)
     """
-    if not text:
-        return 0
+    if not _check_ollama_available():
+        print("Ollama not available. Falling back to rule-based only.")
+        return None
     
-    text_lower = text.lower()
-    skill_lower = _normalize_soft_skill(skill)
-    score = 0
-    
-    # Evidence patterns cho từng loại soft skill
-    evidence_patterns = {
-        'communication': [
-            r'present(?:ed|ing)?\s+(?:to|at|for)',
-            r'communicat(?:e|ed|ing)\s+with',
-            r'spoke\s+(?:to|with|at)',
-            r'client\s+(?:meeting|presentation|interaction)',
-            r'stakeholder\s+(?:communication|engagement)',
-            r'report(?:ed|ing)\s+to',
-        ],
-        'leadership': [
-            r'lead\s+(?:a\s+)?team',
-            r'manage(?:d)?\s+\d+\s+(?:people|members|developers)',
-            r'mentor(?:ed|ing)?',
-            r'coach(?:ed|ing)?',
-            r'supervise(?:d)?',
-            r'guide(?:d)?\s+team',
-            r'direct(?:ed)?\s+team',
-        ],
-        'teamwork': [
-            r'work(?:ed)?\s+with\s+team',
-            r'collaborate(?:d)?\s+with',
-            r'cross-functional\s+team',
-            r'team\s+of\s+\d+',
-            r'partnered\s+with',
-            r'coordinated\s+with',
-        ],
-        'problem_solving': [
-            r'solve(?:d)?\s+(?:complex|technical|critical)',
-            r'troubleshoot(?:ed|ing)?',
-            r'debug(?:ged)?',
-            r'optimize(?:d)?',
-            r'improve(?:d)?',
-            r'resolve(?:d)?',
-            r'fix(?:ed)?',
-        ],
-        'time_management': [
-            r'manage(?:d)?\s+multiple\s+projects',
-            r'prioritize(?:d)?',
-            r'(?:met|meet)\s+deadline',
-            r'on\s+time',
-            r'delivered\s+on\s+schedule',
-            r'concurrent\s+projects',
-        ],
-    }
-    
-    category = _get_soft_skill_category(skill)
-    
-    # Direct mention
-    if skill_lower in text_lower:
-        score += 25
-    
-    # Evidence from patterns
-    if category in evidence_patterns:
-        for pattern in evidence_patterns[category]:
-            if re.search(pattern, text_lower):
-                score += 12
-    
-    # Check for quantifiable achievements
-    for pattern_type, patterns in ACHIEVEMENT_PATTERNS.items():
-        for pattern in patterns:
-            if re.search(pattern, text_lower):
-                score += 8
-                break
-    
-    return min(100, score)
+    prompt = f"""Analyze this professional experience and extract soft skills.
 
+Experience text:
+{text[:1000]}
 
-def _calculate_evidence_score(cv_data, matched_soft_skills):
-    """Calculate evidence-based score (40%)"""
-    experience_text = ' '.join([
-        str(cv_data.get('experience', '')),
-        str(cv_data.get('activities', '')),
-        str(cv_data.get('cv_summary', ''))
-    ])
-    
-    if not matched_soft_skills:
-        if _extract_soft_skills_from_text(experience_text):
-            return 40  # Has soft skills but no match
-        return 0
-    
-    evidence_scores = []
-    for cv_skill, jd_skill, _ in matched_soft_skills:
-        evidence = _detect_skill_evidence(experience_text, cv_skill)
-        evidence_scores.append(evidence)
-    
-    avg_evidence = sum(evidence_scores) / len(evidence_scores) if evidence_scores else 0
-    
-    return int(avg_evidence)
+Job context (if any):
+{jd_context[:300]}
 
+Return ONLY valid JSON format (no markdown, no extra text):
+{{
+  "soft_skills": [
+    {{
+      "skill": "leadership",
+      "evidence": "Led team of 5 developers",
+      "confidence": 0.9
+    }}
+  ],
+  "action_verbs": ["led", "managed", "coordinated"],
+  "achievements": [
+    {{
+      "text": "Improved performance by 40%",
+      "type": "quantified",
+      "impact": "high"
+    }}
+  ]
+}}
 
-# ============= 2. BEHAVIORAL ANALYSIS (35%) =============
+Focus on:
+1. Soft skills actually demonstrated (not just mentioned)
+2. Action verbs that prove the skills
+3. Quantifiable achievements
+4. Be concise - only include clear evidence
 
-def _extract_action_verbs(text):
-    """Extract action verbs from text"""
-    if not text:
-        return []
+IMPORTANT: Return ONLY the JSON object, nothing else. No explanations, no markdown."""
     
-    text_lower = text.lower()
-    found_verbs = []
-    
-    for verb in ACTION_VERBS_TO_SOFT_SKILLS.keys():
-        # Look for verb at start of sentence or after punctuation
-        pattern = r'(?:^|[.•\n])\s*' + re.escape(verb) + r'\b'
-        matches = re.findall(pattern, text_lower, re.MULTILINE)
-        found_verbs.extend([verb] * len(matches))
-    
-    return found_verbs
-
-
-def _map_verbs_to_soft_skills(action_verbs):
-    """Map action verbs to soft skills with frequency"""
-    skill_scores = {}
-    
-    for verb in action_verbs:
-        if verb in ACTION_VERBS_TO_SOFT_SKILLS:
-            soft_skills = ACTION_VERBS_TO_SOFT_SKILLS[verb]
-            for skill in soft_skills:
-                if skill not in skill_scores:
-                    skill_scores[skill] = 0
-                skill_scores[skill] += 1
-    
-    return skill_scores
-
-
-def _calculate_behavioral_score(cv_data, jd_soft_skills):
-    """Calculate behavioral analysis score (35%)"""
-    experience_text = str(cv_data.get('experience', ''))
-    
-    # Extract action verbs
-    action_verbs = _extract_action_verbs(experience_text)
-    
-    if not action_verbs:
-        return 30  # Neutral score if no action verbs
-    
-    # Map to soft skills
-    skill_frequency = _map_verbs_to_soft_skills(action_verbs)
-    
-    # Normalize JD skills
-    jd_normalized = [_normalize_soft_skill(s) for s in jd_soft_skills]
-    
-    # Calculate match score
-    matched_count = 0
-    total_frequency = 0
-    
-    for jd_skill in jd_normalized:
-        jd_category = _get_soft_skill_category(jd_skill)
+    try:
+        # Ollama API call
+        response = requests.post(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            json={
+                "model": OLLAMA_MODEL,
+                "prompt": prompt,
+                "stream": False,
+                "format": "json",  # Force JSON output
+                "options": {
+                    "temperature": 0.3,
+                    "num_predict": 600,  # Max tokens
+                }
+            },
+            timeout=60
+        )
         
-        # Check if any behavioral evidence for this category
-        for inferred_skill, freq in skill_frequency.items():
-            if _get_soft_skill_category(inferred_skill) == jd_category:
-                matched_count += 1
-                total_frequency += freq
-                break
-    
-    if not jd_normalized:
-        # If no JD soft skills, score based on total verb diversity
-        return min(100, len(skill_frequency) * 15)
-    
-    # Calculate score
-    match_rate = matched_count / len(jd_normalized)
-    frequency_bonus = min(30, total_frequency * 3)  # Bonus for frequency
-    
-    behavioral_score = int((match_rate * 70) + frequency_bonus)
-    
-    return min(100, behavioral_score)
-
-
-# ============= 3. ACHIEVEMENT-BASED SCORING (25%) =============
-
-def _extract_achievements(text):
-    """Extract quantified achievements from text"""
-    if not text:
-        return []
-    
-    achievements = []
-    text_lower = text.lower()
-    
-    for achievement_type, patterns in ACHIEVEMENT_PATTERNS.items():
-        for pattern in patterns:
-            matches = re.finditer(pattern, text_lower)
-            for match in matches:
-                achievements.append({
-                    'type': achievement_type,
-                    'text': match.group(0),
-                    'value': match.group(1) if match.groups() else None
-                })
-    
-    return achievements
-
-
-def _score_achievement_quality(achievement):
-    """Score individual achievement quality"""
-    achievement_type = achievement['type']
-    value = achievement['value']
-    
-    # Base scores by type
-    base_scores = {
-        'quantified': 25,      # Highest - has numbers
-        'recognition': 20,     # High - external validation
-        'scale_based': 18,     # Good - shows scope
-        'time_based': 15,      # Good - shows efficiency
-        'quality_based': 12,   # Moderate - subjective
-    }
-    
-    base = base_scores.get(achievement_type, 10)
-    
-    # Bonus for high impact numbers
-    if value and achievement_type == 'quantified':
-        try:
-            num = int(re.sub(r'[^\d]', '', value))
-            if num >= 50:
-                base += 10
-            elif num >= 30:
-                base += 5
-        except:
-            pass
-    
-    return base
-
-
-def _map_achievements_to_soft_skills(achievements, jd_soft_skills):
-    """Map achievements to soft skills they demonstrate"""
-    achievement_to_skills = {
-        'quantified': ['problem solving', 'analytical', 'work ethic'],
-        'time_based': ['time management', 'work ethic', 'organization'],
-        'quality_based': ['attention to detail', 'work ethic'],
-        'scale_based': ['leadership', 'time management', 'organization'],
-        'recognition': ['work ethic', 'leadership', 'communication'],
-    }
-    
-    soft_skill_scores = {}
-    
-    for achievement in achievements:
-        quality_score = _score_achievement_quality(achievement)
-        related_skills = achievement_to_skills.get(achievement['type'], [])
+        if response.status_code != 200:
+            print(f"Ollama API error: {response.status_code}")
+            return None
         
-        for skill in related_skills:
-            if skill not in soft_skill_scores:
-                soft_skill_scores[skill] = 0
-            soft_skill_scores[skill] += quality_score
-    
-    return soft_skill_scores
-
-
-def _calculate_achievement_score(cv_data, jd_soft_skills):
-    """Calculate achievement-based score (25%)"""
-    experience_text = str(cv_data.get('experience', ''))
-    
-    # Extract achievements
-    achievements = _extract_achievements(experience_text)
-    
-    if not achievements:
-        return 20  # Low score if no achievements
-    
-    # Map achievements to soft skills
-    achievement_scores = _map_achievements_to_soft_skills(achievements, jd_soft_skills)
-    
-    # Normalize JD skills
-    jd_normalized = [_normalize_soft_skill(s) for s in jd_soft_skills]
-    
-    # Calculate match
-    matched_score = 0
-    for jd_skill in jd_normalized:
-        jd_category = _get_soft_skill_category(jd_skill)
+        result_text = response.json()['response']
         
-        # Check if achievements demonstrate this skill
-        for inferred_skill, score in achievement_scores.items():
-            if _get_soft_skill_category(inferred_skill) == jd_category:
-                matched_score += min(score, 30)  # Cap per skill
-                break
+        # Clean up response (remove markdown if present)
+        result_text = result_text.strip()
+        if result_text.startswith('```json'):
+            result_text = result_text[7:]
+        if result_text.startswith('```'):
+            result_text = result_text[3:]
+        if result_text.endswith('```'):
+            result_text = result_text[:-3]
+        result_text = result_text.strip()
+        
+        # Parse JSON
+        result = json.loads(result_text)
+        return result
+        
+    except json.JSONDecodeError as e:
+        print(f"JSON parsing failed: {e}")
+        print(f"Raw response: {result_text[:200]}")
+        return None
+    except requests.exceptions.Timeout:
+        print("Ollama request timeout (60s)")
+        return None
+    except Exception as e:
+        print(f"Ollama extraction failed: {e}")
+        return None
+
+
+def _should_use_llm(cv_data, jd_data, rulebased_result):
+    """
+    Quyết định có cần gọi LLM không
+    Chỉ gọi khi:
+    1. Rule-based score thấp (<50%) - có thể miss skills
+    2. CV có nhiều text nhưng ít skills detected
+    3. JD có yêu cầu phức tạp
+    """
+    # Case 1: Score quá thấp - có thể bị miss
+    if rulebased_result['total_score'] < 0.5 * rulebased_result['max_score']:
+        return True
     
-    # Normalize to 0-100
-    if jd_normalized:
-        achievement_score = int((matched_score / (len(jd_normalized) * 30)) * 100)
-    else:
-        # No JD skills - score based on total achievements
-        achievement_score = min(100, len(achievements) * 20)
+    # Case 2: CV dài nhưng ít skills - suspicious
+    experience_length = len(str(cv_data.get('experience', '')))
+    detected_skills = len(rulebased_result['summary']['matched_skills'])
     
-    return min(100, achievement_score)
+    if experience_length > 500 and detected_skills < 2:
+        return True
+    
+    # Case 3: JD yêu cầu nhiều soft skills
+    jd_text = str(jd_data)
+    if len(jd_text) > 300 and 'soft skill' in jd_text.lower():
+        return True
+    
+    return False
 
 
-# ============= SEMANTIC MATCHING =============
-
-def _semantic_soft_skill_matching(cv_soft_skills, jd_soft_skills, threshold=0.70):
-    """Semantic matching cho soft skills"""
-    if not cv_soft_skills or not jd_soft_skills:
+def _merge_results(rulebased_result, llm_result, max_score):
+    """
+    Combine rule-based + LLM results
+    Strategy: LLM fills gaps, not replace
+    """
+    if not llm_result:
+        return rulebased_result
+    
+    # Extract LLM insights
+    llm_skills = [s['skill'] for s in llm_result.get('soft_skills', [])]
+    llm_evidence = {s['skill']: s['evidence'] 
+                    for s in llm_result.get('soft_skills', [])}
+    llm_achievements = llm_result.get('achievements', [])
+    
+    # Boost score if LLM found additional evidence
+    additional_skills = set(llm_skills) - set(rulebased_result['summary']['matched_skills'])
+    
+    if additional_skills:
+        # Give bonus for LLM-discovered skills
+        bonus = min(15, len(additional_skills) * 5)  # Max +15 points
+        
+        new_total = min(max_score, rulebased_result['total_score'] + bonus)
+        
+        # Update details
+        details = rulebased_result['details']
+        details += f" Ollama phát hiện thêm {len(additional_skills)} skills."
+        
         return {
-            'matched': [],
-            'unmatched_jd': jd_soft_skills,
-            'extra_cv': cv_soft_skills
+            **rulebased_result,
+            'total_score': new_total,
+            'details': details,
+            'ai_enhanced': True,
+            'ai_provider': f'ollama-{OLLAMA_MODEL}',
+            'ai_additional_skills': list(additional_skills),
+            'ai_evidence': llm_evidence
         }
     
-    model = get_embedding_model()
-    
-    cv_texts = [f"soft skill {s}" for s in cv_soft_skills]
-    jd_texts = [f"required soft skill {s}" for s in jd_soft_skills]
-    
-    cv_embeddings = model.encode(cv_texts)
-    jd_embeddings = model.encode(jd_texts)
-    
-    similarity_matrix = cosine_similarity(cv_embeddings, jd_embeddings)
-    
-    matched = []
-    matched_jd_indices = set()
-    matched_cv_indices = set()
-    
-    for j, jd_skill in enumerate(jd_soft_skills):
-        similarities = similarity_matrix[:, j]
-        best_cv_idx = np.argmax(similarities)
-        best_score = similarities[best_cv_idx]
-        
-        cv_skill = cv_soft_skills[best_cv_idx]
-        
-        # Boost if same category
-        cv_cat = _get_soft_skill_category(cv_skill)
-        jd_cat = _get_soft_skill_category(jd_skill)
-        
-        if cv_cat == jd_cat and cv_cat != 'other':
-            best_score = max(best_score, 0.85)
-        
-        if best_score >= threshold:
-            matched.append((cv_skill, jd_skill, float(best_score)))
-            matched_jd_indices.add(j)
-            matched_cv_indices.add(best_cv_idx)
-    
-    unmatched_jd = [jd_soft_skills[i] for i in range(len(jd_soft_skills)) if i not in matched_jd_indices]
-    extra_cv = [cv_soft_skills[i] for i in range(len(cv_soft_skills)) if i not in matched_cv_indices]
-    
     return {
-        'matched': matched,
-        'unmatched_jd': unmatched_jd,
-        'extra_cv': extra_cv
+        **rulebased_result,
+        'ai_enhanced': True,
+        'ai_provider': f'ollama-{OLLAMA_MODEL}',
+        'ai_additional_skills': []
     }
 
 
-# ============= MAIN SCORING FUNCTION =============
-
-def score_soft_skills(cv_data, jd_data, max_score=100, weights=None):
+def score_soft_skills_ai(cv_data, jd_data, max_score=100, weights=None, force_ai=False):
     """
-    Hàm chính: Chấm điểm Soft Skills với Enhanced Hybrid Approach
+    AI-Enhanced Soft Skills Scoring with Ollama
+    
+    Strategy:
+    1. Chạy rule-based trước (fast, free)
+    2. Nếu cần thiết, gọi Ollama (smart, free, local)
+    3. Merge results
     
     Args:
-        cv_data (dict): Thông tin CV
-            - soft_skills: String/list soft skills
-            - experience: String kinh nghiệm
-            - activities: String hoạt động
-            - cv_summary: String tóm tắt
-        
-        jd_data (dict/str): Thông tin JD
-        
-        max_score (int): Điểm tối đa (default: 100)
-        
-        weights (dict): Trọng số (default: None)
-            {
-                'evidence': 0.40,
-                'behavioral': 0.35,
-                'achievement': 0.25
-            }
+        cv_data: CV dictionary
+        jd_data: JD dictionary/string
+        max_score: Max points
+        weights: Custom weights
+        force_ai: Force Ollama call (for testing)
     
     Returns:
-        dict: {
-            'total_score': float,
-            'max_score': int,
-            'breakdown': {...},
-            'summary': {...},
-            'details': str
-        }
+        Enhanced result with optional Ollama insights
     """
     
-    # Default weights - Enhanced Hybrid
-    if weights is None:
-        weights = {
-            'evidence': 0.40,
-            'behavioral': 0.35,
-            'achievement': 0.25
+    # Phase 1: Rule-based scoring (always run)
+    rulebased_result = score_soft_skills_rulebased(cv_data, jd_data, max_score, weights)
+    
+    # Phase 2: Check if Ollama available
+    if not _check_ollama_available():
+        return {
+            **rulebased_result,
+            'ai_enhanced': False,
+            'ai_available': False,
+            'ai_error': 'Ollama not running'
         }
     
-    # Validate weights
-    total_weight = sum(weights.values())
-    if abs(total_weight - 1.0) > 0.01:
-        raise ValueError(f"Tổng weights phải bằng 1.0, hiện tại: {total_weight}")
+    # Phase 3: Decide if LLM needed
+    use_llm = force_ai or _should_use_llm(cv_data, jd_data, rulebased_result)
     
-    # ===== Extract CV soft skills =====
-    cv_soft_skills = []
+    if not use_llm:
+        return {
+            **rulebased_result,
+            'ai_enhanced': False,
+            'ai_skipped': 'Score sufficient, Ollama not needed'
+        }
     
-    soft_skills_field = cv_data.get('soft_skills', '')
-    if isinstance(soft_skills_field, list):
-        cv_soft_skills.extend(soft_skills_field)
-    else:
-        cv_soft_skills.extend(_extract_soft_skills_from_text(str(soft_skills_field)))
+    # Phase 4: Ollama enhancement
+    print(f"Calling Ollama ({OLLAMA_MODEL})...")
+    experience_text = str(cv_data.get('experience', ''))
+    jd_context = str(jd_data)[:300]
     
-    # Extract from experience
-    experience = cv_data.get('experience', '')
-    if experience and experience != 'n/a':
-        cv_soft_skills.extend(_extract_soft_skills_from_text(str(experience)))
+    llm_result = _llm_extract_soft_skills(experience_text, jd_context)
     
-    # Extract from activities
-    activities = cv_data.get('activities', '')
-    if activities and activities != 'n/a':
-        cv_soft_skills.extend(_extract_soft_skills_from_text(str(activities)))
+    # Phase 5: Merge results
+    final_result = _merge_results(rulebased_result, llm_result, max_score)
     
-    # Extract from summary
-    summary = cv_data.get('cv_summary', '')
-    if summary and summary != 'n/a':
-        cv_soft_skills.extend(_extract_soft_skills_from_text(str(summary)))
-    
-    cv_soft_skills = list(set([_normalize_soft_skill(s) for s in cv_soft_skills if s]))
-    
-    # ===== Extract JD soft skills =====
-    jd_text = ''
+    return final_result
+
+
+
+
+
+# ============= UTILITY FUNCTIONS =============
+
+def test_ollama_connection():
+    """Test Ollama connection and list available models"""
+    try:
+        response = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=2)
+        if response.status_code == 200:
+            models = response.json().get('models', [])
+            print(f"✓ Ollama is running at {OLLAMA_BASE_URL}")
+            print(f"Available models: {[m['name'] for m in models]}")
+            return True
+        else:
+            print(f"✗ Ollama responded with status {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"✗ Ollama not available: {e}")
+        print(f"Make sure Ollama is running: ollama serve")
+        return False
+
+
+def set_ollama_model(model_name):
+    """Change Ollama model"""
+    global OLLAMA_MODEL
+    OLLAMA_MODEL = model_name
+    print(f"Ollama model set to: {model_name}")
+
+
+def score_soft_skills_rulebased(cv_data, jd_data, max_score=100, weights=None):
+    """
+    Rule-based soft skills scoring (Enhanced Hybrid):
+    - Match skills between CV and JD
+    - Bonus from evidence (action verbs near skill mentions)
+    - Behavioral indicator bonus (distinct action verbs present)
+    - Achievement bonus (quantified results / keywords / digits)
+    Returns dict with keys: total_score, max_score, summary, details
+    """
+    def to_skill_set(x):
+        if not x:
+            return set()
+        if isinstance(x, (list, tuple, set)):
+            items = x
+        else:
+            items = [s.strip() for s in str(x).split(',')]
+        return set(s.lower() for s in items if s)
+
+    cv_skills = to_skill_set(cv_data.get('soft_skills', ''))
     if isinstance(jd_data, dict):
-        jd_text = ' '.join([
-            str(jd_data.get('title', '')),
-            str(jd_data.get('requirements', '')),
-            str(jd_data.get('description', ''))
-        ])
+        jd_skills = to_skill_set(jd_data.get('soft_skills', ''))
     else:
-        jd_text = str(jd_data)
-    
-    jd_soft_skills = _extract_soft_skills_from_text(jd_text)
-    jd_soft_skills = list(set([_normalize_soft_skill(s) for s in jd_soft_skills if s]))
-    
-    # If no explicit soft skills in JD, infer from role
-    if not jd_soft_skills:
-        jd_lower = jd_text.lower()
-        for role, default_skills in ROLE_SOFT_SKILLS.items():
-            if role in jd_lower:
-                jd_soft_skills.extend(default_skills)
-                break
-        
-        # Default soft skills if still empty
-        if not jd_soft_skills:
-            jd_soft_skills = ['teamwork', 'communication', 'problem solving']
-    
-    # ===== Semantic matching =====
-    matching_result = _semantic_soft_skill_matching(cv_soft_skills, jd_soft_skills)
-    
-    # ===== Calculate 3 scores =====
-    evidence_score = _calculate_evidence_score(cv_data, matching_result['matched'])
-    behavioral_score = _calculate_behavioral_score(cv_data, jd_soft_skills)
-    achievement_score = _calculate_achievement_score(cv_data, jd_soft_skills)
-    
-    # ===== Calculate Total Score =====
-    total_score_100 = (
-        evidence_score * weights['evidence'] +
-        behavioral_score * weights['behavioral'] +
-        achievement_score * weights['achievement']
+        jd_skills = to_skill_set(jd_data)
+
+    matched_skills = sorted(list(cv_skills & jd_skills))
+
+    # Base score: proportion of JD skills matched (fallback to CV size if JD empty)
+    denom = len(jd_skills) or max(len(cv_skills), 1)
+    base_score = int(round(max_score * (len(matched_skills) / denom)))
+
+    experience = str(cv_data.get('experience', '')).lower()
+
+    # Action verbs and achievement cues
+    action_verbs = [
+        'led', 'managed', 'coordinated', 'mentored', 'organized', 'negotiated',
+        'presented', 'facilitated', 'supervised', 'implemented', 'initiated',
+        'collaborated', 'communicated', 'resolved', 'influenced'
+    ]
+    achievement_keywords = [
+        'improved', 'increased', 'reduced', 'decreased', 'grew', 'won', 'award',
+        'achieved', 'delivered', 'resulted', 'saved', '%', 'percent'
+    ]
+
+    # Evidence: matched skill appears near an action verb
+    evidence_count = 0
+    for skill in matched_skills:
+        idx = experience.find(skill)
+        if idx != -1:
+            window = experience[max(0, idx - 60): idx + len(skill) + 60]
+            if any(v in window for v in action_verbs):
+                evidence_count += 1
+
+    # Behavioral: count distinct action verbs present in experience
+    behavioral_count = sum(1 for v in action_verbs if v in experience)
+
+    # Achievement: presence of digits or achievement keywords
+    achievement_count = 0
+    if any(ch.isdigit() for ch in experience):
+        achievement_count += 1
+    achievement_count += sum(1 for kw in achievement_keywords if kw in experience)
+
+    # Bonuses (clamped)
+    evidence_bonus = min(15, evidence_count * 4)       # up to +15
+    behavioral_bonus = min(5, behavioral_count * 1)    # up to +5
+    achievement_bonus = min(10, achievement_count * 2) # up to +10
+
+    total_score = min(max_score, base_score + evidence_bonus + behavioral_bonus + achievement_bonus)
+
+    details = (
+        f"Base={base_score}; evidence_count={evidence_count}, behavioral_count={behavioral_count}, "
+        f"achievement_count={achievement_count}; bonuses: evidence+{evidence_bonus}, "
+        f"behavioral+{behavioral_bonus}, achievement+{achievement_bonus}."
     )
-    
-    total_score = round((total_score_100 / 100) * max_score, 2)
-    
-    # ===== Prepare Summary =====
-    matched_skills = [jd_skill for _, jd_skill, _ in matching_result['matched']]
-    missing_skills = matching_result['unmatched_jd']
-    
-    # Extract stats for details
-    action_verbs = _extract_action_verbs(str(cv_data.get('experience', '')))
-    achievements = _extract_achievements(str(cv_data.get('experience', '')))
-    
-    # Calculate diversity
-    cv_categories = set([_get_soft_skill_category(s) for s in cv_soft_skills])
-    cv_categories.discard('other')
-    
-    # Generate details
-    match_rate = len(matched_skills) / len(jd_soft_skills) * 100 if jd_soft_skills else 0
-    
-    details = f"Soft skills: {len(matched_skills)}/{len(jd_soft_skills)} matched ({match_rate:.0f}%). "
-    
-    if evidence_score >= 70:
-        details += "Có bằng chứng tốt trong kinh nghiệm. "
-    elif evidence_score >= 40:
-        details += "Có đề cập nhưng thiếu bằng chứng cụ thể. "
-    else:
-        details += "Thiếu bằng chứng về soft skills. "
-    
-    if len(action_verbs) >= 10:
-        details += f"Tìm thấy {len(action_verbs)} action verbs. "
-    
-    if len(achievements) >= 3:
-        details += f"Có {len(achievements)} thành tựu được lượng hóa. "
-    elif len(achievements) == 0:
-        details += "Thiếu thành tựu cụ thể. "
-    
-    if len(cv_categories) >= 4:
-        details += "Soft skills đa dạng."
-    
+
     return {
-        'total_score': total_score,
-        'max_score': max_score,
-        'breakdown': {
-            'evidence': {
-                'score': round(evidence_score * max_score * weights['evidence'] / 100, 2),
-                'weight': weights['evidence'],
-                'raw_score': evidence_score
-            },
-            'behavioral': {
-                'score': round(behavioral_score * max_score * weights['behavioral'] / 100, 2),
-                'weight': weights['behavioral'],
-                'raw_score': behavioral_score
-            },
-            'achievement': {
-                'score': round(achievement_score * max_score * weights['achievement'] / 100, 2),
-                'weight': weights['achievement'],
-                'raw_score': achievement_score
-            }
-        },
+        'total_score': int(total_score),
+        'max_score': int(max_score),
         'summary': {
+            'cv_skills': sorted(list(cv_skills)),
+            'jd_skills': sorted(list(jd_skills)),
             'matched_skills': matched_skills,
-            'missing_skills': missing_skills,
-            'cv_categories': list(cv_categories),
-            'total_cv_soft_skills': len(cv_soft_skills),
-            'action_verbs_count': len(action_verbs),
-            'achievements_count': len(achievements),
-            'match_rate': round(match_rate, 1)
+            'evidence_count': evidence_count,
+            'behavioral_count': behavioral_count,
+            'achievement_count': achievement_count
         },
         'details': details
     }
+    
+def score_soft_skills(cv_data, jd_data, max_score=100, weights=None, use_ai='auto'):
+    """
+    Smart soft skills scoring with Ollama
+    
+    Args:
+        cv_data: CV dictionary
+        jd_data: JD dictionary/string
+        max_score: Maximum score
+        weights: Custom weights
+        use_ai: 'auto' (default), True (force), False (never)
+    
+    Returns:
+        Scoring result dictionary
+    """
+    if use_ai == False or use_ai == 'never':
+        return score_soft_skills_rulebased(cv_data, jd_data, max_score, weights)
+    
+    return score_soft_skills_ai(cv_data, jd_data, max_score, weights, 
+                                force_ai=(use_ai == True or use_ai == 'always'))
+    
+    
+    

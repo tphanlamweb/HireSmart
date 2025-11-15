@@ -6,16 +6,15 @@ import json
 
 
 
-#from scoring.education_scoring import EducationScorer
+import scoring.education_scoring as ec
 import scoring.experience_scoring as ex
 import scoring.technical_skill_scoring as ts
-
-#ec = EducationScorer()
+import scoring.soft_skills_scoring as ss
+import scoring.tools_and_certificates_scoring as tc
 
 
 
 def clean_text(text: str) -> str:
-    """Làm sạch chuỗi: bỏ khoảng trắng thừa, ký tự lạ."""
     if not text:
         return ""
     text = str(text)
@@ -25,9 +24,7 @@ def clean_text(text: str) -> str:
 
 
 def extract_field(block: str, field_name: str) -> str:
-    """
-    Tìm đoạn text bắt đầu bằng 'field_name:' và lấy nội dung theo dòng hoặc đến khi gặp field khác.
-    """
+
     pattern = rf"{field_name}\s*:\s*(.*?)(?=\n\w+?:|\Z)"
     match = re.search(pattern, block, flags=re.DOTALL | re.IGNORECASE)
     if match:
@@ -105,14 +102,6 @@ def get_last_candidate(file_path: str) -> Dict[str, str]:
 
     last_block = blocks[-1]
     return parse_candidate_block(last_block)
-#------ EDUCATION SCORING ------
-def scoring_education(e_data):
-    jd_text = "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing."
-    target_description = "Ứng viên có trình độ đại học hoặc cao hơn trong lĩnh vực quản trị kinh doanh, tài chính, marketing hoặc công nghệ thông tin"
-    print("e data = ",e_data)
-    print("\njd text: ", jd_text, "\n\ntarget description: ", target_description,"\n")
-    return 0# ec.score_education(e_data, jd_text)
-
 
 def detect_language(text: str) -> str:
     try:
@@ -120,23 +109,11 @@ def detect_language(text: str) -> str:
         return lang  # 'vi', 'en', 'fr', ...
     except:
         return 'unknown'
-    
-#------ EXPERIENCE SCORING ------
-def scoring_experience(exp_data):
-    jd_text = """
-    We are looking for a Backend Developer with experience in PHP, Laravel, and MySQL.
-    The candidate should have knowledge of API development, teamwork, and React integration.
-    """
-    print("JD : ",jd_text)
-    return ex.score_experience(exp_data, jd_text, 250)
 
-def scoring_technical_skills(cv_data):
-    jd_data = {
-        'title': 'Senior Backend Developer',
-        'requirements': 'Required: PHP, Laravel, MySQL. Prefer: Docker, AWS',
-        'skills': 'PHP Laravel MySQL REST API'
-    }
-    return ts.score_technical_skills(cv_data, jd_data, 250)
+
+
+
+
 
 def main():
     filename = 'demo_data.csv'
@@ -160,23 +137,62 @@ def main():
     candidate_certificates = candidate["certificates"]
     candidate_tools = candidate["tools"]
     
-    
-    
+    jd_certificates = "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing."
+    jd_experiences = """
+    We are looking for a Backend Developer with experience in PHP, Laravel, and MySQL.
+    The candidate should have knowledge of API development, teamwork, and React integration.
+    """
+    jd_technical_skills = {
+        'title': 'Senior Backend Developer',
+        'requirements': 'Required: PHP, Laravel, MySQL. Prefer: Docker, AWS',
+        'skills': 'PHP Laravel MySQL REST API'
+    }
+    jd_soft_skills = 'Looking for candidate with strong leadership and communication skills'
+    jd_tools_and_certificates ={
+        'requirements': """
+        Tools:
+        - Version Control (Github, GitLab, Git)
+        - API Testing
+        - Collaboration (Jira)
+        - Design (Figma)
+        
+        Certificates:
+        - AWS Certified Solutions Architect
+        - Certified ScrumMaster (CSM)
+        - PMP Certification
+        - IELTS 5.0
+        """,
+    }
     
     
     #print(detect_language(json.dumps(candidate, ensure_ascii=False)))
-        
+    print("ứng viên: ", candidate_name)
+    
     #------ EDUCATION SCORING ------
     print("\n=== CHẤM ĐIỂM HỌC VẤN ===")
-    #print("final education score:", scoring_education(candidate["education"]))
+    print( "Tổng điểm học vấn: ",json.dumps(ec.score_education(candidate,jd_certificates)["total_score"], ensure_ascii=False, indent=4), "/ 100đ")
 
+    
     #------ EXPERIENCE SCORING ------
     print("\n=== CHẤM ĐIỂM KINH NGHIỆM ===")
-    #print(scoring_experience(candidate)["total_score"])
+    print("Tổng điểm kinh nghiệm: ",json.dumps(ex.score_experience(candidate,jd_experiences, 250)["total_score"], ensure_ascii=False, indent=4),"/ 250đ")
+    
     
     #------ TECHNICAL SKILLS SCORING ------
     print("\n=== CHẤM ĐIỂM KỸ NĂNG CHUYÊN MÔN ===")
-    for key , value in scoring_technical_skills(candidate).items():
-        print(f"\n{key}: {value}")
+    print("Tổng điểm Kỹ năng chuyên môn: ",json.dumps(ts.score_technical_skills(candidate,jd_technical_skills, 250)["total_score"], ensure_ascii=True, indent=4), "/ 250đ")
+    
+    
+    #------ SOFT SKILLS SCORING ------
+    print("\n=== CHẤM ĐIỂM KỸ NĂNG MỀM ===")
+    print("Tổng điểm kỹ năng mềm: ",json.dumps(ss.score_soft_skills(candidate,jd_soft_skills, 150)["total_score"], ensure_ascii=False, indent=4),"/ 150đ")
+    
+    #------ TOOLS AND CERTIFICATES SCORING ------
+    print("\n=== CHẤM ĐIỂM CÔNG CỤ VÀ CHỨNG CHỈ ===")
+    print("Tổng điểm Công cụu và chứng chỉ: ",json.dumps(tc.score_tools_and_certificates(candidate,jd_tools_and_certificates, 150)["total_score"], ensure_ascii=False, indent=4), "/ 150đ")
+
+
+
+
 
 main()
