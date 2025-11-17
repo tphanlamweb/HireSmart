@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Management Dashboard - HireSmart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-container span {
+            font-size: 1.6rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .main-container {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .dashboard-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.all { border-left: 4px solid #3b82f6; }
+        .stat-card.suitable { border-left: 4px solid #10b981; }
+        .stat-card.inviting { border-left: 4px solid #f59e0b; }
+        .stat-card.accepted { border-left: 4px solid #8b5cf6; }
+        .stat-card.rejected { border-left: 4px solid #ef4444; }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1a202c;
+        }
+
+        .filters-section {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .clear-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .clear-btn:hover {
+            background: #dc2626;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .table-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .results-count {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f7fafc;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2d3748;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .candidate-name {
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .cv-score {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .cv-score.high {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .cv-score.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .cv-score.low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .status-badge.suitable {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.inviting {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.accepted {
+            background: #ddd6fe;
+            color: #5b21b6;
+        }
+
+        .status-badge.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #1a202c;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .detail-value {
+            color: #2d3748;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .skill-tag {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.375rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #718096;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-select {
+            padding: 0.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .status-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .action-btn-bulk {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn-bulk:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn-bulk:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .checkbox-cell {
+            text-align: center;
+        }
+
+        .candidate-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                font-size: 0.875rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .detail-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav>
+            <div class="logo-container">
+                <span>🎯 HireSmart</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Trang chủ</a></li>
+                <li><a href="#jobs">Jobs</a></li>
+                <li><a href="#dashboard">Dashboard HR</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Quản lý ứng viên</h1>
+            <p class="dashboard-subtitle">Theo dõi và quản lý tất cả ứng viên trong hệ thống</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card all" data-status="all">
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">Tổng ứng viên</div>
+                <div class="stat-value" id="totalCount">0</div>
+            </div>
+            <div class="stat-card suitable" data-status="suitable">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Phù hợp</div>
+                <div class="stat-value" id="suitableCount">0</div>
+            </div>
+            <div class="stat-card inviting" data-status="inviting">
+                <div class="stat-icon">📧</div>
+                <div class="stat-label">Đang mời</div>
+                <div class="stat-value" id="invitingCount">0</div>
+            </div>
+            <div class="stat-card accepted" data-status="accepted">
+                <div class="stat-icon">🎉</div>
+                <div class="stat-label">Đã chấp nhận</div>
+                <div class="stat-value" id="acceptedCount">0</div>
+            </div>
+            <div class="stat-card rejected" data-status="rejected">
+                <div class="stat-icon">❌</div>
+                <div class="stat-label">Từ chối</div>
+                <div class="stat-value" id="rejectedCount">0</div>
+            </div>
+        </div>
+
+        <div class="filters-section">
+            <div class="filters-header">
+                <h2 class="filters-title">🔍 Bộ lọc tìm kiếm</h2>
+                <button class="clear-btn" onclick="clearFilters()">Xóa bộ lọc</button>
+            </div>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Tìm kiếm theo tên</label>
+                    <input type="text" id="searchName" placeholder="Nhập tên ứng viên...">
+                </div>
+                <div class="filter-group">
+                    <label>Điểm CV tối thiểu</label>
+                    <input type="number" id="minPoints" placeholder="VD: 70" min="0" max="100">
+                </div>
+                <div class="filter-group">
+                    <label>Kinh nghiệm/Kỹ năng</label>
+                    <input type="text" id="searchExperience" placeholder="VD: Python, Java...">
+                </div>
+                <div class="filter-group">
+                    <label>Sắp xếp theo</label>
+                    <select id="sortBy">
+                        <option value="points-desc">Điểm CV (Cao → Thấp)</option>
+                        <option value="points-asc">Điểm CV (Thấp → Cao)</option>
+                        <option value="name-asc">Tên (A → Z)</option>
+                        <option value="name-desc">Tên (Z → A)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <h2 class="table-title">Danh sách ứng viên</h2>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span>
+                    <span class="results-count" id="selectedCount" style="color: #667eea; font-weight: 600;">Đã chọn: 0</span>
+                </div>
+            </div>
+            <div style="padding: 1rem 1.5rem; border-bottom: 2px solid #e2e8f0; background: #f7fafc; display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>
+                    📧 Gửi email hàng loạt
+                </button>
+                <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>
+                    📥 Xuất dữ liệu đã chọn
+                </button>
+                <button class="action-btn-bulk" onclick="changeStatusBulk()" id="changeStatusBtn" disabled>
+                    🔄 Thay đổi trạng thái
+                </button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" style="width: 18px; height: 18px; cursor: pointer;">
+                            </th>
+                            <th>Tên ứng viên</th>
+                            <th>Điểm CV</th>
+                            <th>Kỹ năng chính</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidatesTable">
+                    </tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">🔍</div>
+                <h3>Không tìm thấy ứng viên</h3>
+                <p>Thử điều chỉnh bộ lọc hoặc tìm kiếm khác</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Chi tiết ứng viên</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let candidates = [
+            {
+                id: 1,
+                name: "Nguyễn Văn An",
+                cv_points: 92,
+                experience_summary: "5 năm kinh nghiệm Python, Django, FastAPI. Đã làm việc tại các công ty lớn.",
+                status: "suitable",
+                email: "nguyenvanan@email.com",
+                phone: "0901234567",
+                education: "Đại học Bách Khoa",
+                skills: ["Python", "Django", "FastAPI", "PostgreSQL", "Docker"]
+            },
+            {
+                id: 2,
+                name: "Trần Thị Bình",
+                cv_points: 85,
+                experience_summary: "3 năm React, Node.js. Chuyên về frontend development và UX/UI.",
+                status: "inviting",
+                email: "tranthib@email.com",
+                phone: "0902345678",
+                education: "Đại học Công Nghệ",
+                skills: ["React", "Node.js", "JavaScript", "TypeScript", "CSS"]
+            },
+            {
+                id: 3,
+                name: "Lê Văn Cường",
+                cv_points: 78,
+                experience_summary: "2 năm Java Spring Boot. Junior developer với tiềm năng cao.",
+                status: "suitable",
+                email: "levanc@email.com",
+                phone: "0903456789",
+                education: "Đại học Khoa Học Tự Nhiên",
+                skills: ["Java", "Spring Boot", "MySQL", "Git"]
+            },
+            {
+                id: 4,
+                name: "Phạm Thị Dung",
+                cv_points: 95,
+                experience_summary: "7 năm Full-stack, Team Lead. Kinh nghiệm quản lý dự án lớn.",
+                status: "accepted",
+                email: "phamthid@email.com",
+                phone: "0904567890",
+                education: "Đại học Bách Khoa TP.HCM",
+                skills: ["Full-stack", "Leadership", "AWS", "Microservices", "Agile"]
+            },
+            {
+                id: 5,
+                name: "Hoàng Văn Em",
+                cv_points: 65,
+                experience_summary: "1 năm kinh nghiệm PHP. Mới tốt nghiệp, cần thêm đào tạo.",
+                status: "rejected",
+                email: "hoangvane@email.com",
+                phone: "0905678901",
+                education: "Cao đẳng FPT",
+                skills: ["PHP", "Laravel", "MySQL"]
+            },
+            {
+                id: 6,
+                name: "Đỗ Thị Phương",
+                cv_points: 88,
+                experience_summary: "4 năm DevOps, CI/CD. Chuyên về automation và infrastructure.",
+                status: "inviting",
+                email: "dothif@email.com",
+                phone: "0906789012",
+                education: "Đại học Bách Khoa Hà Nội",
+                skills: ["Docker", "Kubernetes", "Jenkins", "AWS", "Terraform"]
+            }
+        ];
+
+        let selectedCandidates = new Set();
+
+        let currentFilter = {
+            status: 'all',
+            searchName: '',
+            minPoints: '',
+            searchExperience: '',
+            sortBy: 'points-desc'
+        };
+
+        function init() {
+            setupEventListeners();
+            renderCandidates();
+            updateStats();
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const status = this.dataset.status;
+                    currentFilter.status = status;
+                    renderCandidates();
+                });
+            });
+
+            document.getElementById('searchName').addEventListener('input', function() {
+                currentFilter.searchName = this.value.toLowerCase();
+                renderCandidates();
+            });
+
+            document.getElementById('minPoints').addEventListener('input', function() {
+                currentFilter.minPoints = this.value;
+                renderCandidates();
+            });
+
+            document.getElementById('searchExperience').addEventListener('input', function() {
+                currentFilter.searchExperience = this.value.toLowerCase();
+                renderCandidates();
+            });
+
+            document.getElementById('sortBy').addEventListener('change', function() {
+                currentFilter.sortBy = this.value;
+                renderCandidates();
+            });
+        }
+
+        function getFilteredCandidates() {
+            let filtered = [...candidates];
+
+            if (currentFilter.status !== 'all') {
+                filtered = filtered.filter(c => c.status === currentFilter.status);
+            }
+
+            if (currentFilter.searchName) {
+                filtered = filtered.filter(c =>
+                    c.name.toLowerCase().includes(currentFilter.searchName)
+                );
+            }
+
+            if (currentFilter.minPoints) {
+                filtered = filtered.filter(c => c.cv_points >= parseInt(currentFilter.minPoints));
+            }
+
+            if (currentFilter.searchExperience) {
+                filtered = filtered.filter(c =>
+                    c.experience_summary.toLowerCase().includes(currentFilter.searchExperience) ||
+                    c.skills.some(s => s.toLowerCase().includes(currentFilter.searchExperience))
+                );
+            }
+
+            filtered.sort((a, b) => {
+                switch (currentFilter.sortBy) {
+                    case 'points-desc': return b.cv_points - a.cv_points;
+                    case 'points-asc': return a.cv_points - b.cv_points;
+                    case 'name-asc': return a.name.localeCompare(b.name);
+                    case 'name-desc': return b.name.localeCompare(a.name);
+                    default: return 0;
+                }
+            });
+
+            return filtered;
+        }
+
+        function renderCandidates() {
+            const tbody = document.getElementById('candidatesTable');
+            const filtered = getFilteredCandidates();
+
+            document.getElementById('resultsCount').textContent = `Hiển thị ${filtered.length} kết quả`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('emptyState').style.display = 'none';
+
+            tbody.innerHTML = filtered.map(candidate => {
+                const scoreClass = candidate.cv_points >= 85 ? 'high' : candidate.cv_points >= 70 ? 'medium' : 'low';
+                const mainSkills = candidate.skills.slice(0, 3).join(', ');
+                const isChecked = selectedCandidates.has(candidate.id);
+                
+                return `
+                    <tr>
+                        <td class="checkbox-cell">
+                            <input type="checkbox" class="candidate-checkbox" 
+                                   data-id="${candidate.id}" 
+                                   ${isChecked ? 'checked' : ''}
+                                   onchange="toggleCandidate(${candidate.id})">
+                        </td>
+                        <td class="candidate-name">${candidate.name}</td>
+                        <td><span class="cv-score ${scoreClass}">${candidate.cv_points}</span></td>
+                        <td>${mainSkills}</td>
+                        <td>
+                            <select class="status-select" onchange="updateStatus(${candidate.id}, this.value)">
+                                <option value="suitable" ${candidate.status === 'suitable' ? 'selected' : ''}>Phù hợp</option>
+                                <option value="inviting" ${candidate.status === 'inviting' ? 'selected' : ''}>Đang mời</option>
+                                <option value="accepted" ${candidate.status === 'accepted' ? 'selected' : ''}>Đã chấp nhận</option>
+                                <option value="rejected" ${candidate.status === 'rejected' ? 'selected' : ''}>Từ chối</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="showDetail(${candidate.id})" title="Xem chi tiết">👁️</button>
+                                <button class="action-btn" onclick="editCandidate(${candidate.id})" title="Chỉnh sửa">✏️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            updateSelectedCount();
+        }
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = candidates.length;
+            document.getElementById('suitableCount').textContent = candidates.filter(c => c.status === 'suitable').length;
+            document.getElementById('invitingCount').textContent = candidates.filter(c => c.status === 'inviting').length;
+            document.getElementById('acceptedCount').textContent = candidates.filter(c => c.status === 'accepted').length;
+            document.getElementById('rejectedCount').textContent = candidates.filter(c => c.status === 'rejected').length;
+        }
+
+        function updateStatus(id, newStatus) {
+            const candidate = candidates.find(c => c.id === id);
+            if (candidate) {
+                candidate.status = newStatus;
+                updateStats();
+                renderCandidates();
+            }
+        }
+
+        function showDetail(id) {
+            const candidate = candidates.find(c => c.id === id);
+            if (!candidate) return;
+
+            const statusLabels = {
+                suitable: 'Phù hợp',
+                inviting: 'Đang mời',
+                accepted: 'Đã chấp nhận',
+                rejected: 'Từ chối'
+            };
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="detail-row">
+                    <div class="detail-label">Họ tên:</div>
+                    <div class="detail-value">${candidate.name}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Email:</div>
+                    <div class="detail-value">${candidate.email}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Số điện thoại:</div>
+                    <div class="detail-value">${candidate.phone}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Điểm CV:</div>
+                    <div class="detail-value"><span class="cv-score ${candidate.cv_points >= 85 ? 'high' : candidate.cv_points >= 70 ? 'medium' : 'low'}">${candidate.cv_points}</span></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Trạng thái:</div>
+                    <div class="detail-value"><span class="status-badge ${candidate.status}">${statusLabels[candidate.status]}</span></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Học vấn:</div>
+                    <div class="detail-value">${candidate.education}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Kỹ năng:</div>
+                    <div class="detail-value">
+                        <div class="skills-list">
+                            ${candidate.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Kinh nghiệm:</div>
+        
