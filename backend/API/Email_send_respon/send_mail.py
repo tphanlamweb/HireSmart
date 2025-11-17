@@ -17,6 +17,10 @@ SMTP_PORT= int(os.getenv("SMTP_POST",587))
 SMTP_EMAIL= os.getenv("SMTP_EMAIL","your_email@gmail.com")
 SMTP_PASSWORD= os.getenv("SMTP_PASSWORD","your_app password")
 
+# emali da tao
+SENDER_EMAIL = "hiresmart2525@gmail.com"
+APP_PASSWORD = "kefh hlov mtjc oiis"
+
 def send_email(to_email: str, subject: str, content: str):
     """
     Gửi email văn bản thuần (plain text) qua SMTP Gmail.
