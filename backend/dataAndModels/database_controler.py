@@ -20,7 +20,6 @@ metadata = MetaData()
 metadata.reflect(bind=engine)  # 🔍 Tự động tải cấu trúc tất cả bảng có sẵn
 
 
-
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
@@ -49,6 +48,7 @@ def read_users(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Bảng 'users' không tồn tại trong DB!")
 
     result = db.execute(users_table.select()).fetchall()
+    print(result)
     return [dict(row._mapping) for row in result]
 
 

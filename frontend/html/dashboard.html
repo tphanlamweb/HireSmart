@@ -1107,7 +1107,7 @@
                         </div>
                         <div class="filter-item">
                             <label>Sắp xếp theo</label>
-                            <select id="sortBy">
+                            <select id="sortBy" aria-label="Sắp xếp theo">
                                 <option value="points-desc">Điểm CV (Cao → Thấp)</option>
                                 <option value="points-asc">Điểm CV (Thấp → Cao)</option>
                                 <option value="name-asc">Tên (A → Z)</option>
@@ -1118,10 +1118,24 @@
                 </div>
 
                 <!-- Table Section -->
-                <div class="table-section">
+                < class="table-section">
                     <div class="table-header">
                         <h2>Danh sách ứng viên</h2>
-                        <span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span>
+                        <div>
+                            <span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span>
+                            <span >Đã chọn: 0</span>
+                        </div>
+                    </div>
+                    <div >
+                        <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>
+                            📧 Gửi email hàng loạt
+                        </button>
+                        <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>
+                            📥 Xuất dữ liệu đã chọn
+                         </button>
+                        <button class="action-btn-bulk" onclick="changeStatusBulk()" id="changeStatusBtn" disabled>
+                            🔄 Thay đổi trạng thái
+                        </button>
                     </div>
                     <div class="table-container">
                         <table id="candidatesTable">
@@ -1136,14 +1150,14 @@
                             </thead>
                             {% for user in users %}
                             <tr>
-                                <td>{{ user.full_name }}</td>
                                 <td>{{ user.overall_cv_score }}</td>
+                                <td>{{ user.full_name }}</td>
                                 <td>{{ user.address }}</td>
                             </tr>
                             {% endfor %}
                         </table>
                     </div>
-                    <div id="emptyState" class="empty-state" style="display: none;">
+                    <div id="emptyState" class="empty-state">
                         <div class="empty-state-icon">🔍</div>
                         <h3>Không tìm thấy ứng viên</h3>
                         <p>Thử điều chỉnh bộ lọc hoặc tìm kiếm khác</p>
