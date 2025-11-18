@@ -6,11 +6,12 @@ import json
 
 
 
-import scoring.education_scoring as ec
-import scoring.experience_scoring as ex
-import scoring.technical_skill_scoring as ts
-import scoring.soft_skills_scoring as ss
-import scoring.tools_and_certificates_scoring as tc
+import scoring.education_scoring as education_scoring
+import scoring.experience_scoring as experience_scoring
+import scoring.technical_skill_scoring as technical_skill_scoring
+import scoring.soft_skills_scoring as soft_skills_scoring
+import scoring.tools_and_certificates_scoring as tools_and_certificates_scoring
+import scoring.similarity_scoring as sim_scoring
 
 
 
@@ -103,6 +104,7 @@ def get_last_candidate(file_path: str) -> Dict[str, str]:
     last_block = blocks[-1]
     return parse_candidate_block(last_block)
 
+
 def detect_language(text: str) -> str:
     try:
         lang = detect(text)
@@ -110,7 +112,49 @@ def detect_language(text: str) -> str:
     except:
         return 'unknown'
 
+def education_score(cv ,jd):
+    education = education_scoring.score_education(cv, jd)
+    
+    return {
+        "total_score": education["total_score"],
+        "max_score": 100
+    }
 
+def experience_score(cv ,jd, max_score):
+    experience = experience_scoring.score_experience(cv, jd, max_score)
+    return {
+        "total_score": experience["total_score"],
+        "max_score": experience["max_score"]
+    }
+
+def technical_skill_score(cv ,jd, max_score):
+    technical_skills = technical_skill_scoring.score_technical_skills(cv, jd, max_score)
+    return {
+        "total_score": technical_skills["total_score"],
+        "max_score": technical_skills["max_score"]
+    }
+    
+def soft_skills_score(cv ,jd, max_score):
+    soft_skills = soft_skills_scoring.score_soft_skills(cv, jd, max_score)
+    return {
+        "total_score": soft_skills["total_score"],
+        "max_score": soft_skills["max_score"]
+    }
+
+def tools_and_certificates_score(cv ,jd, max_score):
+    tools_and_certificates = tools_and_certificates_scoring.score_tools_and_certificates(cv, jd, max_score)
+    return {
+        "total_score": tools_and_certificates["total_score"],
+        "max_score": tools_and_certificates["max_score"]
+    }
+
+def sim_score(cv ,jd, max_score):
+    similarity = sim_scoring.relevance_scoring(cv, jd, max_score)
+    return {
+        "total_score": similarity["total_score"],
+        "max_score": similarity["max_score"]
+    }
+    
 
 
 
@@ -137,31 +181,42 @@ def main():
     candidate_certificates = candidate["certificates"]
     candidate_tools = candidate["tools"]
     
-    jd_certificates = "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing."
-    jd_experiences = """
-    We are looking for a Backend Developer with experience in PHP, Laravel, and MySQL.
-    The candidate should have knowledge of API development, teamwork, and React integration.
-    """
-    jd_technical_skills = {
-        'title': 'Senior Backend Developer',
-        'requirements': 'Required: PHP, Laravel, MySQL. Prefer: Docker, AWS',
-        'skills': 'PHP Laravel MySQL REST API'
-    }
-    jd_soft_skills = 'Looking for candidate with strong leadership and communication skills'
-    jd_tools_and_certificates ={
-        'requirements': """
-        Tools:
-        - Version Control (Github, GitLab, Git)
-        - API Testing
-        - Collaboration (Jira)
-        - Design (Figma)
-        
-        Certificates:
-        - AWS Certified Solutions Architect
-        - Certified ScrumMaster (CSM)
-        - PMP Certification
-        - IELTS 5.0
+    jd_full = {
+        "certificates": "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing.",
+
+        "experiences": """
+        We are looking for a Backend Developer with experience in PHP, Laravel, and MySQL.
+        The candidate should have knowledge of API development, teamwork, and React integration.
         """,
+
+        "technical_skills": {
+            "title": "Senior Backend Developer",
+            "requirements": "Required: PHP, Laravel, MySQL. Prefer: Docker, AWS",
+            "skills": "PHP Laravel MySQL REST API"
+        },
+
+        "soft_skills": "Looking for candidate with strong leadership and communication skills",
+
+        "tools_and_certificates": {
+            "requirements": """
+            Tools:
+            - Version Control (Github, GitLab, Git)
+            - API Testing
+            - Collaboration (Jira)
+            - Design (Figma)
+            
+            Certificates:
+            - AWS Certified Solutions Architect
+            - Certified ScrumMaster (CSM)
+            - PMP Certification
+            - IELTS 5.0
+            """
+        },
+
+        "similarity": {
+            "title": "Senior Backend Developer",
+            "requirements": "PHP, Laravel, MySQL, 5+ years experience, Docker, Leadership skills"
+        }
     }
     
     
@@ -170,28 +225,30 @@ def main():
     
     #------ EDUCATION SCORING ------
     print("\n=== CHẤM ĐIỂM HỌC VẤN ===")
-    print( "Tổng điểm học vấn: ",json.dumps(ec.score_education(candidate,jd_certificates)["total_score"], ensure_ascii=False, indent=4), "/ 100đ")
+    print( "Tổng điểm học vấn: ",json.dumps(education_score(candidate,jd_full)["total_score"], ensure_ascii=False, indent=4), "/ 100đ")
 
     
     #------ EXPERIENCE SCORING ------
     print("\n=== CHẤM ĐIỂM KINH NGHIỆM ===")
-    print("Tổng điểm kinh nghiệm: ",json.dumps(ex.score_experience(candidate,jd_experiences, 250)["total_score"], ensure_ascii=False, indent=4),"/ 250đ")
+    print("Tổng điểm kinh nghiệm: ",json.dumps(experience_score(candidate,jd_full, 250)["total_score"], ensure_ascii=False, indent=4),"/ 250đ")
     
     
     #------ TECHNICAL SKILLS SCORING ------
     print("\n=== CHẤM ĐIỂM KỸ NĂNG CHUYÊN MÔN ===")
-    print("Tổng điểm Kỹ năng chuyên môn: ",json.dumps(ts.score_technical_skills(candidate,jd_technical_skills, 250)["total_score"], ensure_ascii=True, indent=4), "/ 250đ")
+    print("Tổng điểm Kỹ năng chuyên môn: ",json.dumps(technical_skill_score(candidate,jd_full, 250)["total_score"], ensure_ascii=True, indent=4), "/ 250đ")
     
     
     #------ SOFT SKILLS SCORING ------
     print("\n=== CHẤM ĐIỂM KỸ NĂNG MỀM ===")
-    print("Tổng điểm kỹ năng mềm: ",json.dumps(ss.score_soft_skills(candidate,jd_soft_skills, 150)["total_score"], ensure_ascii=False, indent=4),"/ 150đ")
+    print("Tổng điểm kỹ năng mềm: ",json.dumps(soft_skills_score(candidate,jd_full, 150)["total_score"], ensure_ascii=False, indent=4),"/ 150đ")
     
     #------ TOOLS AND CERTIFICATES SCORING ------
     print("\n=== CHẤM ĐIỂM CÔNG CỤ VÀ CHỨNG CHỈ ===")
-    print("Tổng điểm Công cụu và chứng chỉ: ",json.dumps(tc.score_tools_and_certificates(candidate,jd_tools_and_certificates, 150)["total_score"], ensure_ascii=False, indent=4), "/ 150đ")
+    print("Tổng điểm Công cụu và chứng chỉ: ",json.dumps(tools_and_certificates_score(candidate,jd_full, 150)["total_score"], ensure_ascii=False, indent=4), "/ 150đ")
 
-
+    #------ SIMILARITY SCORING ------
+    print("\n=== CHẤM ĐIỂM TƯƠNG ĐỒNG AI ===")
+    print("Tổng điểm Tương đồng AI: ",(sim_score(candidate, jd_full, 150)), " / 150đ")
 
 
 
