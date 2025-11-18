@@ -3,8 +3,16 @@ from sqlalchemy import create_engine, MetaData, Table, select
 from sqlalchemy.orm import sessionmaker, Session
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pathlib import Path
+from pydantic import BaseModel
+from typing import List
+
+from backend.API.Email_send_respon.create_token import (
+    create_tokens_for_ids,
+    save_to_csv,
+    OUTPUT_FILE,
+)
 
 
 #   mysql+pymysql://<username>:<password>@<host>:<port>/<database_name>
@@ -45,6 +53,10 @@ def get_db():
 
 router = APIRouter()
 
+
+class CandidateIds(BaseModel):
+    candidate_ids: List[int]
+
 @router.get("/candidates")
 def read_users(db: Session = Depends(get_db)):
     try:
@@ -70,11 +82,43 @@ def get_candidates_tables(request: Request):
         datatable = metadata.tables["candidates"]  # ⚠️ Đổi tên bảng ở đây
         print("candidates tables: \n")  # In ra tên các cột của bảng
         conn = engine.connect()
-        data = conn.execute(select(datatable.c.full_name, datatable.c.overall_cv_score, datatable.c.phone)).fetchall()
+        data = conn.execute(
+            select(
+                datatable.c.id,
+                datatable.c.full_name,
+                datatable.c.overall_cv_score,
+                datatable.c.phone
+            )
+        ).fetchall()
         return templates.TemplateResponse("dashboard.html", {"request": request, "users": data})
     
     except Exception as e:
         print(f"[ERROR] {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/create_tokens")
+def create_tokens_endpoint(body: CandidateIds):
+    """
+    Nhận danh sách ID ứng viên từ front-end và tạo token cho CHỈ các ứng viên đó.
+    Đồng thời lưu file candidate_with_token.csv để dùng cho gửi email hàng loạt.
+    """
+    try:
+        rows = create_tokens_for_ids(body.candidate_ids)
+        if not rows:
+            raise HTTPException(
+                status_code=400,
+                detail="Không tìm thấy ứng viên hợp lệ với danh sách ID đã gửi.",
+            )
+
+        # Lưu file CSV để dùng cho bước gửi email hàng loạt
+        save_to_csv(rows, OUTPUT_FILE)
+
+        return JSONResponse(content=rows)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[ERROR] create_tokens_endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

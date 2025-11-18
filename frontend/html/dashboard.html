@@ -1118,15 +1118,18 @@
                 </div>
 
                 <!-- Table Section -->
-                < class="table-section">
+                <div class="table-section">
                     <div class="table-header">
                         <h2>Danh sách ứng viên</h2>
                         <div>
                             <span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span>
-                            <span >Đã chọn: 0</span>
+                            <span>Đã chọn: <span id="selectedCount">0</span></span>
                         </div>
                     </div>
-                    <div >
+                    <div>
+                        <button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">
+                            🔘 Chọn nhiều
+                        </button>
                         <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>
                             📧 Gửi email hàng loạt
                         </button>
@@ -1141,6 +1144,9 @@
                         <table id="candidatesTable">
                             <thead>
                                 <tr>
+                                    <th class="select-column">
+                                        <input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAllRows(this)" disabled>
+                                    </th>
                                     <th>Tên ứng viên</th>
                                     <th>Điểm CV</th>
                                     <th>Kinh nghiệm</th>
@@ -1150,7 +1156,9 @@
                             </thead>
                             {% for user in users %}
                             <tr>
-                                
+                                <td>
+                                    <input type="checkbox" class="candidate-checkbox" data-candidate-id="{{ user.id }}" disabled onchange="updateSelectionState()">
+                                </td>
                                 <td>{{ user.full_name }}</td>
                                 <td>{{ user.overall_cv_score }}</td>
                                 <td>{{ user.phone }}</td>
@@ -1626,6 +1634,101 @@ ${candidate.skills.map(s => `<span style="display: inline-block; background: #db
                 e.target.classList.remove('active');
             }
         });
+
+        let multiSelectEnabled = false;
+
+        function toggleMultiSelect() {
+            multiSelectEnabled = !multiSelectEnabled;
+            const multiSelectBtn = document.getElementById('multiSelectBtn');
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const rowCheckboxes = document.querySelectorAll('.candidate-checkbox');
+
+            rowCheckboxes.forEach(cb => {
+                cb.disabled = !multiSelectEnabled;
+                if (!multiSelectEnabled) {
+                    cb.checked = false;
+                }
+            });
+
+            if (multiSelectEnabled) {
+                selectAllCheckbox.disabled = false;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.disabled = true;
+            }
+
+            multiSelectBtn.textContent = multiSelectEnabled ? '✔️ Đang chọn nhiều' : '🔘 Chọn nhiều';
+            updateSelectionState();
+        }
+
+        function toggleSelectAllRows(source) {
+            if (source.disabled) return;
+            const rowCheckboxes = document.querySelectorAll('.candidate-checkbox');
+            rowCheckboxes.forEach(cb => {
+                if (!cb.disabled) {
+                    cb.checked = source.checked;
+                }
+            });
+            updateSelectionState();
+        }
+
+        function updateSelectionState() {
+            const rowCheckboxes = document.querySelectorAll('.candidate-checkbox');
+            const selected = Array.from(rowCheckboxes).filter(cb => cb.checked);
+            const selectedCountEl = document.getElementById('selectedCount');
+            if (selectedCountEl) {
+                selectedCountEl.textContent = selected.length;
+            }
+
+            ['sendEmailBtn', 'exportBtn', 'changeStatusBtn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.disabled = selected.length === 0;
+                }
+            });
+        }
+
+        function getSelectedCandidateIds() {
+            return Array.from(document.querySelectorAll('.candidate-checkbox:checked'))
+                .map(cb => parseInt(cb.dataset.candidateId, 10))
+                .filter(id => !isNaN(id));
+        }
+
+        async function sendEmailToSelected() {
+            const ids = getSelectedCandidateIds();
+            if (ids.length === 0) {
+                alert("Vui lòng chọn ít nhất 1 ứng viên.");
+                return;
+            }
+
+            const payload = { candidate_ids: ids };
+
+            try {
+                const response = await fetch("/create_tokens", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    console.error("Lỗi tạo token:", err);
+                    alert("Tạo token thất bại.");
+                    return;
+                }
+
+                const data = await response.json();
+                console.log("Tokens created:", data);
+                alert("Đã tạo token cho " + data.length + " ứng viên đã chọn.");
+            } catch (error) {
+                console.error("Lỗi gọi API /create_tokens:", error);
+                alert("Có lỗi khi kết nối tới server.");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateSelectionState);
     </script>
 </body>
 
