@@ -67,9 +67,18 @@ def read_table(table_name: str, db: Session = Depends(get_db)):
     if table_name not in metadata.tables:
         raise HTTPException(status_code=404, detail=f"Bảng '{table_name}' không tồn tại!")
 
+    
     table = metadata.tables[table_name]
-    result = db.execute(table.select()).fetchall()
-    return [dict(row._mapping) for row in result]
+    if field not in table.c:
+        raise HTTPException(status_code=404, detail=f"Cột '{field}' không tồn tại trong bảng '{table_name}'!")
+
+    column = table.c[field]
+    #result = db.execute(table.select()).fetchall().with_only_columns([column])
+    #field_result = db.execute(table.select(field))
+    #return [dict(row._mapping) for row in result]
+    field_data = conn.execute(select(column)).fetchall()
+    return [row[0] for row in field_data]
+
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
