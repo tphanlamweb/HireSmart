@@ -419,6 +419,31 @@
             background: #45a049;
         }
 
+        .action-btn-bulk {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .action-btn-bulk:hover:not(:disabled) {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn-bulk:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
         /* Stats Section */
         .stats-section {
             background: white;
@@ -1149,21 +1174,40 @@
                                     </th>
                                     <th>Tên ứng viên</th>
                                     <th>Điểm CV</th>
-                                    <th>Kinh nghiệm</th>
+                                    <th>Địa chỉ</th>
                                     <th>Trạng thái</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
+                            <tbody id="candidatesBody">
                             {% for user in users %}
                             <tr>
                                 <td>
                                     <input type="checkbox" class="candidate-checkbox" data-candidate-id="{{ user.id }}" disabled onchange="updateSelectionState()">
                                 </td>
-                                <td>{{ user.full_name }}</td>
-                                <td>{{ user.overall_cv_score }}</td>
-                                <td>{{ user.phone }}</td>
+                                <td class="candidate-name">{{ user.full_name }}</td>
+                                <td>
+                                    <span class="cv-points {% if user.overall_cv_score >= 85 %}high{% elif user.overall_cv_score >= 70 %}medium{% else %}low{% endif %}">
+                                        {{ user.overall_cv_score or 'N/A' }}
+                                    </span>
+                                </td>
+                                <td>{{ user.phone or 'N/A' }}</td>
+                                <td>
+                                    <select class="status-select" data-candidate-id="{{ user.id }}" onchange="updateStatus(this.dataset.candidateId, this.value)">
+                                        <option value="suitable">Phù hợp</option>
+                                        <option value="inviting">Đang mời</option>
+                                        <option value="accepted">Đã chấp nhận</option>
+                                        <option value="rejected">Từ chối</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <div class="action-buttons-cell">
+                                        <button class="table-icon-btn" data-candidate-id="{{ user.id }}" onclick="showDetail(this.dataset.candidateId)" title="Chi tiết">📋</button>
+                                    </div>
+                                </td>
                             </tr>
                             {% endfor %}
+                            </tbody>
                         </table>
                     </div>
                     <div id="emptyState" class="empty-state">
@@ -1202,77 +1246,9 @@
         </div>
     </div>
 
-    <script>
-        // Sample data
-        let candidates = [
-            {
-                id: 1,
-                name: "Nguyễn Văn A",
-                cv_points: 92,
-                experience_summary: "5 năm kinh nghiệm Python, Django, FastAPI. Đã làm việc tại các công ty lớn.",
-                status: "suitable",
-                email: "nguyenvana@email.com",
-                phone: "0901234567",
-                education: "Đại học Bách Khoa",
-                skills: ["Python", "Django", "FastAPI", "PostgreSQL"]
-            },
-            {
-                id: 2,
-                name: "Trần Thị B",
-                cv_points: 85,
-                experience_summary: "3 năm React, Node.js. Chuyên về frontend development và UX/UI.",
-                status: "inviting",
-                email: "tranthib@email.com",
-                phone: "0902345678",
-                education: "Đại học Công Nghệ",
-                skills: ["React", "Node.js", "JavaScript", "CSS"]
-            },
-            {
-                id: 3,
-                name: "Lê Văn C",
-                cv_points: 78,
-                experience_summary: "2 năm Java Spring Boot. Junior developer với tiềm năng cao.",
-                status: "suitable",
-                email: "levanc@email.com",
-                phone: "0903456789",
-                education: "Đại học Khoa Học Tự Nhiên",
-                skills: ["Java", "Spring Boot", "MySQL"]
-            },
-            {
-                id: 4,
-                name: "Phạm Thị D",
-                cv_points: 95,
-                experience_summary: "7 năm Full-stack, Team Lead. Kinh nghiệm quản lý dự án lớn.",
-                status: "accepted",
-                email: "phamthid@email.com",
-                phone: "0904567890",
-                education: "Đại học Bách Khoa TP.HCM",
-                skills: ["Full-stack", "Leadership", "AWS", "Microservices"]
-            },
-            {
-                id: 5,
-                name: "Hoàng Văn E",
-                cv_points: 65,
-                experience_summary: "1 năm kinh nghiệm PHP. Mới tốt nghiệp, cần thêm đào tạo.",
-                status: "rejected",
-                email: "hoangvane@email.com",
-                phone: "0905678901",
-                education: "Cao đẳng FPT",
-                skills: ["PHP", "Laravel", "MySQL"]
-            },
-            {
-                id: 6,
-                name: "Đỗ Thị F",
-                cv_points: 88,
-                experience_summary: "4 năm DevOps, CI/CD. Chuyên về automation và infrastructure.",
-                status: "inviting",
-                email: "dothif@email.com",
-                phone: "0906789012",
-                education: "Đại học Bách Khoa Hà Nội",
-                skills: ["Docker", "Kubernetes", "Jenkins", "AWS"]
-            }
-        ];
+    <!-- -->
 
+        <script>
         let currentFilter = {
             status: 'all',
             searchName: '',
@@ -1284,7 +1260,6 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function () {
             setupEventListeners();
-            renderCandidates();
             updateStatusCounts();
             updateStats();
         });
@@ -1354,29 +1329,29 @@
                     document.querySelectorAll('.btn-status').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     currentFilter.status = this.dataset.status;
-                    renderCandidates();
+                    filterTable();
                 });
             });
 
             // Filter inputs
             document.getElementById('searchName').addEventListener('input', function () {
                 currentFilter.searchName = this.value.toLowerCase();
-                renderCandidates();
+                filterTable();
             });
 
             document.getElementById('minPoints').addEventListener('input', function () {
                 currentFilter.minPoints = this.value;
-                renderCandidates();
+                filterTable();
             });
 
             document.getElementById('searchExperience').addEventListener('input', function () {
                 currentFilter.searchExperience = this.value.toLowerCase();
-                renderCandidates();
+                filterTable();
             });
 
             document.getElementById('sortBy').addEventListener('change', function () {
                 currentFilter.sortBy = this.value;
-                renderCandidates();
+                filterTable();
             });
 
             // Logout
@@ -1386,220 +1361,181 @@
             });
         }
 
-        // Filter and Sort Candidates
-        function getFilteredCandidates() {
-            let filtered = [...candidates];
+        // Filter and Sort Table Rows
+        function filterTable() {
+            const tbody = document.getElementById('candidatesBody');
+            if (!tbody) return;
+            
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            let visibleCount = 0;
 
-            if (currentFilter.status !== 'all') {
-                filtered = filtered.filter(c => c.status === currentFilter.status);
-            }
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length < 3) return;
 
-            if (currentFilter.searchName) {
-                filtered = filtered.filter(c =>
-                    c.name.toLowerCase().includes(currentFilter.searchName)
-                );
-            }
+                const nameCell = cells[1];
+                const scoreCell = cells[2];
+                const phoneCell = cells[3];
 
-            if (currentFilter.minPoints) {
-                filtered = filtered.filter(c => c.cv_points >= parseInt(currentFilter.minPoints));
-            }
+                let show = true;
 
-            if (currentFilter.searchExperience) {
-                filtered = filtered.filter(c =>
-                    c.experience_summary.toLowerCase().includes(currentFilter.searchExperience) ||
-                    c.skills.some(s => s.toLowerCase().includes(currentFilter.searchExperience))
-                );
-            }
-
-            filtered.sort((a, b) => {
-                switch (currentFilter.sortBy) {
-                    case 'points-desc':
-                        return b.cv_points - a.cv_points;
-                    case 'points-asc':
-                        return a.cv_points - b.cv_points;
-                    case 'name-asc':
-                        return a.name.localeCompare(b.name);
-                    case 'name-desc':
-                        return b.name.localeCompare(a.name);
-                    default:
-                        return 0;
+                // Filter by status (if implemented)
+                if (currentFilter.status !== 'all') {
+                    // Status filtering can be added if status is stored in data attribute
                 }
+
+                // Filter by name
+                if (currentFilter.searchName && nameCell) {
+                    const nameText = nameCell.textContent.toLowerCase();
+                    if (!nameText.includes(currentFilter.searchName)) {
+                        show = false;
+                    }
+                }
+
+                // Filter by min points
+                if (currentFilter.minPoints && scoreCell) {
+                    const scoreText = scoreCell.textContent.trim();
+                    const score = parseFloat(scoreText);
+                    if (isNaN(score) || score < parseFloat(currentFilter.minPoints)) {
+                        show = false;
+                    }
+                }
+
+                // Filter by experience/phone (if searching in phone)
+                if (currentFilter.searchExperience && phoneCell) {
+                    const phoneText = phoneCell.textContent.toLowerCase();
+                    if (!phoneText.includes(currentFilter.searchExperience)) {
+                        show = false;
+                    }
+                }
+
+                // Show/hide row
+                row.style.display = show ? '' : 'none';
+                if (show) visibleCount++;
             });
 
-            return filtered;
-        }
+            document.getElementById('resultsCount').textContent = `Hiển thị ${visibleCount} kết quả`;
+            document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
 
-        // Render Candidates Table
-        function renderCandidates() {
-            const tbody = document.getElementById('candidatesBody');
-            const filtered = getFilteredCandidates();
+            // Sort visible rows
+            if (currentFilter.sortBy) {
+                const visibleRows = rows.filter(r => r.style.display !== 'none');
+                visibleRows.sort((a, b) => {
+                    const aCells = a.querySelectorAll('td');
+                    const bCells = b.querySelectorAll('td');
+                    
+                    switch (currentFilter.sortBy) {
+                        case 'points-desc':
+                            const aScore = parseFloat(aCells[2]?.textContent) || 0;
+                            const bScore = parseFloat(bCells[2]?.textContent) || 0;
+                            return bScore - aScore;
+                        case 'points-asc':
+                            const aScore2 = parseFloat(aCells[2]?.textContent) || 0;
+                            const bScore2 = parseFloat(bCells[2]?.textContent) || 0;
+                            return aScore2 - bScore2;
+                        case 'name-asc':
+                            return (aCells[1]?.textContent || '').localeCompare(bCells[1]?.textContent || '');
+                        case 'name-desc':
+                            return (bCells[1]?.textContent || '').localeCompare(aCells[1]?.textContent || '');
+                        default:
+                            return 0;
+                    }
+                });
 
-            document.getElementById('resultsCount').textContent = `Hiển thị ${filtered.length} kết quả`;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = '';
-                document.getElementById('emptyState').style.display = 'block';
-                return;
+                // Reorder in DOM
+                visibleRows.forEach(row => tbody.appendChild(row));
             }
-
-            document.getElementById('emptyState').style.display = 'none';
-
-            tbody.innerHTML = filtered.map(candidate => {
-                const pointsClass = candidate.cv_points >= 85 ? 'high' : candidate.cv_points >= 70 ? 'medium' : 'low';
-                return `
-<tr>
-<td class="candidate-name">${candidate.name}</td>
-<td><span class="cv-points ${pointsClass}">${candidate.cv_points}</span></td>
-<td><span class="experience-text">${candidate.experience_summary}</span></td>
-<td>
-<select class="status-select" onchange="updateStatus(${candidate.id}, this.value)">
-<option value="suitable" ${candidate.status === 'suitable' ? 'selected' : ''}>Phù hợp</option>
-<option value="inviting" ${candidate.status === 'inviting' ? 'selected' : ''}>Đang mời</option>
-<option value="accepted" ${candidate.status === 'accepted' ? 'selected' : ''}>Đã chấp nhận</option>
-<option value="rejected" ${candidate.status === 'rejected' ? 'selected' : ''}>Từ chối</option>
-</select>
-</td>
-<td>
-<div class="action-buttons-cell">
-<button class="table-icon-btn" onclick="previewCV(${candidate.id})" title="Xem CV">👁️</button>
-<button class="table-icon-btn" onclick="showDetail(${candidate.id})" title="Chi tiết">📋</button>
-</div>
-</td>
-</tr>
-`;
-            }).join('');
         }
 
         // Update Stats
         function updateStats() {
-            document.getElementById('totalCandidates').textContent = candidates.length;
-            document.getElementById('suitableCount').textContent = candidates.filter(c => c.status === 'suitable').length;
-            document.getElementById('invitingCount').textContent = candidates.filter(c => c.status === 'inviting').length;
-            document.getElementById('acceptedCount').textContent = candidates.filter(c => c.status === 'accepted').length;
+            const tbody = document.getElementById('candidatesBody');
+            if (!tbody) return;
+            
+            const totalRows = tbody.querySelectorAll('tr').length;
+            document.getElementById('totalCandidates').textContent = totalRows;
+            // Status counts would need to be calculated from table if status is stored
+            document.getElementById('suitableCount').textContent = '0';
+            document.getElementById('invitingCount').textContent = '0';
+            document.getElementById('acceptedCount').textContent = '0';
         }
 
         // Update Status Counts
         function updateStatusCounts() {
-            document.getElementById('count-all').textContent = candidates.length;
-            document.getElementById('count-suitable').textContent = candidates.filter(c => c.status === 'suitable').length;
-            document.getElementById('count-inviting').textContent = candidates.filter(c => c.status === 'inviting').length;
-            document.getElementById('count-accepted').textContent = candidates.filter(c => c.status === 'accepted').length;
-            document.getElementById('count-rejected').textContent = candidates.filter(c => c.status === 'rejected').length;
+            const tbody = document.getElementById('candidatesBody');
+            if (!tbody) return;
+            
+            const totalRows = tbody.querySelectorAll('tr').length;
+            document.getElementById('count-all').textContent = totalRows;
+            // Status counts would need to be calculated from table if status is stored
+            document.getElementById('count-suitable').textContent = '0';
+            document.getElementById('count-inviting').textContent = '0';
+            document.getElementById('count-accepted').textContent = '0';
+            document.getElementById('count-rejected').textContent = '0';
         }
 
         // Update Candidate Status
         function updateStatus(id, newStatus) {
-            const candidate = candidates.find(c => c.id === id);
-            if (candidate) {
-                candidate.status = newStatus;
-                updateStatusCounts();
-                updateStats();
-                renderCandidates();
-                console.log(`Updated candidate ${id} to status: ${newStatus}`);
-            }
-        }
-
-        // Preview CV
-        function previewCV(id) {
-            const candidate = candidates.find(c => c.id === id);
-            if (candidate) {
-                const modalBody = document.getElementById('cvModalBody');
-                modalBody.innerHTML = `
-<div class="detail-grid">
-<h3 style="margin-bottom: 15px;">CV - ${candidate.name}</h3>
-<div class="detail-item">
-<div class="detail-label">Điểm CV:</div>
-<div class="detail-value"><span class="cv-points">${candidate.cv_points}</span></div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Email:</div>
-<div class="detail-value">${candidate.email}</div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Số điện thoại:</div>
-<div class="detail-value">${candidate.phone}</div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Học vấn:</div>
-<div class="detail-value">${candidate.education}</div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Kỹ năng:</div>
-<div class="detail-value">${candidate.skills.join(', ')}</div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Kinh nghiệm:</div>
-<div class="detail-value">${candidate.experience_summary}</div>
-</div>
-<div style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 8px;">
-<p style="color: #6b7280; font-size: 14px;">💡 <strong>Lưu ý:</strong> Trong thực tế, đây sẽ hiển thị file CV đầy đủ (PDF/DOC) từ database.</p>
-</div>
-</div>
-`;
-                document.getElementById('cvModal').classList.add('active');
-            }
+            console.log(`Updated candidate ${id} to status: ${newStatus}`);
+            // In a real implementation, this would send an API request to update the database
+            // For now, just log the change
+            updateStatusCounts();
+            updateStats();
         }
 
         // Show Detail
         function showDetail(id) {
-            const candidate = candidates.find(c => c.id === id);
-            if (candidate) {
-                const statusText = {
-                    'suitable': 'Phù hợp',
-                    'inviting': 'Đang mời',
-                    'accepted': 'Đã chấp nhận',
-                    'rejected': 'Từ chối'
-                };
+            const checkbox = document.querySelector(`.candidate-checkbox[data-candidate-id="${id}"]`);
+            if (!checkbox) return;
+            
+            const row = checkbox.closest('tr');
+            if (!row) return;
+            
+            const cells = row.querySelectorAll('td');
+            if (cells.length < 4) return;
 
-                const modalBody = document.getElementById('detailModalBody');
-                modalBody.innerHTML = `
+            const name = cells[1]?.textContent || 'N/A';
+            const score = cells[2]?.textContent || 'N/A';
+            const phone = cells[3]?.textContent || 'N/A';
+            const statusSelect = cells[4]?.querySelector('select');
+            const status = statusSelect?.value || 'suitable';
+
+            const statusText = {
+                'suitable': 'Phù hợp',
+                'inviting': 'Đang mời',
+                'accepted': 'Đã chấp nhận',
+                'rejected': 'Từ chối'
+            };
+
+            const modalBody = document.getElementById('detailModalBody');
+            modalBody.innerHTML = `
 <div class="detail-grid">
 <div class="detail-item">
 <div class="detail-label">ID:</div>
-<div class="detail-value">#${candidate.id}</div>
+<div class="detail-value">#${id}</div>
 </div>
 <div class="detail-item">
 <div class="detail-label">Họ tên:</div>
-<div class="detail-value">${candidate.name}</div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Email:</div>
-<div class="detail-value">${candidate.email}</div>
+<div class="detail-value">${name}</div>
 </div>
 <div class="detail-item">
 <div class="detail-label">Số điện thoại:</div>
-<div class="detail-value">${candidate.phone}</div>
+<div class="detail-value">${phone}</div>
 </div>
 <div class="detail-item">
 <div class="detail-label">Điểm CV:</div>
-<div class="detail-value"><span class="cv-points">${candidate.cv_points}</span></div>
+<div class="detail-value"><span class="cv-points">${score}</span></div>
 </div>
 <div class="detail-item">
 <div class="detail-label">Trạng thái:</div>
-<div class="detail-value">${statusText[candidate.status]}</div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Học vấn:</div>
-<div class="detail-value">${candidate.education}</div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Kỹ năng:</div>
-<div class="detail-value">
-${candidate.skills.map(s => `<span style="display: inline-block; background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 12px;">${s}</span>`).join('')}
-</div>
-</div>
-<div class="detail-item" style="grid-template-columns: 1fr;">
-<div class="detail-label">Tóm tắt kinh nghiệm:</div>
-<div class="detail-value" style="margin-top: 10px;">${candidate.experience_summary}</div>
+<div class="detail-value">${statusText[status] || status}</div>
 </div>
 <div style="margin-top: 20px; display: flex; gap: 10px;">
-<button onclick="previewCV(${candidate.id}); closeModal('detailModal');" style="flex: 1; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">📄 Xem CV</button>
 <button onclick="closeModal('detailModal')" style="flex: 1; padding: 12px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">Đóng</button>
 </div>
 </div>
 `;
-                document.getElementById('detailModal').classList.add('active');
-            }
+            document.getElementById('detailModal').classList.add('active');
         }
 
         // Close Modal
@@ -1625,7 +1561,7 @@ ${candidate.skills.map(s => `<span style="display: inline-block; background: #db
             document.querySelectorAll('.btn-status').forEach(b => b.classList.remove('active'));
             document.querySelector('.btn-status.all').classList.add('active');
 
-            renderCandidates();
+            filterTable();
         }
 
         // Close modals when clicking outside
@@ -1701,6 +1637,12 @@ ${candidate.skills.map(s => `<span style="display: inline-block; background: #db
                 return;
             }
 
+            const sendBtn = document.getElementById('sendEmailBtn');
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.textContent = 'Đang chuẩn bị...';
+            }
+
             const payload = { candidate_ids: ids };
 
             try {
@@ -1715,16 +1657,45 @@ ${candidate.skills.map(s => `<span style="display: inline-block; background: #db
                 if (!response.ok) {
                     const err = await response.json().catch(() => ({}));
                     console.error("Lỗi tạo token:", err);
-                    alert("Tạo token thất bại.");
+                    alert(err.detail || "Tạo token thất bại.");
                     return;
                 }
 
-                const data = await response.json();
-                console.log("Tokens created:", data);
-                alert("Đã tạo token cho " + data.length + " ứng viên đã chọn.");
+                const query = new URLSearchParams({ ids: ids.join(",") });
+                window.location.href = `/bulk-email?${query.toString()}`;
             } catch (error) {
                 console.error("Lỗi gọi API /create_tokens:", error);
                 alert("Có lỗi khi kết nối tới server.");
+            } finally {
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = '📧 Gửi email hàng loạt';
+                }
+            }
+        }
+
+        function exportSelectedData() {
+            const ids = getSelectedCandidateIds();
+            if (ids.length === 0) {
+                alert("Vui lòng chọn ít nhất 1 ứng viên.");
+                return;
+            }
+            // In a real implementation, this would export the selected candidates to CSV/Excel
+            console.log("Exporting candidates with IDs:", ids);
+            alert("Chức năng xuất dữ liệu đang được phát triển.");
+        }
+
+        function changeStatusBulk() {
+            const ids = getSelectedCandidateIds();
+            if (ids.length === 0) {
+                alert("Vui lòng chọn ít nhất 1 ứng viên.");
+                return;
+            }
+            // In a real implementation, this would show a modal to select new status
+            const newStatus = prompt("Nhập trạng thái mới (suitable/inviting/accepted/rejected):");
+            if (newStatus) {
+                ids.forEach(id => updateStatus(id, newStatus));
+                alert(`Đã cập nhật trạng thái cho ${ids.length} ứng viên.`);
             }
         }
 

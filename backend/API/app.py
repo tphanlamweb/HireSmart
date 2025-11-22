@@ -7,9 +7,11 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.API.Scan_CV import router as sc
 from backend.API.dashboard import router as db
+from backend.API.Email_send_respon.render_mail import router as email_renderer
+from backend.API.Email_send_respon.send_mail import router as email_sender
 # Import router từ file Scan_CV (giả sử scan router khai báo: router = APIRouter() trong Scan_CV.py)
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent  # d:\Cap 1\HireSmart
 FRONTEND_DIR = BASE_DIR / "frontend"   # thư mục chứa index.html và các file tĩnh
 
 app = FastAPI(title="HireSmart API")
@@ -34,6 +36,8 @@ if STATIC_DIR.exists():
 # Include router chứa /upload_cv và các route khác
 app.include_router(sc)
 app.include_router(db)
+app.include_router(email_renderer, prefix="/email", tags=["email"])
+app.include_router(email_sender, prefix="/email", tags=["email"])
 
 
 # Route gốc trả về index.html nếu tồn tại, else trả thông báo

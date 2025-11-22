@@ -1,93 +1,179 @@
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
+import numpy as np
+from functools import lru_cache
+from typing import List, Tuple
 
-# ✅ Dùng mô hình LaBSE để hỗ trợ đa ngôn ngữ tốt hơn
-# Bạn có thể thay bằng "distiluse-base-multilingual-cased-v2" nếu muốn nhẹ hơn
-model_name = 'sentence-transformers/LaBSE'
+
+
+"""Tối ưu bằng cách cache model và embeddings"""
+
+model_name: str = "sentence-transformers/LaBSE"
+# ✅ Load model một lần duy nhất
 model = SentenceTransformer(model_name)
+
+# ✅ Compile regex một lần
+clean_pattern = re.compile(r"[^\w\s]")
 
 # Rule-based degrees
 degrees = {
-    "phd": 100, "tiến sĩ": 100,
-    "master": 80, "thạc sĩ": 80,
-    "bachelor": 60, "đại học": 60,
-    "college": 40, "cao đẳng": 40,
-    "phổ thông": 20, "trung cấp": 20
+    "phd": 100,
+    "tiến sĩ": 100,
+    "master": 80,
+    "thạc sĩ": 80,
+    "bachelor": 60,
+    "đại học": 60,
+    "college": 40,
+    "cao đẳng": 40,
+    "phổ thông": 20,
+    "trung cấp": 20,
 }
 
-# Danh sách mẫu ngành học phổ biến (tiếng Việt + Anh)
+# Field list
 field_list = [
-    "kế toán","accounting",
-    "tài chính","finance",
-    "quản trị","management",
+    "kế toán",
+    "accounting",
+    "tài chính",
+    "finance",
+    "quản trị",
+    "management",
     "marketing",
-    "công nghệ thông tin","information technology","it",
+    "công nghệ thông tin",
+    "information technology",
+    "it",
     "data science",
     "machine learning",
-    "ngôn ngữ","language",
-    "thiết kế","design",
-    "kinh tế","economics",
+    "ngôn ngữ",
+    "language",
+    "thiết kế",
+    "design",
+    "kinh tế",
+    "economics",
     "logistics",
-    "nhân sự","human resources",
-    "bán hàng","sales"
+    "nhân sự",
+    "human resources",
+    "bán hàng",
+    "sales",
 ]
 
-def clean_text(text: str) -> str:
-    text = text.lower()
-    text = re.sub(r'[^\w\s]', ' ', text)
-    return text
+# ✅ Pre-compute và cache embeddings của tất cả fields
+field_embeddings = model.encode(
+    field_list,
+    batch_size=32,  # Batch processing
+    show_progress_bar=False,
+    convert_to_numpy=True,
+)
 
-# ===== AI-generated relevant keywords from JD =====
-def generate_relevant_keywords(jd_text: str, threshold: float = 0.6) -> list:
+@lru_cache(maxsize=1000)
+def clean_text(text: str) -> str:
+    """Cache kết quả clean text"""
+    text = text.lower()
+    text = clean_pattern.sub(" ", text)
+    return " ".join(text.split())  # Remove extra whitespace
+
+def generate_relevant_keywords(
+    jd_text: str, threshold: float = 0.6
+) -> List[str]:
     """
-    Tự động chọn các ngành học liên quan từ JD dựa trên embedding cosine similarity.
-    threshold: mức similarity để coi là ngành liên quan
+    Tối ưu: encode JD một lần, so sánh với tất cả fields cùng lúc
     """
     jd_text = clean_text(jd_text)
-    jd_emb = model.encode([jd_text])[0]
 
+    # ✅ Encode JD một lần
+    jd_emb = model.encode([jd_text], convert_to_numpy=True)[0]
+
+    # ✅ Tính similarity với tất cả fields cùng lúc (vectorized)
+    similarities = cosine_similarity([jd_emb], field_embeddings)[0]
+
+    # ✅ Filter và return
     keywords = []
-    for field in field_list:
-        field_emb = model.encode([field])[0]
-        sim = cosine_similarity([jd_emb], [field_emb])[0][0]
+    for field, sim in zip(field_list, similarities):
         if sim >= threshold:
             keywords.append(field)
             print(f"[DEBUG] Matched field: {field} (similarity={sim:.2f})")
+
     return keywords
 
-# ===== Rule-based nâng cao =====
-def score_education_rule(cv_text: str, relevant_keywords: list) -> float:
+def score_education_rule(cv_text: str, relevant_keywords: List[str]) -> float:
+    """Rule-based scoring"""
     cv_text = clean_text(cv_text)
     score = 0
+
+    # Tìm degree cao nhất
     for degree, base_score in degrees.items():
         if degree in cv_text:
             score = base_score
             break
+
+    # Bonus nếu có keyword liên quan
     if any(keyword in cv_text for keyword in relevant_keywords):
         score += 10
+
     return min(score, 100)
 
-# ===== Semantic similarity =====
 def score_education_semantic(cv_text: str, target_description: str) -> float:
+    """Semantic similarity scoring"""
     cv_text = clean_text(cv_text)
     target_description = clean_text(target_description)
-    embeddings = model.encode([cv_text, target_description])
+
+    # ✅ Batch encode cả 2 texts cùng lúc
+    embeddings = model.encode(
+        [cv_text, target_description], convert_to_numpy=True
+    )
+
     sim = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
     return float(sim * 100)
 
-# ===== Kết hợp =====
-def score_education(cv_text: str, jd_text: str, target_description: str) -> float:
-    print("education scoring:")
+def score_education(
+    cv_text: str,
+    jd_text: str,
+    rule_weight: float = 0.7,
+    semantic_weight: float = 0.3,
+) -> Tuple[float, dict]:
+    """
+    Kết hợp rule-based và semantic scoring
+    Returns: (final_score, details_dict)
+    """
+    # --- Normalize inputs: đảm bảo là string (fix lỗi TypeError khi truyền dict)
+    def _to_text(x):
+        if x is None:
+            return ""
+        if isinstance(x, dict):
+            # join các trường thường gặp; an toàn hơn so với str(dict)
+            parts = []
+            for k in ['degree','institution','major','description','education','school','field']:
+                if k in x and x[k]:
+                    parts.append(str(x[k]))
+            # fallback: nếu không có keys phổ thông, join all values
+            if not parts:
+                parts = [str(v) for v in x.values() if v]
+            return " ".join(parts)
+        if isinstance(x, (list, tuple, set)):
+            return " ".join(str(i) for i in x)
+        return str(x)
+
+    cv_text = _to_text(cv_text)
+    jd_text = _to_text(jd_text)
+
+
+    # Step 1: Extract relevant keywords
     relevant_keywords = generate_relevant_keywords(jd_text)
 
+    # Step 2: Rule-based score
     rule_score = score_education_rule(cv_text, relevant_keywords)
-    print("Rule-based education score:", rule_score)
 
-    semantic_score = score_education_semantic(cv_text, target_description)
-    print("Semantic education score:", semantic_score)
+    # Step 3: Semantic score
+    semantic_score = score_education_semantic(cv_text, jd_text)
 
-    final_score = 0.7 * rule_score + 0.3 * semantic_score
-    print("Final combined education score:", final_score)
+    # Step 4: Combine
+    final_score = rule_weight * rule_score + semantic_weight * semantic_score
 
-    return round(final_score, 2)
+    details = {
+        "total_score": round(final_score, 2),
+        "rule_score": rule_score,
+        "semantic_score": semantic_score,
+        "relevant_keywords": relevant_keywords,
+    }
+
+    return details

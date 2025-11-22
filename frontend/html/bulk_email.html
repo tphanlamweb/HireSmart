@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi email hàng loạt</title>
+    <style>
+        :root {
+            color-scheme: light;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f7fb;
+            color: #0f172a;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip {
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: #e0edff;
+            color: #1d4ed8;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        select,
+        input,
+        textarea {
+            width: 100%;
+            border: 1px solid #d7dce5;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+
+        select:focus,
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 22px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        button.secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .preview-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 20px;
+            background: #fff;
+            margin-bottom: 16px;
+        }
+
+        .preview-card h4 {
+            margin: 0 0 6px;
+        }
+
+        .preview-card pre {
+            white-space: pre-wrap;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .warning {
+            padding: 12px 16px;
+            background: #fff4e6;
+            color: #9a3412;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header>
+            <h1>📧 Gửi email hàng loạt</h1>
+            <button class="secondary" onclick="window.close()">Đóng</button>
+        </header>
+
+        <section class="section">
+            <h2>Ứng viên đã chọn ({{ selected_candidates | length }})</h2>
+            {% if selected_candidates %}
+            <div class="chip-list">
+                {% for candidate in selected_candidates %}
+                <div class="chip">
+                    {{ candidate.full_name }} · {{ candidate.email or "N/A" }}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="warning">Không có ứng viên nào. Hãy quay lại dashboard và chọn tối thiểu 1 ứng viên.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Chọn mẫu email</h2>
+            <label for="templateSelect">Template</label>
+            <select id="templateSelect">
+                <option value="">-- Chọn mẫu email --</option>
+                {% for tpl in email_templates %}
+                <option value="{{ tpl.id }}">
+                    {{ tpl.template_name }} ({{ tpl.template_type }})
+                </option>
+                {% endfor %}
+            </select>
+            {% if email_templates|length == 0 %}
+            <p class="warning" style="margin-top:12px;">Chưa có template nào trong bảng <code>email_templates</code>.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Thông tin bổ sung</h2>
+            <div class="grid">
+                <div>
+                    <label for="jobTitle">Vị trí / Chức danh</label>
+                    <input id="jobTitle" placeholder="VD: Backend Engineer">
+                </div>
+                <div>
+                    <label for="companyName">Tên công ty</label>
+                    <input id="companyName" placeholder="VD: HireSmart">
+                </div>
+                <div>
+                    <label for="interviewDate">Ngày phỏng vấn</label>
+                    <input id="interviewDate" type="date">
+                </div>
+                <div>
+                    <label for="interviewTime">Giờ phỏng vấn</label>
+                    <input id="interviewTime" type="time">
+                </div>
+                <div>
+                    <label for="interviewLocation">Địa điểm</label>
+                    <input id="interviewLocation" placeholder="Trụ sở chính / Google Meet...">
+                </div>
+            </div>
+            <div style="margin-top:16px;">
+                <label for="customMessage">Ghi chú thêm</label>
+                <textarea id="customMessage" rows="3" placeholder="Thông tin dành riêng cho template này..."></textarea>
+            </div>
+        </section>
+
+        <div class="actions">
+            <button class="secondary" onclick="history.back()">← Quay lại dashboard</button>
+            <button class="primary" id="previewBtn">Tạo nội dung email</button>
+            <!-- Thêm nút gửi (disabled cho tới khi preview được tạo) -->
+            <button class="primary" id="sendBtn" disabled style="background:linear-gradient(135deg,#10b981,#06b6d4);">Gửi email</button>
+        </div>
+
+        <section class="section hidden" id="previewSection">
+            <h2>Kết quả render</h2>
+            <div id="previewList"></div>
+            <p id="skipInfo" class="warning hidden"></p>
+        </section>
+    </div>
+
+    <div id="candidateData" data-ids="{{ candidate_ids | join(',') if candidate_ids else '' }}"></div>
+
+    <script>
+        const candidateDataEl = document.getElementById('candidateData');
+        const candidateIds = candidateDataEl.dataset.ids
+            ? candidateDataEl.dataset.ids.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id))
+            : [];
+
+        const previewBtn = document.getElementById('previewBtn');
+        const previewSection = document.getElementById('previewSection');
+        const previewList = document.getElementById('previewList');
+        const skipInfo = document.getElementById('skipInfo');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // Lưu payload/preview để dùng khi gửi
+        let lastPayload = null;
+        let lastRendered = null;
+
+        async function renderEmails() {
+            const templateId = document.getElementById('templateSelect').value;
+            if (!templateId) {
+                alert('Vui lòng chọn mẫu email.');
+                return;
+            }
+            if (candidateIds.length === 0) {
+                alert('Không có ứng viên nào được chọn.');
+                return;
+            }
+
+            previewBtn.disabled = true;
+            previewBtn.textContent = 'Đang tạo nội dung...';
+            sendBtn.disabled = true;
+
+            const payload = {
+                template_id: parseInt(templateId, 10),
+                candidate_ids: candidateIds,
+                extra_context: {
+                    job_title: document.getElementById('jobTitle').value,
+                    company_name: document.getElementById('companyName').value,
+                    interview_date: document.getElementById('interviewDate').value,
+                    interview_time: document.getElementById('interviewTime').value,
+                    interview_location: document.getElementById('interviewLocation').value,
+                    custom_message: document.getElementById('customMessage').value,
+                }
+            };
+
+            try {
+                const response = await fetch('/email/render-bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(err.detail || 'Không thể render email.');
+                }
+
+                const data = await response.json();
+                lastPayload = payload;       // lưu payload để gửi sau
+                lastRendered = data;         // lưu preview
+                previewSection.classList.remove('hidden');
+                previewList.innerHTML = '';
+
+                if (!data.emails || data.emails.length === 0) {
+                    previewList.innerHTML = "<p class='warning'>Không render được email nào.</p>";
+                    sendBtn.disabled = true;
+                } else {
+                    data.emails.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'preview-card';
+                        card.dataset.candidateId = item.candidate_id || '';
+                        card.innerHTML = `
+                            <h4>${item.candidate_name || '(No name)'} ${item.email ? `(${item.email})` : ''}</h4>
+                            <p><strong>Subject:</strong> ${item.subject || '(trống)'}</p>
+                            <pre>${item.body || '(trống)'}</pre>
+                            <p class="send-status" style="color:#6b7280">Trạng thái: chưa gửi</p>
+                        `;
+                        previewList.appendChild(card);
+                    });
+                    sendBtn.disabled = false; // cho phép gửi sau khi render thành công
+                }
+
+                if (data.skipped_candidate_ids && data.skipped_candidate_ids.length > 0) {
+                    skipInfo.classList.remove('hidden');
+                    skipInfo.textContent = `Bỏ qua ${data.skipped_candidate_ids.length} ứng viên do thiếu email: ${data.skipped_candidate_ids.join(', ')}`;
+                } else {
+                    skipInfo.classList.add('hidden');
+                    skipInfo.textContent = '';
+                }
+            } catch (error) {
+                alert(error.message || 'Có lỗi xảy ra.');
+                sendBtn.disabled = true;
+            } finally {
+                previewBtn.disabled = false;
+                previewBtn.textContent = 'Tạo nội dung email';
+            }
+        }
+
+        async function sendEmails() {
+            if (!lastPayload) {
+                alert('Vui lòng tạo nội dung email trước khi gửi.');
+                return;
+            }
+            if (!confirm('Bạn có chắc muốn gửi email tới các ứng viên đã chọn không?')) return;
+
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Đang gửi...';
+            previewBtn.disabled = true;
+
+            try {
+                const response = await fetch('/email/send-bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(lastPayload)
+                });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(err.detail || 'Gửi email thất bại.');
+                }
+
+                const result = await response.json();
+                // result giả định: { sent_count: n, failed: [{id, email, error}], skipped_candidate_ids: [...] }
+                const sentCount = result.sent_count ?? (result.sent ? result.sent.length : 0);
+                const failed = result.failed ?? [];
+                alert(`Hoàn tất. Đã gửi: ${sentCount}. Thất bại: ${failed.length}`);
+
+                // Cập nhật UI trạng thái gửi trên previewList
+                const cards = previewList.querySelectorAll('.preview-card');
+                cards.forEach(card => {
+                    const cid = card.dataset.candidateId ? parseInt(card.dataset.candidateId,10) : null;
+                    const statusEl = card.querySelector('.send-status');
+                    const fail = failed.find(f => f.candidate_id == cid || f.email == cid);
+                    if (fail) {
+                        statusEl.textContent = `Trạng thái: thất bại — ${fail.error || 'Lỗi'}`;
+                        statusEl.style.color = '#b91c1c';
+                    } else {
+                        statusEl.textContent = 'Trạng thái: đã gửi';
+                        statusEl.style.color = '#10b981';
+                    }
+                });
+
+            } catch (err) {
+                alert(err.message || 'Có lỗi khi gửi mail.');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Gửi email';
+                previewBtn.disabled = false;
+            }
+        }
+
+        previewBtn.addEventListener('click', renderEmails);
+        sendBtn.addEventListener('click', sendEmails);
+    </script>
+</body>
+
+</html>
+

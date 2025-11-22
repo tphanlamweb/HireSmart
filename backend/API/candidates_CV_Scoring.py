@@ -3,12 +3,19 @@ from typing import Dict
 import os
 from langdetect import detect
 import json
-import scoring.education_scoring as ec
+
+
+
+import scoring.education_scoring as education_scoring
+import scoring.experience_scoring as experience_scoring
+import scoring.technical_skill_scoring as technical_skill_scoring
+import scoring.soft_skills_scoring as soft_skills_scoring
+import scoring.tools_and_certificates_scoring as tools_and_certificates_scoring
+import scoring.similarity_scoring as sim_scoring
 
 
 
 def clean_text(text: str) -> str:
-    """Làm sạch chuỗi: bỏ khoảng trắng thừa, ký tự lạ."""
     if not text:
         return ""
     text = str(text)
@@ -18,9 +25,7 @@ def clean_text(text: str) -> str:
 
 
 def extract_field(block: str, field_name: str) -> str:
-    """
-    Tìm đoạn text bắt đầu bằng 'field_name:' và lấy nội dung theo dòng hoặc đến khi gặp field khác.
-    """
+
     pattern = rf"{field_name}\s*:\s*(.*?)(?=\n\w+?:|\Z)"
     match = re.search(pattern, block, flags=re.DOTALL | re.IGNORECASE)
     if match:
@@ -29,12 +34,19 @@ def extract_field(block: str, field_name: str) -> str:
 
 
 def parse_candidate_block(block: str) -> Dict[str, str]:
-    """
-    Từ một khối thông tin của 1 ứng viên → Trích ra 6 trường chính.
-    """
+
+    filename = extract_field(block, "filename")
+    file_size = extract_field(block, "file_size")
+    mimetype = extract_field(block, "mimetype")
+    cv_summary = extract_field(block, "cv_summary")
+    full_name = extract_field(block, "full_name")
+    phone = extract_field(block, "phone")
+    email = extract_field(block, "email")
+    address = extract_field(block, "address")
+    
     education_text = extract_field(block, "education")
     experience_text = extract_field(block, "experience")
-    skills_text = extract_field(block, "skills")
+    hard_skills = extract_field(block, "hard_skills")
 
     # Soft skills có thể nằm ở personal_skills hoặc tương tự
     soft_skills_text = extract_field(block, "personal_skills")
@@ -50,22 +62,27 @@ def parse_candidate_block(block: str) -> Dict[str, str]:
     #tools
     tools_text = " ".join([
         extract_field(block, "tools"),
-        extract_field(block, "awards"),
     ])
 
     # Summary gồm objective + cv_summary + summary
-    summary_text = " ".join([
-        extract_field(block, "objective"),
-        extract_field(block, "cv_summary"),
-        extract_field(block, "summary"),
-        extract_field(block, "activities")
-    ])
+    summary_text = extract_field(block, "cv_summary")
+    activities_text = extract_field(block, "activities")
 
     return {
-        "education": education_text,
+        "filename": filename,
+        "file_size": file_size,
+        "mimetype": mimetype,
+        "cv_summary": cv_summary,
+        "full_name": full_name,
+        "phone": phone,
+        "email": email,
+        "address": address,
         "experience": experience_text,
-        "skills": skills_text,
+
+        "education": education_text,
+        "hard_skills": hard_skills,
         "soft_skills": soft_skills_text,
+        "activities": activities_text,
         "certificates" : certificates_text,
         "tools": tools_text,
         "summary": summary_text,
@@ -73,9 +90,7 @@ def parse_candidate_block(block: str) -> Dict[str, str]:
 
 
 def get_last_candidate(file_path: str) -> Dict[str, str]:
-    """
-    Đọc toàn bộ file → tách ứng viên theo '----' → lấy ứng viên cuối.
-    """
+    
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -89,13 +104,6 @@ def get_last_candidate(file_path: str) -> Dict[str, str]:
     last_block = blocks[-1]
     return parse_candidate_block(last_block)
 
-def scoring_education(e_data):
-    jd_text = "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing."
-    target_description = "Ứng viên có trình độ đại học hoặc cao hơn trong lĩnh vực quản trị kinh doanh, tài chính, marketing hoặc công nghệ thông tin"
-    print("e data = ",e_data)
-    print("\njd text: ", jd_text, "\n\ntarget description: ", target_description,"\n")
-    return ec.score_education(e_data, jd_text, target_description)
-
 
 def detect_language(text: str) -> str:
     try:
@@ -104,19 +112,144 @@ def detect_language(text: str) -> str:
     except:
         return 'unknown'
 
+def education_score(cv ,jd):
+    education = education_scoring.score_education(cv, jd)
+    
+    return {
+        "total_score": education["total_score"],
+        "max_score": 100
+    }
 
-if __name__ == "__main__":
+def experience_score(cv ,jd, max_score):
+    experience = experience_scoring.score_experience(cv, jd, max_score)
+    return {
+        "total_score": experience["total_score"],
+        "max_score": experience["max_score"]
+    }
+
+def technical_skill_score(cv ,jd, max_score):
+    technical_skills = technical_skill_scoring.score_technical_skills(cv, jd, max_score)
+    return {
+        "total_score": technical_skills["total_score"],
+        "max_score": technical_skills["max_score"]
+    }
+    
+def soft_skills_score(cv ,jd, max_score):
+    soft_skills = soft_skills_scoring.score_soft_skills(cv, jd, max_score)
+    return {
+        "total_score": soft_skills["total_score"],
+        "max_score": soft_skills["max_score"]
+    }
+
+def tools_and_certificates_score(cv ,jd, max_score):
+    tools_and_certificates = tools_and_certificates_scoring.score_tools_and_certificates(cv, jd, max_score)
+    return {
+        "total_score": tools_and_certificates["total_score"],
+        "max_score": tools_and_certificates["max_score"]
+    }
+
+def sim_score(cv ,jd, max_score):
+    similarity = sim_scoring.relevance_scoring(cv, jd, max_score)
+    return {
+        "total_score": similarity["total_score"],
+        "max_score": similarity["max_score"]
+    }
+    
+
+
+
+
+def main():
     filename = 'demo_data.csv'
     file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f'../results/{filename}'))
     candidate = get_last_candidate(file_path)
     
-    #print(detect_language(json.dumps(candidate, ensure_ascii=False)))
+    #------- Extracted fields -------
+    candidate_file = candidate["filename"]
+    candidates_filesize = candidate["file_size"]
+    candidate_mime_type = candidate["mimetype"]
+    candidate_cv_summary = candidate["cv_summary"]
+    candidate_name = candidate["full_name"]
+    candidate_phone = candidate["phone"]
+    candidate_email = candidate["email"]
+    candidate_address = candidate["address"]
+    candidate_experience = candidate["experience"]
+    candidate_education = candidate["education"]
+    candidate_hard_skills = candidate["hard_skills"]
+    candidate_soft_skills = candidate["soft_skills"]
+    candidate_activities = candidate["activities"]
+    candidate_certificates = candidate["certificates"]
+    candidate_tools = candidate["tools"]
     
-    print("\n=== DỮ LIỆU ỨNG VIÊN CUỐI ===")
+    jd_full = {
+        "certificates": "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing.",
 
-    e_data = ''
-    for key, value in candidate.items():
-        if key == "education":
-            e_data = json.dumps(value, ensure_ascii=False)
+        "experiences": """
+        We are looking for a Backend Developer with experience in PHP, Laravel, and MySQL.
+        The candidate should have knowledge of API development, teamwork, and React integration.
+        """,
+
+        "technical_skills": {
+            "title": "Senior Backend Developer",
+            "requirements": "Required: PHP, Laravel, MySQL. Prefer: Docker, AWS",
+            "skills": "PHP Laravel MySQL REST API"
+        },
+
+        "soft_skills": "Looking for candidate with strong leadership and communication skills",
+
+        "tools_and_certificates": {
+            "requirements": """
+            Tools:
+            - Version Control (Github, GitLab, Git)
+            - API Testing
+            - Collaboration (Jira)
+            - Design (Figma)
             
-    print("final education score:", scoring_education(e_data))
+            Certificates:
+            - AWS Certified Solutions Architect
+            - Certified ScrumMaster (CSM)
+            - PMP Certification
+            - IELTS 5.0
+            """
+        },
+
+        "similarity": {
+            "title": "Senior Backend Developer",
+            "requirements": "PHP, Laravel, MySQL, 5+ years experience, Docker, Leadership skills"
+        }
+    }
+    
+    
+    #print(detect_language(json.dumps(candidate, ensure_ascii=False)))
+    print("ứng viên: ", candidate_name)
+    
+    #------ EDUCATION SCORING ------
+    print("\n=== CHẤM ĐIỂM HỌC VẤN ===")
+    print( "Tổng điểm học vấn: ",json.dumps(education_score(candidate,jd_full)["total_score"], ensure_ascii=False, indent=4), "/ 100đ")
+
+    
+    #------ EXPERIENCE SCORING ------
+    print("\n=== CHẤM ĐIỂM KINH NGHIỆM ===")
+    print("Tổng điểm kinh nghiệm: ",json.dumps(experience_score(candidate,jd_full, 250)["total_score"], ensure_ascii=False, indent=4),"/ 250đ")
+    
+    
+    #------ TECHNICAL SKILLS SCORING ------
+    print("\n=== CHẤM ĐIỂM KỸ NĂNG CHUYÊN MÔN ===")
+    print("Tổng điểm Kỹ năng chuyên môn: ",json.dumps(technical_skill_score(candidate,jd_full, 250)["total_score"], ensure_ascii=True, indent=4), "/ 250đ")
+    
+    
+    #------ SOFT SKILLS SCORING ------
+    print("\n=== CHẤM ĐIỂM KỸ NĂNG MỀM ===")
+    print("Tổng điểm kỹ năng mềm: ",json.dumps(soft_skills_score(candidate,jd_full, 150)["total_score"], ensure_ascii=False, indent=4),"/ 150đ")
+    
+    #------ TOOLS AND CERTIFICATES SCORING ------
+    print("\n=== CHẤM ĐIỂM CÔNG CỤ VÀ CHỨNG CHỈ ===")
+    print("Tổng điểm Công cụu và chứng chỉ: ",json.dumps(tools_and_certificates_score(candidate,jd_full, 150)["total_score"], ensure_ascii=False, indent=4), "/ 150đ")
+
+    #------ SIMILARITY SCORING ------
+    print("\n=== CHẤM ĐIỂM TƯƠNG ĐỒNG AI ===")
+    print("Tổng điểm Tương đồng AI: ",(sim_score(candidate, jd_full, 150)), " / 150đ")
+
+
+
+main()
