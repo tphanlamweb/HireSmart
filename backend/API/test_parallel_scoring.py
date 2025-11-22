@@ -138,7 +138,6 @@ def score_cv_parallel_dynamic(cv_data, jd_data):
 
 if __name__ == "__main__":
     print(time.sleep(1.5))
-    """
     cv_data = {'name': 'John Doe'}
     jd_data = {'title': 'Senior Developer'}
     
@@ -176,4 +175,3 @@ if __name__ == "__main__":
     print(f"Parallel Dynamic:  {result3['total_time']}s  ({result1['total_time']/result3['total_time']:.1f}x faster)")
     print()
     print(f"Speedup: {result1['total_time'] - result2['total_time']:.1f}s saved!")
-"""
