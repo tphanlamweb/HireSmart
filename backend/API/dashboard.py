@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, APIRouter
+import pymysql
 from sqlalchemy import create_engine, MetaData, Table, select
 from sqlalchemy.orm import sessionmaker, Session
 from fastapi.requests import Request
@@ -7,6 +8,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from pathlib import Path
 from typing import List
 from pydantic import BaseModel
+from backend.dataAndModels.config import DATABASE_URL
 
 from backend.API.Email_send_respon.create_token import (
     create_tokens_for_ids,
@@ -15,17 +17,10 @@ from backend.API.Email_send_respon.create_token import (
 )
 
 
-#   mysql+pymysql://<username>:<password>@<host>:<port>/<database_name>
-DB_USER = "root"                # 🧑‍💻 Tên user MySQL
-DB_PASSWORD = "123456"          # 🔑 Mật khẩu MySQL
-DB_HOST = "localhost"           # 🖥️  Địa chỉ server (hoặc IP)
-DB_PORT = "3306"                # 🌐 Cổng mặc định của MySQL 
-DB_NAME = "HireSmart"           # 📂 Tên cơ sở dữ liệu bạn đã có
 
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Tạo engine kết nối đến MySQL
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=True)
 
 metadata = MetaData()
 metadata.reflect(bind=engine)  # 🔍 Tự động tải cấu trúc tất cả bảng có sẵn
@@ -55,40 +50,21 @@ class CandidateIds(BaseModel):
 @router.get("/candidates")
 def read_users(db: Session = Depends(get_db)):
     try:
-        users_table = metadata.tables["candidates"]  # ⚠️ Đổi tên bảng ở đây
+        users_table = metadata.tables["audit_logs"]  # ⚠️ Đổi tên bảng ở đây
     except KeyError:
         raise HTTPException(status_code=404, detail="Bảng 'candidates' không tồn tại trong DB!")
 
     result = db.execute(users_table.select()).fetchall()
     return [dict(row._mapping) for row in result]
 
-@router.get("/table/{table_name}")
-def read_table(table_name: str, db: Session = Depends(get_db)):
-    if table_name not in metadata.tables:
-        raise HTTPException(status_code=404, detail=f"Bảng '{table_name}' không tồn tại!")
 
-    
-    table = metadata.tables[table_name]
-    if field not in table.c:
-        raise HTTPException(status_code=404, detail=f"Cột '{field}' không tồn tại trong bảng '{table_name}'!")
-
-    column = table.c[field]
-    #result = db.execute(table.select()).fetchall().with_only_columns([column])
-    #field_result = db.execute(table.select(field))
-    #return [dict(row._mapping) for row in result]
-    field_data = conn.execute(select(column)).fetchall()
-    return [row[0] for row in field_data]
 
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
 def get_candidates_tables(request: Request):
-    """
-    Route trả về trang dashboard với danh sách ứng viên từ database.
-    URL: http://127.0.0.1:8000/dashboard
-    """
     try:
-        datatable = metadata.tables["candidates"]  # ⚠️ Đổi tên bảng ở đây
+        datatable = metadata.tables["candidates"]
         print("[DEBUG] Loading candidates from database...")
         
         with engine.connect() as conn:
@@ -98,22 +74,24 @@ def get_candidates_tables(request: Request):
                     datatable.c.full_name,
                     datatable.c.overall_cv_score,
                     datatable.c.phone,
+                    datatable.c.application_status,  # Lấy cột status từ database
                 )
             ).fetchall()
-            
-            # Convert Row objects to dict để template dễ truy cập
-            data = []
-            for row in result:
-                data.append({
-                    "id": row.id if hasattr(row, 'id') else row[0],
-                    "full_name": row.full_name if hasattr(row, 'full_name') else row[1],
-                    "overall_cv_score": row.overall_cv_score if hasattr(row, 'overall_cv_score') else row[2],
-                    "phone": row.phone if hasattr(row, 'phone') else row[3],
-                })
-        
+
+        data = []
+        for row in result:
+            data.append({
+                "id": row.id if hasattr(row, 'id') else row[0],
+                "full_name": row.full_name if hasattr(row, 'full_name') else row[1],
+                "overall_cv_score": row.overall_cv_score if hasattr(row, 'overall_cv_score') else row[2],
+                "phone": row.phone if hasattr(row, 'phone') else row[3],
+                "application_status": row[4] if len(row) > 4 else 'suitable',
+
+            })
+
         print(f"[DEBUG] Loaded {len(data)} candidates")
         return templates.TemplateResponse("dashboard.html", {"request": request, "users": data})
-    
+
     except KeyError as e:
         error_msg = f"Bảng 'candidates' không tồn tại trong database: {e}"
         print(f"[ERROR] {error_msg}")

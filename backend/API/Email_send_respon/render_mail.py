@@ -7,19 +7,14 @@ from typing import Dict, List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import MetaData, create_engine, select
+from backend.dataAndModels.config import DATABASE_URL
 
 router = APIRouter()
 
 # ==============================
 # Config & constants
 # ==============================
-DB_USER = "root"
-DB_PASSWORD = "123456"
-DB_HOST = "localhost"
-DB_PORT = "3306"
-DB_NAME = "HireSmart"
 
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 VERIFICATION_BASE_URL = os.environ.get("VERIFY_EMAIL_URL", "https://yourdomain.com/verify?token=")
 
 TOKEN_FILE = Path(__file__).resolve().parents[2] / "results" / "candidate_with_token.csv"

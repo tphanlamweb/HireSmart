@@ -6,18 +6,12 @@ from pathlib import Path  # thao tác đường dẫn theo pathlib
 from typing import Dict, List  # chú thích kiểu dữ liệu
 
 from sqlalchemy import MetaData, create_engine, select
-
+from backend.dataAndModels.config import DATABASE_URL
 
 # ==============================
 # Cấu hình database
 # ==============================
-DB_USER = "root"
-DB_PASSWORD = "123456"
-DB_HOST = "localhost"
-DB_PORT = "3306"
-DB_NAME = "HireSmart"
 
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 engine = create_engine(DATABASE_URL)
 metadata = MetaData()

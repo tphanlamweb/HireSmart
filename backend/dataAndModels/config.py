@@ -6,3 +6,4 @@ DB_PORT = "3306"                # 🌐 Cổng mặc định của MySQL
 DB_NAME = "HireSmart"  # 📂 Tên cơ sở dữ liệu bạn đã có
 
 DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+

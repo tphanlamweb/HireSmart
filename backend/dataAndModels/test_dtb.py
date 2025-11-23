@@ -1,0 +1,11 @@
+import pymysql
+
+conn = pymysql.connect(
+    host="127.0.0.1",
+    user="root",
+    password="tPhan186@",
+    database="HireSmart",
+    ssl_disabled=True,
+)
+
+print("Kết nối thành công!")

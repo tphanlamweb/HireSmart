@@ -1,1707 +1,305 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidate Management Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Header - Fixed */
-        .header {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header nav {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-        }
-
-        .header .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .header .logo-container img {
-            width: 100px;
-            height: auto;
-            object-fit: contain;
-        }
-
-        .header .logo-container span {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #2563eb;
-        }
-
-        .header ul {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .header ul li a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .header ul li a:hover,
-        .header ul li a.active {
-            color: #2563eb;
-        }
-
-        /* Main Container */
-        .main-container {
-            display: flex;
-            margin-top: 80px;
-            flex: 1;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 280px;
-            background: linear-gradient(180deg, #1e5a8e 0%, #134168 100%);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            position: fixed;
-            left: 0;
-            top: 80px;
-            bottom: 0;
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            transform: translateX(-100%);
-        }
-
-        .sidebar.active {
-            transform: translateX(0);
-        }
-
-        .logo-section {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 30px;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .profile-pic {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 3px solid white;
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .profile-info h3 {
-            margin-bottom: 5px;
-        }
-
-        .profile-info p {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-
-        .features-title {
-            font-size: 14px;
-            margin: 20px 0 10px;
-            opacity: 0.7;
-        }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 15px 20px;
-            margin: 5px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .menu-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .menu-item.active {
-            background: #ffc107;
-            color: #000;
-        }
-
-        .menu-item .badge {
-            position: absolute;
-            right: 15px;
-            background: #ff4444;
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-
-        .logout-btn {
-            margin-top: auto;
-            background: #ff4444;
-            border: none;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #cc0000;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 0;
-            padding: 30px;
-            overflow-y: auto;
-            transition: margin-left 0.3s ease;
-        }
-
-        @media (min-width: 769px) {
-            .main-content.with-sidebar {
-                margin-left: 280px;
-            }
-        }
-
-        /* Top Bar */
-        .top-bar {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .menu-toggle {
-            background: white;
-            border: 1px solid #ddd;
-            padding: 12px 18px;
-            cursor: pointer;
-            border-radius: 8px;
-            font-size: 20px;
-            transition: all 0.3s;
-        }
-
-        .menu-toggle:hover {
-            background: #f5f5f5;
-        }
-
-        .dropdown {
-            background: #2d4a8c;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            min-width: 150px;
-        }
-
-        .search-container {
-            position: relative;
-            width: 50px;
-            height: 50px;
-            transition: width 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            overflow: visible;
-        }
-
-        .search-container.expanded {
-            width: 350px;
-        }
-
-        .search-input {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            padding: 12px 20px 12px 55px;
-            border: 2px solid #245ee6;
-            border-radius: 25px;
-            font-size: 16px;
-            background: white;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .search-container.expanded .search-input {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 0;
-            top: 0;
-            color: #2d4a8c;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 2;
-            background: white;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            border: 2px solid #245ee6;
-            transition: all 0.3s ease;
-        }
-
-        .search-container.expanded .search-icon {
-            border-radius: 25px 0 0 25px;
-            border-right: none;
-        }
-
-        .icon-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .icon-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            position: relative;
-            font-size: 20px;
-            transition: transform 0.2s;
-        }
-
-        .icon-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .icon-btn.notification {
-            background: #2d4a8c;
-            color: white;
-        }
-
-        .icon-btn.settings {
-            background: #ffc107;
-            color: white;
-        }
-
-        .icon-btn.messages {
-            background: #4caf50;
-            color: white;
-        }
-
-        .icon-btn .badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: #ff4444;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .btn-create {
-            background: #ffc107;
-            color: #000;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-create:hover {
-            background: #ffca28;
-            transform: translateY(-2px);
-        }
-
-        .btn-list,
-        .btn-news {
-            background: #e8eef7;
-            color: #000;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-list:hover,
-        .btn-news:hover {
-            background: #d1ddef;
-        }
-
-        .btn-list.active {
-            background: #2d4a8c;
-            color: white;
-        }
-
-        .back-btn {
-            background: #4caf50;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-bottom: 30px;
-            transition: all 0.3s;
-        }
-
-        .back-btn:hover {
-            background: #45a049;
-        }
-
-        .action-btn-bulk {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-
-        .action-btn-bulk:hover:not(:disabled) {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-        }
-
-        .action-btn-bulk:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        /* Stats Section */
-        .stats-section {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .stats-header h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .stats-header p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-        }
-
-        .stat-label {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #2d4a8c;
-        }
-
-        /* Filter Section */
-        .filter-section {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .filter-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .filter-header h3 {
-            font-size: 20px;
-            color: #333;
-        }
-
-        .clear-filters {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .clear-filters:hover {
-            background: #cc0000;
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .filter-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .filter-item label {
-            font-weight: 500;
-            margin-bottom: 6px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .filter-item input,
-        .filter-item select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            background: #e8e8e8;
-        }
-
-        /* Status Buttons */
-        .status-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .btn-status {
-            padding: 12px 24px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-status:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-status.active {
-            color: white;
-        }
-
-        .btn-status.all.active {
-            background: #2563eb;
-            border-color: #2563eb;
-        }
-
-        .btn-status.suitable.active {
-            background: #10b981;
-            border-color: #10b981;
-        }
-
-        .btn-status.inviting.active {
-            background: #f59e0b;
-            border-color: #f59e0b;
-        }
-
-        .btn-status.accepted.active {
-            background: #8b5cf6;
-            border-color: #8b5cf6;
-        }
-
-        .btn-status.rejected.active {
-            background: #ef4444;
-            border-color: #ef4444;
-        }
-
-        .status-badge {
-            background: #e5e7eb;
-            color: #374151;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        /* Table Section */
-        .table-section {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .table-header {
-            background: #f9fafb;
-            padding: 20px 25px;
-            border-bottom: 2px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-header h2 {
-            font-size: 22px;
-            color: #111827;
-        }
-
-        .results-count {
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: #f9fafb;
-        }
-
-        thead th {
-            padding: 16px 20px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-            color: #374151;
-            border-bottom: 2px solid #e5e7eb;
-            white-space: nowrap;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid #e5e7eb;
-            transition: background 0.2s;
-        }
-
-        tbody tr:hover {
-            background: #f9fafb;
-        }
-
-        tbody td {
-            padding: 16px 20px;
-            font-size: 14px;
-            color: #374151;
-        }
-
-        .candidate-name {
-            font-weight: 600;
-            color: #111827;
-        }
-
-        .cv-points {
-            display: inline-block;
-            padding: 6px 12px;
-            background: #dbeafe;
-            color: #1e40af;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-
-        .cv-points.high {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .cv-points.medium {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .cv-points.low {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .experience-text {
-            max-width: 300px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .action-buttons-cell {
-            display: flex;
-            gap: 10px;
-        }
-
-        .table-icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 6px;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        .table-icon-btn:hover {
-            background: #f3f4f6;
-            transform: scale(1.1);
-        }
-
-        .status-select {
-            padding: 6px 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            background: #e8e8e8;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-header {
-            padding: 25px;
-            border-bottom: 2px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            font-size: 24px;
-            color: #111827;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #6b7280;
-        }
-
-        .close-modal:hover {
-            color: #111827;
-        }
-
-        .modal-body {
-            padding: 25px;
-        }
-
-        .detail-grid {
-            display: grid;
-            gap: 20px;
-        }
-
-        .detail-item {
-            display: grid;
-            grid-template-columns: 150px 1fr;
-            gap: 15px;
-        }
-
-        .detail-label {
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .detail-value {
-            color: #111827;
-        }
-
-        /* Sidebar Overlay */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 80px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 998;
-        }
-
-        .sidebar-overlay.active {
-            display: block;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6b7280;
-        }
-
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-        }
-
-        .empty-state h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-            color: #374151;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .header ul {
-                gap: 1rem;
-            }
-
-            .header ul li a {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header nav {
-                padding: 0.8rem 1rem;
-            }
-
-            .header .logo-container img {
-                width: 60px;
-            }
-
-            .header .logo-container span {
-                font-size: 1.2rem;
-            }
-
-            .header ul {
-                display: none;
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-
-            .main-content.with-sidebar {
-                margin-left: 0;
-            }
-
-            .top-bar {
-                gap: 10px;
-            }
-
-            .search-container {
-                width: 45px;
-                height: 45px;
-            }
-
-            .search-container.expanded {
-                position: fixed;
-                top: 90px;
-                left: 10px;
-                right: 10px;
-                width: calc(100% - 20px);
-                z-index: 1001;
-            }
-
-            .search-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-            }
-
-            .icon-buttons {
-                gap: 5px;
-            }
-
-            .icon-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-
-            .action-buttons {
-                gap: 10px;
-            }
-
-            .btn-create,
-            .btn-list,
-            .btn-news,
-            .back-btn {
-                padding: 12px 20px;
-                font-size: 14px;
-            }
-
-            .filter-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .status-buttons {
-                flex-direction: column;
-            }
-
-            .table-container {
-                font-size: 12px;
-            }
-
-            thead th,
-            tbody td {
-                padding: 10px;
-            }
-
-            .detail-item {
-                grid-template-columns: 1fr;
-                gap: 5px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-section {
-                padding: 20px;
-            }
-
-            .stat-value {
-                font-size: 24px;
-            }
-        }
-
-        .top-bar h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candidate Management Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; display: flex; flex-direction: column; min-height: 100vh; }
+.header { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: fixed; width: 100%; top: 0; z-index: 1000; }
+.header nav { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; }
+.header .logo-container { display: flex; align-items: center; gap: 1rem; }
+.header .logo-container img { width: 100px; height: auto; }
+.header .logo-container span { font-size: 1.6rem; font-weight: bold; color: #2563eb; }
+.header ul { display: flex; list-style: none; gap: 2rem; }
+.header ul li a { text-decoration: none; color: #333; font-weight: 500; }
+.header ul li a:hover, .header ul li a.active { color: #2563eb; }
+.main-container { display: flex; margin-top: 80px; flex: 1; }
+.sidebar { width: 280px; background: linear-gradient(180deg, #1e5a8e 0%, #134168 100%); color: white; display: flex; flex-direction: column; padding: 20px; position: fixed; left: 0; top: 80px; bottom: 0; overflow-y: auto; z-index: 999; transform: translateX(-100%); transition: transform 0.3s ease; }
+.sidebar.active { transform: translateX(0); }
+.logo-section { text-align: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 30px; }
+.profile { display: flex; align-items: center; gap: 15px; }
+.profile-pic { width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; background: rgba(255,255,255,0.2); }
+.profile-info h3 { margin-bottom: 5px; }
+.profile-info p { font-size: 14px; opacity: 0.8; }
+.features-title { font-size: 14px; margin: 20px 0 10px; opacity: 0.7; }
+.menu-item { display: flex; align-items: center; gap: 12px; padding: 15px 20px; margin: 5px 0; border-radius: 8px; cursor: pointer; transition: all 0.3s; position: relative; }
+.menu-item:hover { background: rgba(255,255,255,0.1); }
+.menu-item.active { background: #ffc107; color: #000; }
+.menu-item .badge { position: absolute; right: 15px; background: #ff4444; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.logout-btn { margin-top: auto; background: #ff4444; border: none; color: white; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
+.logout-btn:hover { background: #cc0000; }
+.main-content { flex: 1; padding: 30px; overflow-y: auto; transition: margin-left 0.3s ease; }
+@media (min-width: 769px) { .main-content.with-sidebar { margin-left: 280px; } }
+.top-bar { display: flex; gap: 20px; margin-bottom: 30px; align-items: center; flex-wrap: wrap; }
+.top-bar h2 { font-size: 24px; }
+.menu-toggle { background: white; border: 1px solid #ddd; padding: 12px 18px; cursor: pointer; border-radius: 8px; font-size: 20px; }
+.menu-toggle:hover { background: #f5f5f5; }
+.stats-section { background: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat-card { background: #f8f9fa; padding: 20px; border-radius: 8px; }
+.stat-label { font-size: 16px; color: #666; margin-bottom: 10px; }
+.stat-value { font-size: 32px; font-weight: bold; color: #2d4a8c; }
+.filter-section { background: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.filter-header h3 { font-size: 20px; color: #333; }
+.clear-filters { background: #ff4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.clear-filters:hover { background: #cc0000; }
+.filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+.filter-item { display: flex; flex-direction: column; }
+.filter-item label { font-weight: 500; margin-bottom: 6px; font-size: 14px; color: #555; }
+.filter-item input, .filter-item select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: #e8e8e8; }
+.status-buttons { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+.btn-status { padding: 12px 24px; border: 2px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
+.btn-status:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.btn-status.active { color: white; }
+.btn-status.all.active { background: #2563eb; border-color: #2563eb; }
+.btn-status.suitable.active { background: #10b981; border-color: #10b981; }
+.btn-status.inviting.active { background: #f59e0b; border-color: #f59e0b; }
+.btn-status.accepted.active { background: #8b5cf6; border-color: #8b5cf6; }
+.btn-status.rejected.active { background: #ef4444; border-color: #ef4444; }
+.status-badge { background: #e5e7eb; color: #374151; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.table-section { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+.table-header { background: #f9fafb; padding: 20px 25px; border-bottom: 2px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.table-header h2 { font-size: 22px; color: #111827; }
+.results-count { font-size: 14px; color: #6b7280; }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f9fafb; }
+thead th { padding: 16px 20px; text-align: left; font-weight: 600; font-size: 14px; color: #374151; border-bottom: 2px solid #e5e7eb; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid #e5e7eb; transition: background 0.2s; }
+tbody tr:hover { background: #f9fafb; }
+tbody td { padding: 16px 20px; font-size: 14px; color: #374151; }
+.candidate-name { font-weight: 600; color: #111827; }
+.cv-points { display: inline-block; padding: 6px 12px; background: #dbeafe; color: #1e40af; border-radius: 6px; font-weight: 600; }
+.cv-points.high { background: #d1fae5; color: #065f46; }
+.cv-points.medium { background: #fef3c7; color: #92400e; }
+.cv-points.low { background: #fee2e2; color: #991b1b; }
+.status-label { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; }
+.status-label.suitable { background: #d1fae5; color: #065f46; }
+.status-label.inviting { background: #fef3c7; color: #92400e; }
+.status-label.accepted { background: #dbeafe; color: #1e40af; }
+.status-label.rejected { background: #fee2e2; color: #991b1b; }
+.action-buttons-cell { display: flex; gap: 10px; }
+.table-icon-btn { background: none; border: none; cursor: pointer; font-size: 20px; padding: 6px; border-radius: 6px; }
+.table-icon-btn:hover { background: #f3f4f6; transform: scale(1.1); }
+.status-select { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; cursor: pointer; background: #e8e8e8; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; }
+.modal.active { display: flex; }
+.modal-content { background: white; border-radius: 12px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+.modal-header { padding: 25px; border-bottom: 2px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-size: 24px; color: #111827; }
+.close-modal { background: none; border: none; font-size: 28px; cursor: pointer; color: #6b7280; }
+.close-modal:hover { color: #111827; }
+.modal-body { padding: 25px; }
+.detail-grid { display: grid; gap: 20px; }
+.detail-item { display: grid; grid-template-columns: 150px 1fr; gap: 15px; }
+.detail-label { font-weight: 600; color: #374151; }
+.detail-value { color: #111827; }
+.sidebar-overlay { display: none; position: fixed; top: 80px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 998; }
+.sidebar-overlay.active { display: block; }
+.empty-state { text-align: center; padding: 60px 20px; color: #6b7280; }
+.empty-state-icon { font-size: 64px; margin-bottom: 20px; }
+.empty-state h3 { font-size: 20px; margin-bottom: 10px; color: #374151; }
+.action-btn-bulk { background: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-right: 10px; margin-bottom: 10px; }
+.action-btn-bulk:hover:not(:disabled) { background: #1d4ed8; }
+.action-btn-bulk:disabled { background: #9ca3af; cursor: not-allowed; opacity: 0.6; }
+.load-more-container { text-align: center; padding: 20px; }
+.load-more-btn { background: #2563eb; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; }
+.load-more-btn:hover { background: #1d4ed8; }
+@media (max-width: 768px) { .header nav { padding: 0.8rem 1rem; } .header .logo-container img { width: 60px; } .header .logo-container span { font-size: 1.2rem; } .header ul { display: none; } .main-content { padding: 20px; } .filter-grid { grid-template-columns: 1fr; } .status-buttons { flex-direction: column; } .stats-grid { grid-template-columns: 1fr; } }
+</style>
 </head>
-
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav>
-            <div class="logo-container">
-                <img src="../templates/logo-2.png" alt="Logo">
-                <span>HireSmart</span>
-            </div>
-            <ul>
-                <li><a href="Home.html">Trang chủ</a></li>
-                <li><a href="Recruitment.html">Jobs</a></li>
-                <li><a href="Create_job.html" class="active">Dashboard HR</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="main-container">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="logo-section">
-                <div class="logo">
-                    <img src="../templates/logo-2.png" alt="HireSmart Logo"
-                        style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
-                </div>
-                <div class="profile">
-                    <div class="profile-pic"></div>
-                    <div class="profile-info">
-                        <h3>Name</h3>
-                        <p>Admin</p>
-                    </div>
-                </div>
-            </div>
-            <div class="features-title">Features</div>
-            <div class="menu-item active">
-                <span>📊</span>
-                <span>Dashboard</span>
-            </div>
-            <div class="menu-item">
-                <span>✉️</span>
-                <span>Messages</span>
-                <span class="badge">18</span>
-            </div>
-            <div class="menu-item">
-                <span>💼</span>
-                <span>Jobs</span>
-            </div>
-            <div class="menu-item">
-                <span>👥</span>
-                <span>Candidates</span>
-            </div>
-            <div class="menu-item">
-                <span>📄</span>
-                <span>Resumes</span>
-            </div>
-            <div class="menu-item">
-                <span>📈</span>
-                <span>Report</span>
-            </div>
-            <button class="logout-btn">
-                <span>🔓</span>
-                <span>Log Out</span>
-            </button>
+<header class="header"><nav><div class="logo-container"><img src="../templates/logo-2.png" alt="Logo"><span>HireSmart</span></div><ul><li><a href="Home.html">Trang chủ</a></li><li><a href="Recruitment.html">Jobs</a></li><li><a href="Create_job.html" class="active">Dashboard HR</a></li></ul></nav></header>
+<div class="main-container">
+    <div class="sidebar" id="sidebar"><div class="logo-section"><div class="logo"><img src="../templates/logo-2.png" alt="Logo" style="width:140px;height:auto;display:block;margin:0 auto;"></div><div class="profile"><div class="profile-pic"></div><div class="profile-info"><h3>Name</h3><p>Admin</p></div></div></div><div class="features-title">Features</div><div class="menu-item active"><span>📊</span><span>Dashboard</span></div><div class="menu-item"><span>✉️</span><span>Messages</span><span class="badge">18</span></div><div class="menu-item"><span>💼</span><span>Jobs</span></div><div class="menu-item"><span>👥</span><span>Candidates</span></div><div class="menu-item"><span>📄</span><span>Resumes</span></div><div class="menu-item"><span>📈</span><span>Report</span></div><button class="logout-btn"><span>🔓</span><span>Log Out</span></button></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="main-content" id="mainContent">
+        <div class="top-bar"><button class="menu-toggle" id="menuToggle">☰</button><h2>Candidate Management</h2></div>
+        <div class="status-buttons">
+            <button class="btn-status all active" data-status="all"><span>📋</span><span>Tất cả</span><span class="status-badge" id="count-all">0</span></button>
+            <button class="btn-status suitable" data-status="Suitable"><span>✅</span><span>Phù hợp</span><span class="status-badge" id="count-suitable">0</span></button>
+            <button class="btn-status inviting" data-status="Sended_Inviting"><span>📧</span><span>Đang mời</span><span class="status-badge" id="count-inviting">0</span></button>
+            <button class="btn-status accepted" data-status="Accepted"><span>🎉</span><span>Đã chấp nhận</span><span class="status-badge" id="count-accepted">0</span></button>
+            <button class="btn-status rejected" data-status="rejected"><span>❌</span><span>Từ chối</span><span class="status-badge" id="count-rejected">0</span></button>
         </div>
-
-        <!-- Sidebar Overlay -->
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-        <!-- Main Content -->
-        <div class="main-content" id="mainContent">
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <button class="menu-toggle" id="menuToggle">☰</button>
-                <h2>Candidate Management</h2>
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">Total Candidates</div><div class="stat-value" id="totalCandidates">0</div></div>
+                <div class="stat-card"><div class="stat-label">Suitable</div><div class="stat-value" id="suitableCount">0</div></div>
+                <div class="stat-card"><div class="stat-label">Inviting</div><div class="stat-value" id="invitingCount">0</div></div>
+                <div class="stat-card"><div class="stat-label">Accepted</div><div class="stat-value" id="acceptedCount">0</div></div>
             </div>
-
-
-            <!-- Status Filter Buttons -->
-            <div class="status-buttons">
-                <button class="btn-status all active" data-status="all">
-                    <span>📋</span>
-                    <span>Tất cả</span>
-                    <span class="status-badge" id="count-all">0</span>
-                </button>
-                <button class="btn-status suitable" data-status="suitable">
-                    <span>✅</span>
-                    <span>Phù hợp</span>
-                    <span class="status-badge" id="count-suitable">0</span>
-                </button>
-                <button class="btn-status inviting" data-status="inviting">
-                    <span>📧</span>
-                    <span>Đang mời</span>
-                    <span class="status-badge" id="count-inviting">0</span>
-                </button>
-                <button class="btn-status accepted" data-status="accepted">
-                    <span>🎉</span>
-                    <span>Đã chấp nhận</span>
-                    <span class="status-badge" id="count-accepted">0</span>
-                </button>
-                <button class="btn-status rejected" data-status="rejected">
-                    <span>❌</span>
-                    <span>Từ chối</span>
-                    <span class="status-badge" id="count-rejected">0</span>
-                </button>
+            <div class="filter-section">
+                <div class="filter-header"><h3>🔍 Bộ lọc & Tìm kiếm</h3><button class="clear-filters" onclick="clearFilters()">Xóa bộ lọc</button></div>
+                <div class="filter-grid">
+                    <div class="filter-item"><label>Tìm kiếm theo tên</label><input type="text" id="searchName" placeholder="Nhập tên ứng viên..."></div>
+                    <div class="filter-item"><label>Điểm CV tối thiểu</label><input type="number" id="minPoints" placeholder="VD: 70" min="0" max="100"></div>
+                    <div class="filter-item"><label>Số điện thoại</label><input type="text" id="searchPhone" placeholder="VD: 0901..."></div>
+                    <div class="filter-item"><label>Sắp xếp theo</label><select id="sortBy"><option value="points-desc">Điểm CV (Cao → Thấp)</option><option value="points-asc">Điểm CV (Thấp → Cao)</option><option value="name-asc">Tên (A → Z)</option><option value="name-desc">Tên (Z → A)</option></select></div>
+                </div>
             </div>
-
-            <!-- Stats Section -->
-            <div class="stats-section">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Candidates</div>
-                        <div class="stat-value" id="totalCandidates">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Suitable</div>
-                        <div class="stat-value" id="suitableCount">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Inviting</div>
-                        <div class="stat-value" id="invitingCount">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Accepted</div>
-                        <div class="stat-value" id="acceptedCount">0</div>
-                    </div>
-                </div>
-
-                <!-- Filter Section -->
-                <div class="filter-section">
-                    <div class="filter-header">
-                        <h3>🔍 Bộ lọc & Tìm kiếm</h3>
-                        <button class="clear-filters" onclick="clearFilters()">Xóa bộ lọc</button>
-                    </div>
-                    <div class="filter-grid">
-                        <div class="filter-item">
-                            <label>Tìm kiếm theo tên</label>
-                            <input type="text" id="searchName" placeholder="Nhập tên ứng viên...">
-                        </div>
-                        <div class="filter-item">
-                            <label>Điểm CV tối thiểu</label>
-                            <input type="number" id="minPoints" placeholder="VD: 70" min="0" max="100">
-                        </div>
-                        <div class="filter-item">
-                            <label>Kinh nghiệm</label>
-                            <input type="text" id="searchExperience" placeholder="VD: Python, Java...">
-                        </div>
-                        <div class="filter-item">
-                            <label>Sắp xếp theo</label>
-                            <select id="sortBy" aria-label="Sắp xếp theo">
-                                <option value="points-desc">Điểm CV (Cao → Thấp)</option>
-                                <option value="points-asc">Điểm CV (Thấp → Cao)</option>
-                                <option value="name-asc">Tên (A → Z)</option>
-                                <option value="name-desc">Tên (Z → A)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Table Section -->
-                <div class="table-section">
-                    <div class="table-header">
-                        <h2>Danh sách ứng viên</h2>
-                        <div>
-                            <span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span>
-                            <span>Đã chọn: <span id="selectedCount">0</span></span>
-                        </div>
-                    </div>
-                    <div>
-                        <button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">
-                            🔘 Chọn nhiều
-                        </button>
-                        <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>
-                            📧 Gửi email hàng loạt
-                        </button>
-                        <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>
-                            📥 Xuất dữ liệu đã chọn
-                         </button>
-                        <button class="action-btn-bulk" onclick="changeStatusBulk()" id="changeStatusBtn" disabled>
-                            🔄 Thay đổi trạng thái
-                        </button>
-                    </div>
-                    <div class="table-container">
-                        <table id="candidatesTable">
-                            <thead>
-                                <tr>
-                                    <th class="select-column">
-                                        <input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAllRows(this)" disabled>
-                                    </th>
-                                    <th>Tên ứng viên</th>
-                                    <th>Điểm CV</th>
-                                    <th>Địa chỉ</th>
-                                    <th>Địa chỉ</th>
-                                    <th>Trạng thái</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody id="candidatesBody">
-                            {% for user in users %}
-                            <tr>
-                                <td>
-                                    <input type="checkbox" class="candidate-checkbox" data-candidate-id="{{ user.id }}" disabled onchange="updateSelectionState()">
-                                </td>
-                                <td class="candidate-name">{{ user.full_name }}</td>
-                                <td>
-                                    <span class="cv-points {% if user.overall_cv_score >= 85 %}high{% elif user.overall_cv_score >= 70 %}medium{% else %}low{% endif %}">
-                                        {{ user.overall_cv_score or 'N/A' }}
-                                    </span>
-                                </td>
-                                <td>{{ user.phone or 'N/A' }}</td>
-                                <td>
-                                    <select class="status-select" data-candidate-id="{{ user.id }}" onchange="updateStatus(this.dataset.candidateId, this.value)">
-                                        <option value="suitable">Phù hợp</option>
-                                        <option value="inviting">Đang mời</option>
-                                        <option value="accepted">Đã chấp nhận</option>
-                                        <option value="rejected">Từ chối</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <div class="action-buttons-cell">
-                                        <button class="table-icon-btn" data-candidate-id="{{ user.id }}" onclick="showDetail(this.dataset.candidateId)" title="Chi tiết">📋</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="emptyState" class="empty-state">
-                        <div class="empty-state-icon">🔍</div>
-                        <h3>Không tìm thấy ứng viên</h3>
-                        <p>Thử điều chỉnh bộ lọc hoặc tìm kiếm khác</p>
-                    </div>
-                </div>
+            <div class="table-section">
+                <div class="table-header"><h2>Danh sách ứng viên</h2><div><span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span> | Đã chọn: <span id="selectedCount">0</span></div></div>
+                <div style="padding: 15px 25px;"><button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">🔘 Chọn nhiều</button><button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>📧 Gửi email</button><button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>📥 Xuất dữ liệu</button></div>
+                <div class="table-container"><table id="candidatesTable"><thead><tr><th><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAllRows(this)" disabled></th><th>Tên ứng viên</th><th>Điểm CV</th><th>Số điện thoại</th><th>Trạng thái</th><th>Hành động</th></tr></thead><tbody id="candidatesBody"></tbody></table></div>
+                <div id="emptyState" class="empty-state" style="display:none;"><div class="empty-state-icon">🔍</div><h3>Không tìm thấy ứng viên</h3><p>Thử điều chỉnh bộ lọc</p></div>
+                <div class="load-more-container"><button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">Xem thêm</button><p id="loadMoreInfo" style="margin-top:10px;color:#6b7280;"></p></div>
             </div>
         </div>
     </div>
-
-    <!-- CV Preview Modal -->
-    <div class="modal" id="cvModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>📄 Xem trước CV</h3>
-                <button class="close-modal" onclick="closeModal('cvModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="cvModalBody">
-                <!-- CV content will be inserted here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Detail Modal -->
-    <div class="modal" id="detailModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>📋 Chi tiết ứng viên</h3>
-                <button class="close-modal" onclick="closeModal('detailModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="detailModalBody">
-                <!-- Detail content will be inserted here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- -->
-
-        <script>
-        let currentFilter = {
-            status: 'all',
-            searchName: '',
-            minPoints: '',
-            searchExperience: '',
-            sortBy: 'points-desc'
-        };
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function () {
-            setupEventListeners();
-            updateStatusCounts();
-            updateStats();
-        });
-
-        // Setup Event Listeners
-        function setupEventListeners() {
-            // Menu toggle
-            const menuToggle = document.getElementById('menuToggle');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            let sidebarOpen = false;
-
-            menuToggle.addEventListener('click', function () {
-                sidebarOpen = !sidebarOpen;
-                if (sidebarOpen) {
-                    sidebar.classList.add('active');
-                    sidebarOverlay.classList.add('active');
-                    if (window.innerWidth > 768) {
-                        mainContent.classList.add('with-sidebar');
-                    }
-                } else {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                    mainContent.classList.remove('with-sidebar');
-                }
-            });
-
-            sidebarOverlay.addEventListener('click', function () {
-                sidebarOpen = false;
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-                mainContent.classList.remove('with-sidebar');
-            });
-
-            // Search functionality
-            const searchContainer = document.getElementById('searchContainer');
-            const searchIcon = document.getElementById('searchIcon');
-            const searchInput = document.getElementById('searchInput');
-            let searchOpen = false;
-
-            searchIcon.addEventListener('click', function (e) {
-                e.stopPropagation();
-                searchOpen = !searchOpen;
-                if (searchOpen) {
-                    searchContainer.classList.add('expanded');
-                    setTimeout(() => {
-                        searchInput.focus();
-                    }, 300);
-                } else {
-                    searchContainer.classList.remove('expanded');
-                    searchInput.value = '';
-                }
-            });
-
-            document.addEventListener('click', function (e) {
-                if (searchOpen && !searchContainer.contains(e.target)) {
-                    searchOpen = false;
-                    searchContainer.classList.remove('expanded');
-                    searchInput.value = '';
-                }
-            });
-
-            // Status buttons
-            document.querySelectorAll('.btn-status').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    document.querySelectorAll('.btn-status').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFilter.status = this.dataset.status;
-                    filterTable();
-                });
-            });
-
-            // Filter inputs
-            document.getElementById('searchName').addEventListener('input', function () {
-                currentFilter.searchName = this.value.toLowerCase();
-                filterTable();
-            });
-
-            document.getElementById('minPoints').addEventListener('input', function () {
-                currentFilter.minPoints = this.value;
-                filterTable();
-            });
-
-            document.getElementById('searchExperience').addEventListener('input', function () {
-                currentFilter.searchExperience = this.value.toLowerCase();
-                filterTable();
-            });
-
-            document.getElementById('sortBy').addEventListener('change', function () {
-                currentFilter.sortBy = this.value;
-                filterTable();
-            });
-
-            // Logout
-            document.querySelector('.logout-btn').addEventListener('click', function () {
-                localStorage.removeItem('loggedInUser');
-                window.location.href = '../html/Login.html';
-            });
-        }
-
-        // Filter and Sort Table Rows
-        function filterTable() {
-            const tbody = document.getElementById('candidatesBody');
-            if (!tbody) return;
-            
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            let visibleCount = 0;
-
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells.length < 3) return;
-
-                const nameCell = cells[1];
-                const scoreCell = cells[2];
-                const phoneCell = cells[3];
-
-                let show = true;
-
-                // Filter by status (if implemented)
-                if (currentFilter.status !== 'all') {
-                    // Status filtering can be added if status is stored in data attribute
-                }
-
-                // Filter by name
-                if (currentFilter.searchName && nameCell) {
-                    const nameText = nameCell.textContent.toLowerCase();
-                    if (!nameText.includes(currentFilter.searchName)) {
-                        show = false;
-                    }
-                }
-
-                // Filter by min points
-                if (currentFilter.minPoints && scoreCell) {
-                    const scoreText = scoreCell.textContent.trim();
-                    const score = parseFloat(scoreText);
-                    if (isNaN(score) || score < parseFloat(currentFilter.minPoints)) {
-                        show = false;
-                    }
-                }
-
-                // Filter by experience/phone (if searching in phone)
-                if (currentFilter.searchExperience && phoneCell) {
-                    const phoneText = phoneCell.textContent.toLowerCase();
-                    if (!phoneText.includes(currentFilter.searchExperience)) {
-                        show = false;
-                    }
-                }
-
-                // Show/hide row
-                row.style.display = show ? '' : 'none';
-                if (show) visibleCount++;
-            });
-
-            document.getElementById('resultsCount').textContent = `Hiển thị ${visibleCount} kết quả`;
-            document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
-
-            // Sort visible rows
-            if (currentFilter.sortBy) {
-                const visibleRows = rows.filter(r => r.style.display !== 'none');
-                visibleRows.sort((a, b) => {
-                    const aCells = a.querySelectorAll('td');
-                    const bCells = b.querySelectorAll('td');
-                    
-                    switch (currentFilter.sortBy) {
-                        case 'points-desc':
-                            const aScore = parseFloat(aCells[2]?.textContent) || 0;
-                            const bScore = parseFloat(bCells[2]?.textContent) || 0;
-                            return bScore - aScore;
-                        case 'points-asc':
-                            const aScore2 = parseFloat(aCells[2]?.textContent) || 0;
-                            const bScore2 = parseFloat(bCells[2]?.textContent) || 0;
-                            return aScore2 - bScore2;
-                        case 'name-asc':
-                            return (aCells[1]?.textContent || '').localeCompare(bCells[1]?.textContent || '');
-                        case 'name-desc':
-                            return (bCells[1]?.textContent || '').localeCompare(aCells[1]?.textContent || '');
-                        default:
-                            return 0;
-                    }
-                });
-
-                // Reorder in DOM
-                visibleRows.forEach(row => tbody.appendChild(row));
-            }
-        }
-
-        // Update Stats
-        function updateStats() {
-            const tbody = document.getElementById('candidatesBody');
-            if (!tbody) return;
-            
-            const totalRows = tbody.querySelectorAll('tr').length;
-            document.getElementById('totalCandidates').textContent = totalRows;
-            // Status counts would need to be calculated from table if status is stored
-            document.getElementById('suitableCount').textContent = '0';
-            document.getElementById('invitingCount').textContent = '0';
-            document.getElementById('acceptedCount').textContent = '0';
-        }
-
-        // Update Status Counts
-        function updateStatusCounts() {
-            const tbody = document.getElementById('candidatesBody');
-            if (!tbody) return;
-            
-            const totalRows = tbody.querySelectorAll('tr').length;
-            document.getElementById('count-all').textContent = totalRows;
-            // Status counts would need to be calculated from table if status is stored
-            document.getElementById('count-suitable').textContent = '0';
-            document.getElementById('count-inviting').textContent = '0';
-            document.getElementById('count-accepted').textContent = '0';
-            document.getElementById('count-rejected').textContent = '0';
-        }
-
-        // Update Candidate Status
-        function updateStatus(id, newStatus) {
-            console.log(`Updated candidate ${id} to status: ${newStatus}`);
-            // In a real implementation, this would send an API request to update the database
-            // For now, just log the change
-            updateStatusCounts();
-            updateStats();
-        }
-
-        // Show Detail
-        function showDetail(id) {
-            const checkbox = document.querySelector(`.candidate-checkbox[data-candidate-id="${id}"]`);
-            if (!checkbox) return;
-            
-            const row = checkbox.closest('tr');
-            if (!row) return;
-            
-            const cells = row.querySelectorAll('td');
-            if (cells.length < 4) return;
-
-            const name = cells[1]?.textContent || 'N/A';
-            const score = cells[2]?.textContent || 'N/A';
-            const phone = cells[3]?.textContent || 'N/A';
-            const statusSelect = cells[4]?.querySelector('select');
-            const status = statusSelect?.value || 'suitable';
-
-            const statusText = {
-                'suitable': 'Phù hợp',
-                'inviting': 'Đang mời',
-                'accepted': 'Đã chấp nhận',
-                'rejected': 'Từ chối'
-            };
-
-            const modalBody = document.getElementById('detailModalBody');
-            modalBody.innerHTML = `
-<div class="detail-grid">
-<div class="detail-item">
-<div class="detail-label">ID:</div>
-<div class="detail-value">#${id}</div>
 </div>
-<div class="detail-item">
-<div class="detail-label">Họ tên:</div>
-<div class="detail-value">${name}</div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Số điện thoại:</div>
-<div class="detail-value">${phone}</div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Điểm CV:</div>
-<div class="detail-value"><span class="cv-points">${score}</span></div>
-</div>
-<div class="detail-item">
-<div class="detail-label">Trạng thái:</div>
-<div class="detail-value">${statusText[status] || status}</div>
-</div>
-<div style="margin-top: 20px; display: flex; gap: 10px;">
-<button onclick="closeModal('detailModal')" style="flex: 1; padding: 12px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">Đóng</button>
-</div>
-</div>
-`;
-            document.getElementById('detailModal').classList.add('active');
-        }
+<div class="modal" id="detailModal"><div class="modal-content"><div class="modal-header"><h3>📋 Chi tiết ứng viên</h3><button class="close-modal" onclick="closeModal('detailModal')">&times;</button></div><div class="modal-body" id="detailModalBody"></div></div></div>
 
-        // Close Modal
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        }
+<script>
+const allCandidates = [{% for user in users %}{ id: {{ user.id }}, full_name: "{{ user.full_name | e }}", overall_cv_score: {{ user.overall_cv_score if user.overall_cv_score else 0 }}, phone: "{{ user.phone | e if user.phone else 'N/A' }}", status: "{{ user.application_status | e if user.application_status else 'suitable' }}" }{% if not loop.last %},{% endif %}{% endfor %}];
+const PAGE_SIZE = 20;
+let currentPage = 1, filteredCandidates = [...allCandidates], multiSelectEnabled = false;
+let currentFilter = { status: 'all', searchName: '', minPoints: '', searchPhone: '', sortBy: 'points-desc' };
+const statusText = { Suitable: 'Phù hợp', Sended_Inviting: 'Đang mời', Accepted: 'Đã chấp nhận', rejected: 'Từ chối' };
 
-        // Clear Filters
-        function clearFilters() {
-            document.getElementById('searchName').value = '';
-            document.getElementById('minPoints').value = '';
-            document.getElementById('searchExperience').value = '';
-            document.getElementById('sortBy').value = 'points-desc';
+document.addEventListener('DOMContentLoaded', () => { setupEventListeners(); applyFiltersAndRender(); });
 
-            currentFilter = {
-                status: 'all',
-                searchName: '',
-                minPoints: '',
-                searchExperience: '',
-                sortBy: 'points-desc'
-            };
+function setupEventListeners() {
+    const sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay'), mainContent = document.getElementById('mainContent');
+    let sidebarOpen = false;
+    document.getElementById('menuToggle').addEventListener('click', () => { sidebarOpen = !sidebarOpen; sidebar.classList.toggle('active', sidebarOpen); overlay.classList.toggle('active', sidebarOpen); if (window.innerWidth > 768) mainContent.classList.toggle('with-sidebar', sidebarOpen); });
+    overlay.addEventListener('click', () => { sidebarOpen = false; sidebar.classList.remove('active'); overlay.classList.remove('active'); mainContent.classList.remove('with-sidebar'); });
+    document.querySelectorAll('.btn-status').forEach(btn => btn.addEventListener('click', function() { document.querySelectorAll('.btn-status').forEach(b => b.classList.remove('active')); this.classList.add('active'); currentFilter.status = this.dataset.status; currentPage = 1; applyFiltersAndRender(); }));
+    document.getElementById('searchName').addEventListener('input', function() { currentFilter.searchName = this.value.toLowerCase(); currentPage = 1; applyFiltersAndRender(); });
+    document.getElementById('minPoints').addEventListener('input', function() { currentFilter.minPoints = this.value; currentPage = 1; applyFiltersAndRender(); });
+    document.getElementById('searchPhone').addEventListener('input', function() { currentFilter.searchPhone = this.value.toLowerCase(); currentPage = 1; applyFiltersAndRender(); });
+    document.getElementById('sortBy').addEventListener('change', function() { currentFilter.sortBy = this.value; currentPage = 1; applyFiltersAndRender(); });
+    document.querySelector('.logout-btn').addEventListener('click', () => { localStorage.removeItem('loggedInUser'); window.location.href = '../html/Login.html'; });
+    window.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); });
+}
 
-            document.querySelectorAll('.btn-status').forEach(b => b.classList.remove('active'));
-            document.querySelector('.btn-status.all').classList.add('active');
+function applyFiltersAndRender() {
+    filteredCandidates = allCandidates.filter(c => {
+        if (currentFilter.status !== 'all' && c.status !== currentFilter.status) return false;
+        if (currentFilter.searchName && !c.full_name.toLowerCase().includes(currentFilter.searchName)) return false;
+        if (currentFilter.minPoints && c.overall_cv_score < parseFloat(currentFilter.minPoints)) return false;
+        if (currentFilter.searchPhone && !c.phone.toLowerCase().includes(currentFilter.searchPhone)) return false;
+        return true;
+    });
+    filteredCandidates.sort((a, b) => { switch (currentFilter.sortBy) { case 'points-desc': return b.overall_cv_score - a.overall_cv_score; case 'points-asc': return a.overall_cv_score - b.overall_cv_score; case 'name-asc': return a.full_name.localeCompare(b.full_name); case 'name-desc': return b.full_name.localeCompare(a.full_name); default: return 0; } });
+    renderTable(); updateAllCounts();
+}
 
-            filterTable();
-        }
+function renderTable() {
+    const tbody = document.getElementById('candidatesBody'), displayCount = currentPage * PAGE_SIZE, toShow = filteredCandidates.slice(0, displayCount);
+    tbody.innerHTML = toShow.map(c => `<tr data-id="${c.id}" data-status="${c.status}"><td><input type="checkbox" class="candidate-checkbox" data-candidate-id="${c.id}" ${multiSelectEnabled ? '' : 'disabled'} onchange="updateSelectionState()"></td><td class="candidate-name">${c.full_name}</td><td><span class="cv-points ${c.overall_cv_score >= 85 ? 'high' : c.overall_cv_score >= 70 ? 'medium' : 'low'}">${c.overall_cv_score}</span></td><td>${c.phone}</td><td><span class="status-label ${c.status}">${statusText[c.status] || c.status}</span></td><td><div class="action-buttons-cell"><button class="table-icon-btn" onclick="showDetail(${c.id})" title="Chi tiết">📋</button></div></td></tr>`).join('');
+    document.getElementById('emptyState').style.display = toShow.length === 0 ? 'block' : 'none';
+    document.getElementById('resultsCount').textContent = `Hiển thị ${toShow.length} / ${filteredCandidates.length} kết quả`;
+    const btn = document.getElementById('loadMoreBtn'), info = document.getElementById('loadMoreInfo');
+    btn.style.display = displayCount >= filteredCandidates.length ? 'none' : 'inline-block';
+    info.textContent = displayCount >= filteredCandidates.length ? `Đã hiển thị tất cả ${filteredCandidates.length} ứng viên` : `Còn ${filteredCandidates.length - displayCount} ứng viên chưa hiển thị`;
+    updateSelectionState();
+}
 
-        // Close modals when clicking outside
-        window.addEventListener('click', function (e) {
-            if (e.target.classList.contains('modal')) {
-                e.target.classList.remove('active');
-            }
-        });
+function loadMore() { currentPage++; renderTable(); }
 
-        let multiSelectEnabled = false;
+function updateAllCounts() {
+    const counts = { all: allCandidates.length, Suitable: 0, Sended_Inviting: 0, Accepted: 0, rejected: 0 };
+    allCandidates.forEach(c => { if (counts.hasOwnProperty(c.status)) counts[c.status]++; });
+    document.getElementById('count-all').textContent = counts.all;
+    document.getElementById('count-suitable').textContent = counts.Suitable;
+    document.getElementById('count-inviting').textContent = counts.Sended_Inviting;
+    document.getElementById('count-accepted').textContent = counts.Accepted;
+    document.getElementById('count-rejected').textContent = counts.rejected;
+    document.getElementById('totalCandidates').textContent = counts.all;
+    document.getElementById('suitableCount').textContent = counts.Suitable;
+    document.getElementById('invitingCount').textContent = counts.Sended_Inviting;
+    document.getElementById('acceptedCount').textContent = counts.Accepted;
+}
 
-        function toggleMultiSelect() {
-            multiSelectEnabled = !multiSelectEnabled;
-            const multiSelectBtn = document.getElementById('multiSelectBtn');
-            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-            const rowCheckboxes = document.querySelectorAll('.candidate-checkbox');
+function updateStatus(id, newStatus) {
+    const c = allCandidates.find(x => x.id === id);
+    if (c) c.status = newStatus;
+    fetch('/update_status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: newStatus }) }).catch(console.error);
+    applyFiltersAndRender();
+}
 
-            rowCheckboxes.forEach(cb => {
-                cb.disabled = !multiSelectEnabled;
-                if (!multiSelectEnabled) {
-                    cb.checked = false;
-                }
-            });
+function showDetail(id) {
+    const c = allCandidates.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('detailModalBody').innerHTML = `<div class="detail-grid"><div class="detail-item"><div class="detail-label">ID:</div><div class="detail-value">#${c.id}</div></div><div class="detail-item"><div class="detail-label">Họ tên:</div><div class="detail-value">${c.full_name}</div></div><div class="detail-item"><div class="detail-label">Số điện thoại:</div><div class="detail-value">${c.phone}</div></div><div class="detail-item"><div class="detail-label">Điểm CV:</div><div class="detail-value"><span class="cv-points">${c.overall_cv_score}</span></div></div><div class="detail-item"><div class="detail-label">Trạng thái:</div><div class="detail-value">${statusText[c.status] || c.status}</div></div><div style="margin-top:20px;"><button onclick="closeModal('detailModal')" style="width:100%;padding:12px;background:#6b7280;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:500;">Đóng</button></div></div>`;
+    document.getElementById('detailModal').classList.add('active');
+}
 
-            if (multiSelectEnabled) {
-                selectAllCheckbox.disabled = false;
-            } else {
-                selectAllCheckbox.checked = false;
-                selectAllCheckbox.disabled = true;
-            }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-            multiSelectBtn.textContent = multiSelectEnabled ? '✔️ Đang chọn nhiều' : '🔘 Chọn nhiều';
-            updateSelectionState();
-        }
+function clearFilters() {
+    document.getElementById('searchName').value = '';
+    document.getElementById('minPoints').value = '';
+    document.getElementById('searchPhone').value = '';
+    document.getElementById('sortBy').value = 'points-desc';
+    currentFilter = { status: 'all', searchName: '', minPoints: '', searchPhone: '', sortBy: 'points-desc' };
+    document.querySelectorAll('.btn-status').forEach(b => b.classList.remove('active'));
+    document.querySelector('.btn-status.all').classList.add('active');
+    currentPage = 1;
+    applyFiltersAndRender();
+}
 
-        function toggleSelectAllRows(source) {
-            if (source.disabled) return;
-            const rowCheckboxes = document.querySelectorAll('.candidate-checkbox');
-            rowCheckboxes.forEach(cb => {
-                if (!cb.disabled) {
-                    cb.checked = source.checked;
-                }
-            });
-            updateSelectionState();
-        }
+function toggleMultiSelect() {
+    multiSelectEnabled = !multiSelectEnabled;
+    const btn = document.getElementById('multiSelectBtn'), selectAll = document.getElementById('selectAllCheckbox');
+    document.querySelectorAll('.candidate-checkbox').forEach(cb => { cb.disabled = !multiSelectEnabled; if (!multiSelectEnabled) cb.checked = false; });
+    selectAll.disabled = !multiSelectEnabled;
+    if (!multiSelectEnabled) selectAll.checked = false;
+    btn.textContent = multiSelectEnabled ? '✔️ Đang chọn nhiều' : '🔘 Chọn nhiều';
+    updateSelectionState();
+}
 
-        function updateSelectionState() {
-            const rowCheckboxes = document.querySelectorAll('.candidate-checkbox');
-            const selected = Array.from(rowCheckboxes).filter(cb => cb.checked);
-            const selectedCountEl = document.getElementById('selectedCount');
-            if (selectedCountEl) {
-                selectedCountEl.textContent = selected.length;
-            }
+function toggleSelectAllRows(source) {
+    if (source.disabled) return;
+    document.querySelectorAll('.candidate-checkbox').forEach(cb => { if (!cb.disabled) cb.checked = source.checked; });
+    updateSelectionState();
+}
 
-            ['sendEmailBtn', 'exportBtn', 'changeStatusBtn'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.disabled = selected.length === 0;
-                }
-            });
-        }
+function updateSelectionState() {
+    const selected = Array.from(document.querySelectorAll('.candidate-checkbox:checked'));
+    document.getElementById('selectedCount').textContent = selected.length;
+    ['sendEmailBtn', 'exportBtn', 'changeStatusBtn'].forEach(id => { const btn = document.getElementById(id); if (btn) btn.disabled = selected.length === 0; });
+}
 
-        function getSelectedCandidateIds() {
-            return Array.from(document.querySelectorAll('.candidate-checkbox:checked'))
-                .map(cb => parseInt(cb.dataset.candidateId, 10))
-                .filter(id => !isNaN(id));
-        }
+function getSelectedCandidateIds() { return Array.from(document.querySelectorAll('.candidate-checkbox:checked')).map(cb => parseInt(cb.dataset.candidateId, 10)).filter(id => !isNaN(id)); }
 
-        async function sendEmailToSelected() {
-            const ids = getSelectedCandidateIds();
-            if (ids.length === 0) {
-                alert("Vui lòng chọn ít nhất 1 ứng viên.");
-                return;
-            }
+async function sendEmailToSelected() {
+    const ids = getSelectedCandidateIds();
+    if (ids.length === 0) { alert("Vui lòng chọn ít nhất 1 ứng viên."); return; }
+    const btn = document.getElementById('sendEmailBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Đang chuẩn bị...'; }
+    try {
+        const response = await fetch("/create_tokens", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ candidate_ids: ids }) });
+        if (!response.ok) { const err = await response.json().catch(() => ({})); alert(err.detail || "Tạo token thất bại."); return; }
+        window.location.href = `/bulk-email?ids=${ids.join(",")}`;
+    } catch (error) { console.error("Lỗi:", error); alert("Có lỗi khi kết nối tới server."); }
+    finally { if (btn) { btn.disabled = false; btn.textContent = '📧 Gửi email'; } }
+}
 
-            const sendBtn = document.getElementById('sendEmailBtn');
-            if (sendBtn) {
-                sendBtn.disabled = true;
-                sendBtn.textContent = 'Đang chuẩn bị...';
-            }
+function exportSelectedData() {
+    const ids = getSelectedCandidateIds();
+    if (ids.length === 0) { alert("Vui lòng chọn ít nhất 1 ứng viên."); return; }
+    const data = allCandidates.filter(c => ids.includes(c.id));
+    const csv = "ID,Họ tên,Điểm CV,Số điện thoại,Trạng thái\n" + data.map(c => `${c.id},"${c.full_name}",${c.overall_cv_score},"${c.phone}","${statusText[c.status]}"`).join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'candidates_export.csv'; link.click();
+}
 
-            const payload = { candidate_ids: ids };
-
-            try {
-                const response = await fetch("/create_tokens", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const err = await response.json().catch(() => ({}));
-                    console.error("Lỗi tạo token:", err);
-                    alert(err.detail || "Tạo token thất bại.");
-                    return;
-                }
-
-                const query = new URLSearchParams({ ids: ids.join(",") });
-                window.location.href = `/bulk-email?${query.toString()}`;
-            } catch (error) {
-                console.error("Lỗi gọi API /create_tokens:", error);
-                alert("Có lỗi khi kết nối tới server.");
-            } finally {
-                if (sendBtn) {
-                    sendBtn.disabled = false;
-                    sendBtn.textContent = '📧 Gửi email hàng loạt';
-                }
-            }
-        }
-
-        function exportSelectedData() {
-            const ids = getSelectedCandidateIds();
-            if (ids.length === 0) {
-                alert("Vui lòng chọn ít nhất 1 ứng viên.");
-                return;
-            }
-            // In a real implementation, this would export the selected candidates to CSV/Excel
-            console.log("Exporting candidates with IDs:", ids);
-            alert("Chức năng xuất dữ liệu đang được phát triển.");
-        }
-
-        function changeStatusBulk() {
-            const ids = getSelectedCandidateIds();
-            if (ids.length === 0) {
-                alert("Vui lòng chọn ít nhất 1 ứng viên.");
-                return;
-            }
-            // In a real implementation, this would show a modal to select new status
-            const newStatus = prompt("Nhập trạng thái mới (suitable/inviting/accepted/rejected):");
-            if (newStatus) {
-                ids.forEach(id => updateStatus(id, newStatus));
-                alert(`Đã cập nhật trạng thái cho ${ids.length} ứng viên.`);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', updateSelectionState);
-    </script>
+function changeStatusBulk() {
+    const ids = getSelectedCandidateIds();
+    if (ids.length === 0) { alert("Vui lòng chọn ít nhất 1 ứng viên."); return; }
+    const newStatus = prompt("Nhập trạng thái mới (Suitable/Sended_Inviting/Accepted/rejected):");
+    if (newStatus && ['Suitable', 'Sended_Inviting', 'Accepted', 'rejected'].includes(newStatus)) {
+        ids.forEach(id => { const c = allCandidates.find(x => x.id === id); if (c) c.status = newStatus; });
+        fetch('/update_status_bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids, status: newStatus }) }).catch(console.error);
+        applyFiltersAndRender();
+        alert(`Đã cập nhật trạng thái cho ${ids.length} ứng viên.`);
+    } else if (newStatus) { alert("Trạng thái không hợp lệ!"); }
+}
+</script>
 </body>
-
 </html>

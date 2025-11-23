@@ -1,10 +1,8 @@
-<<<<<<< HEAD
+
 Cách 1 (Khuyên dùng - Script Python):
     python run_server.py
 =======
-uvicorn:
-    uvicorn backend.API.app:app
->>>>>>> 757ec92e5802dc101661b7b1d22602ada0a98aa3
+
 
 Cách 2 (Uvicorn trực tiếp):
     uvicorn backend.API.app:app --reload --host 127.0.0.1 --port 8000
