@@ -76,11 +76,19 @@ tbody td { padding: 16px 20px; font-size: 14px; color: #374151; }
 .cv-points.high { background: #d1fae5; color: #065f46; }
 .cv-points.medium { background: #fef3c7; color: #92400e; }
 .cv-points.low { background: #fee2e2; color: #991b1b; }
-.status-label { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; }
-.status-label.suitable { background: #d1fae5; color: #065f46; }
-.status-label.inviting { background: #fef3c7; color: #92400e; }
-.status-label.accepted { background: #dbeafe; color: #1e40af; }
+.status-label { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; text-transform: capitalize; }
+.status-label.suitable { background: #dbeafe; color: #1e40af; }
+.status-label.unsuitable { background: #ffedd5; color: #c2410c; }
+.status-label.sended_inviting { background: #bfdbfe; color: #1e3a8a; }
+.status-label.accepted { background: #d4c8f0; color: #551ade; }
+.status-label.hired { background: #fed7aa; color: #9a3412; }
 .status-label.rejected { background: #fee2e2; color: #991b1b; }
+.checkbox-cell { width: 0; overflow: hidden; padding: 0 !important; transition: all 0.3s ease; }
+.checkbox-cell.visible { width: 50px; padding: 16px 20px !important; }
+.checkbox-cell input { opacity: 0; transition: opacity 0.2s ease; }
+.checkbox-cell.visible input { opacity: 1; }
+thead .checkbox-cell { padding: 0 !important; }
+thead .checkbox-cell.visible { padding: 16px 20px !important; }
 .action-buttons-cell { display: flex; gap: 10px; }
 .table-icon-btn { background: none; border: none; cursor: pointer; font-size: 20px; padding: 6px; border-radius: 6px; }
 .table-icon-btn:hover { background: #f3f4f6; transform: scale(1.1); }
@@ -120,10 +128,10 @@ tbody td { padding: 16px 20px; font-size: 14px; color: #374151; }
         <div class="top-bar"><button class="menu-toggle" id="menuToggle">☰</button><h2>Candidate Management</h2></div>
         <div class="status-buttons">
             <button class="btn-status all active" data-status="all"><span>📋</span><span>Tất cả</span><span class="status-badge" id="count-all">0</span></button>
-            <button class="btn-status suitable" data-status="Suitable"><span>✅</span><span>Phù hợp</span><span class="status-badge" id="count-suitable">0</span></button>
-            <button class="btn-status inviting" data-status="Sended_Inviting"><span>📧</span><span>Đang mời</span><span class="status-badge" id="count-inviting">0</span></button>
-            <button class="btn-status accepted" data-status="Accepted"><span>🎉</span><span>Đã chấp nhận</span><span class="status-badge" id="count-accepted">0</span></button>
-            <button class="btn-status rejected" data-status="rejected"><span>❌</span><span>Từ chối</span><span class="status-badge" id="count-rejected">0</span></button>
+            <button class="btn-status suitable" data-status="suitable"><span>✅</span><span>Suitable</span><span class="status-badge" id="count-suitable">0</span></button>
+            <button class="btn-status inviting" data-status="sended_inviting"><span>📧</span><span>Sended Inviting</span><span class="status-badge" id="count-inviting">0</span></button>
+            <button class="btn-status accepted" data-status="accepted"><span>🎉</span><span>Accepted</span><span class="status-badge" id="count-accepted">0</span></button>
+            <button class="btn-status rejected" data-status="rejected"><span>❌</span><span>Rejected</span><span class="status-badge" id="count-rejected">0</span></button>
         </div>
         <div class="stats-section">
             <div class="stats-grid">
@@ -144,7 +152,7 @@ tbody td { padding: 16px 20px; font-size: 14px; color: #374151; }
             <div class="table-section">
                 <div class="table-header"><h2>Danh sách ứng viên</h2><div><span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span> | Đã chọn: <span id="selectedCount">0</span></div></div>
                 <div style="padding: 15px 25px;"><button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">🔘 Chọn nhiều</button><button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>📧 Gửi email</button><button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>📥 Xuất dữ liệu</button></div>
-                <div class="table-container"><table id="candidatesTable"><thead><tr><th><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAllRows(this)" disabled></th><th>Tên ứng viên</th><th>Điểm CV</th><th>Số điện thoại</th><th>Trạng thái</th><th>Hành động</th></tr></thead><tbody id="candidatesBody"></tbody></table></div>
+                <div class="table-container"><table id="candidatesTable"><thead><tr><th class="checkbox-cell"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAllRows(this)"></th><th>Tên ứng viên</th><th>Điểm CV</th><th>Số điện thoại</th><th>Trạng thái</th><th>Hành động</th></tr></thead><tbody id="candidatesBody"></tbody></table></div>
                 <div id="emptyState" class="empty-state" style="display:none;"><div class="empty-state-icon">🔍</div><h3>Không tìm thấy ứng viên</h3><p>Thử điều chỉnh bộ lọc</p></div>
                 <div class="load-more-container"><button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">Xem thêm</button><p id="loadMoreInfo" style="margin-top:10px;color:#6b7280;"></p></div>
             </div>
@@ -158,7 +166,7 @@ const allCandidates = [{% for user in users %}{ id: {{ user.id }}, full_name: "{
 const PAGE_SIZE = 20;
 let currentPage = 1, filteredCandidates = [...allCandidates], multiSelectEnabled = false;
 let currentFilter = { status: 'all', searchName: '', minPoints: '', searchPhone: '', sortBy: 'points-desc' };
-const statusText = { Suitable: 'Phù hợp', Sended_Inviting: 'Đang mời', Accepted: 'Đã chấp nhận', rejected: 'Từ chối' };
+const statusText = { suitable: 'Suitable', unsuitable: 'Unsuitable', sended_inviting: 'Sended Inviting', accepted: 'Accepted', hired: 'Hired', rejected: 'Rejected' };
 
 document.addEventListener('DOMContentLoaded', () => { setupEventListeners(); applyFiltersAndRender(); });
 
@@ -176,9 +184,27 @@ function setupEventListeners() {
     window.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); });
 }
 
+// Chuẩn hóa status string dựa trên giá trị chính xác lưu trong DB
+function normalizeStatus(s) {
+    if (s === null || s === undefined) return 'suitable';
+    const t = String(s).trim();
+    switch (t) {
+        case 'Suitable': return 'suitable';
+        case 'Unsuitable': return 'unsuitable';
+        case 'Sended_Inviting': return 'sended_inviting';
+        case 'Accepted': return 'accepted';
+        case 'hired': return 'hired';
+        case 'rejected': return 'rejected';
+        default:
+            // Trường hợp không mong đợi: chuẩn hoá nhưng không ép về 'suitable'
+            return t.toLowerCase().replace(/\s+/g, '_');
+    }
+}
+
 function applyFiltersAndRender() {
     filteredCandidates = allCandidates.filter(c => {
-        if (currentFilter.status !== 'all' && c.status !== currentFilter.status) return false;
+        const normalizedStatus = normalizeStatus(c.status);
+        if (currentFilter.status !== 'all' && normalizedStatus !== currentFilter.status) return false;
         if (currentFilter.searchName && !c.full_name.toLowerCase().includes(currentFilter.searchName)) return false;
         if (currentFilter.minPoints && c.overall_cv_score < parseFloat(currentFilter.minPoints)) return false;
         if (currentFilter.searchPhone && !c.phone.toLowerCase().includes(currentFilter.searchPhone)) return false;
@@ -189,43 +215,63 @@ function applyFiltersAndRender() {
 }
 
 function renderTable() {
-    const tbody = document.getElementById('candidatesBody'), displayCount = currentPage * PAGE_SIZE, toShow = filteredCandidates.slice(0, displayCount);
-    tbody.innerHTML = toShow.map(c => `<tr data-id="${c.id}" data-status="${c.status}"><td><input type="checkbox" class="candidate-checkbox" data-candidate-id="${c.id}" ${multiSelectEnabled ? '' : 'disabled'} onchange="updateSelectionState()"></td><td class="candidate-name">${c.full_name}</td><td><span class="cv-points ${c.overall_cv_score >= 85 ? 'high' : c.overall_cv_score >= 70 ? 'medium' : 'low'}">${c.overall_cv_score}</span></td><td>${c.phone}</td><td><span class="status-label ${c.status}">${statusText[c.status] || c.status}</span></td><td><div class="action-buttons-cell"><button class="table-icon-btn" onclick="showDetail(${c.id})" title="Chi tiết">📋</button></div></td></tr>`).join('');
+    const tbody = document.getElementById('candidatesBody');
+    const displayCount = currentPage * PAGE_SIZE;
+    const toShow = filteredCandidates.slice(0, displayCount);
+    
+    console.log('Rendering table with', toShow.length, 'candidates');
+    
+    tbody.innerHTML = toShow.map(c => {
+        const normalizedStatus = normalizeStatus(c.status);
+        return `<tr data-id="${c.id}" data-status="${normalizedStatus}">
+            <td class="checkbox-cell"><input type="checkbox" class="candidate-checkbox" data-candidate-id="${c.id}" onchange="updateSelectionState()"></td>
+            <td class="candidate-name">${c.full_name}</td>
+            <td><span class="cv-points ${c.overall_cv_score >= 85 ? 'high' : c.overall_cv_score >= 70 ? 'medium' : 'low'}">${c.overall_cv_score}</span></td>
+            <td>${c.phone}</td>
+            <td><span class="status-label ${normalizedStatus}">${statusText[normalizedStatus] || c.status}</span></td>
+            <td><div class="action-buttons-cell">
+                <button class="table-icon-btn" onclick="showDetail(${c.id})" title="Chi tiết">📋</button>
+                <button class="table-icon-btn" onclick="previewCV(${c.id})" title="Xem CV">👁️</button>
+            </div></td>
+        </tr>`;
+    }).join('');
+    
     document.getElementById('emptyState').style.display = toShow.length === 0 ? 'block' : 'none';
     document.getElementById('resultsCount').textContent = `Hiển thị ${toShow.length} / ${filteredCandidates.length} kết quả`;
-    const btn = document.getElementById('loadMoreBtn'), info = document.getElementById('loadMoreInfo');
+    
+    const btn = document.getElementById('loadMoreBtn');
+    const info = document.getElementById('loadMoreInfo');
     btn.style.display = displayCount >= filteredCandidates.length ? 'none' : 'inline-block';
     info.textContent = displayCount >= filteredCandidates.length ? `Đã hiển thị tất cả ${filteredCandidates.length} ứng viên` : `Còn ${filteredCandidates.length - displayCount} ứng viên chưa hiển thị`;
+    
     updateSelectionState();
 }
 
 function loadMore() { currentPage++; renderTable(); }
 
 function updateAllCounts() {
-    const counts = { all: allCandidates.length, Suitable: 0, Sended_Inviting: 0, Accepted: 0, rejected: 0 };
-    allCandidates.forEach(c => { if (counts.hasOwnProperty(c.status)) counts[c.status]++; });
+    const counts = { all: allCandidates.length, suitable: 0, unsuitable: 0, sended_inviting: 0, accepted: 0, hired: 0, rejected: 0 };
+    allCandidates.forEach(c => { 
+        const normalizedStatus = normalizeStatus(c.status);
+        if (counts.hasOwnProperty(normalizedStatus)) counts[normalizedStatus]++; 
+    });
     document.getElementById('count-all').textContent = counts.all;
-    document.getElementById('count-suitable').textContent = counts.Suitable;
-    document.getElementById('count-inviting').textContent = counts.Sended_Inviting;
-    document.getElementById('count-accepted').textContent = counts.Accepted;
+    document.getElementById('count-suitable').textContent = counts.suitable;
+    document.getElementById('count-inviting').textContent = counts.sended_inviting;
+    document.getElementById('count-accepted').textContent = counts.accepted;
+    // Hiển thị chỉ số "rejected" = số thực của rejected (không cộng unsuitable)
     document.getElementById('count-rejected').textContent = counts.rejected;
     document.getElementById('totalCandidates').textContent = counts.all;
-    document.getElementById('suitableCount').textContent = counts.Suitable;
-    document.getElementById('invitingCount').textContent = counts.Sended_Inviting;
-    document.getElementById('acceptedCount').textContent = counts.Accepted;
-}
-
-function updateStatus(id, newStatus) {
-    const c = allCandidates.find(x => x.id === id);
-    if (c) c.status = newStatus;
-    fetch('/update_status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: newStatus }) }).catch(console.error);
-    applyFiltersAndRender();
+    document.getElementById('suitableCount').textContent = counts.suitable;
+    document.getElementById('invitingCount').textContent = counts.sended_inviting;
+    document.getElementById('acceptedCount').textContent = counts.accepted;
 }
 
 function showDetail(id) {
     const c = allCandidates.find(x => x.id === id);
     if (!c) return;
-    document.getElementById('detailModalBody').innerHTML = `<div class="detail-grid"><div class="detail-item"><div class="detail-label">ID:</div><div class="detail-value">#${c.id}</div></div><div class="detail-item"><div class="detail-label">Họ tên:</div><div class="detail-value">${c.full_name}</div></div><div class="detail-item"><div class="detail-label">Số điện thoại:</div><div class="detail-value">${c.phone}</div></div><div class="detail-item"><div class="detail-label">Điểm CV:</div><div class="detail-value"><span class="cv-points">${c.overall_cv_score}</span></div></div><div class="detail-item"><div class="detail-label">Trạng thái:</div><div class="detail-value">${statusText[c.status] || c.status}</div></div><div style="margin-top:20px;"><button onclick="closeModal('detailModal')" style="width:100%;padding:12px;background:#6b7280;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:500;">Đóng</button></div></div>`;
+    const normalized = normalizeStatus(c.status);
+    document.getElementById('detailModalBody').innerHTML = `<div class="detail-grid"><div class="detail-item"><div class="detail-label">ID:</div><div class="detail-value">#${c.id}</div></div><div class="detail-item"><div class="detail-label">Họ tên:</div><div class="detail-value">${c.full_name}</div></div><div class="detail-item"><div class="detail-label">Số điện thoại:</div><div class="detail-value">${c.phone}</div></div><div class="detail-item"><div class="detail-label">Điểm CV:</div><div class="detail-value"><span class="cv-points">${c.overall_cv_score}</span></div></div><div class="detail-item"><div class="detail-label">Trạng thái:</div><div class="detail-value">${statusText[normalized] || c.status}</div></div><div style="margin-top:20px;"><button onclick="closeModal('detailModal')" style="width:100%;padding:12px;background:#6b7280;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:500;">Đóng</button></div></div>`;
     document.getElementById('detailModal').classList.add('active');
 }
 
@@ -245,24 +291,27 @@ function clearFilters() {
 
 function toggleMultiSelect() {
     multiSelectEnabled = !multiSelectEnabled;
-    const btn = document.getElementById('multiSelectBtn'), selectAll = document.getElementById('selectAllCheckbox');
-    document.querySelectorAll('.candidate-checkbox').forEach(cb => { cb.disabled = !multiSelectEnabled; if (!multiSelectEnabled) cb.checked = false; });
-    selectAll.disabled = !multiSelectEnabled;
-    if (!multiSelectEnabled) selectAll.checked = false;
+    const btn = document.getElementById('multiSelectBtn');
+    const checkboxCells = document.querySelectorAll('.checkbox-cell');
+    checkboxCells.forEach(cell => { cell.classList.toggle('visible', multiSelectEnabled); });
+    if (!multiSelectEnabled) {
+        document.querySelectorAll('.candidate-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('selectAllCheckbox').checked = false;
+    }
     btn.textContent = multiSelectEnabled ? '✔️ Đang chọn nhiều' : '🔘 Chọn nhiều';
     updateSelectionState();
 }
 
 function toggleSelectAllRows(source) {
-    if (source.disabled) return;
-    document.querySelectorAll('.candidate-checkbox').forEach(cb => { if (!cb.disabled) cb.checked = source.checked; });
+    if (!multiSelectEnabled) return;
+    document.querySelectorAll('.candidate-checkbox').forEach(cb => cb.checked = source.checked);
     updateSelectionState();
 }
 
 function updateSelectionState() {
     const selected = Array.from(document.querySelectorAll('.candidate-checkbox:checked'));
     document.getElementById('selectedCount').textContent = selected.length;
-    ['sendEmailBtn', 'exportBtn', 'changeStatusBtn'].forEach(id => { const btn = document.getElementById(id); if (btn) btn.disabled = selected.length === 0; });
+    ['sendEmailBtn', 'exportBtn'].forEach(id => { const btn = document.getElementById(id); if (btn) btn.disabled = selected.length === 0; });
 }
 
 function getSelectedCandidateIds() { return Array.from(document.querySelectorAll('.candidate-checkbox:checked')).map(cb => parseInt(cb.dataset.candidateId, 10)).filter(id => !isNaN(id)); }
@@ -284,21 +333,21 @@ function exportSelectedData() {
     const ids = getSelectedCandidateIds();
     if (ids.length === 0) { alert("Vui lòng chọn ít nhất 1 ứng viên."); return; }
     const data = allCandidates.filter(c => ids.includes(c.id));
-    const csv = "ID,Họ tên,Điểm CV,Số điện thoại,Trạng thái\n" + data.map(c => `${c.id},"${c.full_name}",${c.overall_cv_score},"${c.phone}","${statusText[c.status]}"`).join("\n");
+    const csv = "ID,Họ tên,Điểm CV,Số điện thoại,Trạng thái\n" + data.map(c => {
+        const normalizedStatus = normalizeStatus(c.status);
+        return `${c.id},"${c.full_name}",${c.overall_cv_score},"${c.phone}","${statusText[normalizedStatus] || c.status}"`;
+    }).join("\n");
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'candidates_export.csv'; link.click();
 }
 
-function changeStatusBulk() {
-    const ids = getSelectedCandidateIds();
-    if (ids.length === 0) { alert("Vui lòng chọn ít nhất 1 ứng viên."); return; }
-    const newStatus = prompt("Nhập trạng thái mới (Suitable/Sended_Inviting/Accepted/rejected):");
-    if (newStatus && ['Suitable', 'Sended_Inviting', 'Accepted', 'rejected'].includes(newStatus)) {
-        ids.forEach(id => { const c = allCandidates.find(x => x.id === id); if (c) c.status = newStatus; });
-        fetch('/update_status_bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids, status: newStatus }) }).catch(console.error);
-        applyFiltersAndRender();
-        alert(`Đã cập nhật trạng thái cho ${ids.length} ứng viên.`);
-    } else if (newStatus) { alert("Trạng thái không hợp lệ!"); }
+// Hàm preview CV - nhúng code vào đây
+function previewCV(id) {
+    const c = allCandidates.find(x => x.id === id);
+    if (!c) return;
+    // TODO: Nhúng code preview CV vào đây
+    console.log("Preview CV for candidate ID:", id);
+    alert("Chức năng xem CV - ID: " + id);
 }
 </script>
 </body>
