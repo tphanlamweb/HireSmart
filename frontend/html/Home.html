@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HireSmart - Kết nối tài năng, Phát triển tương lai</title>
-    <link rel="stylesheet" href="/frontend/Styles/hr_cv.css">
+    <link rel="stylesheet" href="../Styles/hr_cv.css">
 </head>
+
 <body>
     <!-- Header -->
     <header id="header">
         <nav>
             <div class="logo">
-                <img src="/frontend/templates/logo-2.png" alt="Logo" class="logo-icon">
+                <img src="../templates/logo-2.png" alt="Logo" class="logo-icon">
             </div>
             <ul class="nav-menu">
                 <li><a href="#home" data-i18n="nav.home">Trang chủ</a></li>
@@ -28,19 +30,23 @@
                         </div>
                     </div>
                 </li>
-                <li class="user-menu"><a href="#" class="login-btn" onclick="handleHRLogin(event)" data-i18n="nav.hr_login">Đăng nhập HR</a>
-                <div class="dropdown" id="dropdownMenu">
-                    <a href="#">Tài Khoản Của Tôi</a>
-                    <a href="Create_job.html" id="dashboardBtn">Dashboard HR</a>
-                    <a href="#" id="logoutBtn">Đăng Xuất</a>
-                </div></li>
+                <li class="user-menu">
+                    <a href="#" class="login-btn" onclick="handleHRLogin(event)"
+                        data-i18n="nav.hr_login">Đăng nhập HR</a>
+                    <div class="dropdown" id="dropdownMenu">
+                        <a href="#">Tài Khoản Của Tôi</a>
+                        <a href="Create_job.html" id="dashboardBtn">Dashboard HR</a>
+                        <a href="#" id="logoutBtn">Đăng Xuất</a>
+                    </div>
+                </li>
             </ul>
         </nav>
     </header>
 
     <!-- Hero Slider -->
     <section class="hero-slider" id="home">
-        <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600');">
+        <div class="slide active"
+            style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600');">
             <div class="slide-overlay">
                 <div class="slide-content">
                     <h1 data-i18n="hero.title1">Kết nối tài năng</h1>
@@ -50,7 +56,8 @@
             </div>
         </div>
 
-        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600');">
+        <div class="slide"
+            style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600');">
             <div class="slide-overlay">
                 <div class="slide-content">
                     <h1 data-i18n="hero.title2">Đội ngũ chuyên nghiệp</h1>
@@ -60,7 +67,8 @@
             </div>
         </div>
 
-        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600');">
+        <div class="slide"
+            style="background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600');">
             <div class="slide-overlay">
                 <div class="slide-content">
                     <h1 data-i18n="hero.title3">Cơ hội phát triển</h1>
@@ -84,10 +92,16 @@
             <div class="about-content">
                 <div class="about-text">
                     <h3 data-i18n="about.who">Chúng tôi là ai?</h3>
-                    <p data-i18n="about.desc1">HireSmart là công ty hoạt động trong lĩnh vực chăm sóc sức khỏe, với đội ngũ trẻ trung và môi trường chuyên nghiệp. Chúng tôi luôn tìm kiếm những cá nhân có đam mê và sáng tạo để cùng phát triển.</p>
-                    <p data-i18n="about.desc2">Với hơn 10 năm kinh nghiệm trong ngành, chúng tôi tự hào là đối tác tin cậy của hàng nghìn khách hàng và đã xây dựng được một đội ngũ nhân viên tận tâm, chuyên nghiệp.</p>
-                    <p><strong data-i18n="about.vision">Tầm nhìn:</strong> <span data-i18n="about.vision_text">Trở thành công ty hàng đầu trong lĩnh vực chăm sóc sức khỏe tại Việt Nam.</span></p>
-                    <p><strong data-i18n="about.mission">Sứ mệnh:</strong> <span data-i18n="about.mission_text">Mang đến giải pháp chăm sóc sức khỏe toàn diện và chất lượng cao cho cộng đồng.</span></p>
+                    <p data-i18n="about.desc1">HireSmart là công ty hoạt động trong lĩnh vực chăm sóc sức khỏe, với đội
+                        ngũ trẻ trung và môi trường chuyên nghiệp. Chúng tôi luôn tìm kiếm những cá nhân có đam mê và
+                        sáng tạo để cùng phát triển.</p>
+                    <p data-i18n="about.desc2">Với hơn 10 năm kinh nghiệm trong ngành, chúng tôi tự hào là đối tác tin
+                        cậy của hàng nghìn khách hàng và đã xây dựng được một đội ngũ nhân viên tận tâm, chuyên nghiệp.
+                    </p>
+                    <p><strong data-i18n="about.vision">Tầm nhìn:</strong> <span data-i18n="about.vision_text">Trở thành
+                            công ty hàng đầu trong lĩnh vực chăm sóc sức khỏe tại Việt Nam.</span></p>
+                    <p><strong data-i18n="about.mission">Sứ mệnh:</strong> <span data-i18n="about.mission_text">Mang đến
+                            giải pháp chăm sóc sức khỏe toàn diện và chất lượng cao cho cộng đồng.</span></p>
                 </div>
                 <div class="about-image">
                     🏢
@@ -105,7 +119,8 @@
                     <div class="highlight-image">🎓</div>
                     <div class="highlight-content">
                         <h3 data-i18n="highlight1.title">Workshop Kỹ năng 2024</h3>
-                        <p data-i18n="highlight1.desc">Chương trình đào tạo kỹ năng chuyên môn và mềm cho toàn thể nhân viên, giúp nâng cao năng lực và hiệu quả công việc.</p>
+                        <p data-i18n="highlight1.desc">Chương trình đào tạo kỹ năng chuyên môn và mềm cho toàn thể nhân
+                            viên, giúp nâng cao năng lực và hiệu quả công việc.</p>
                         <p class="highlight-date">📅 Tháng 9/2024</p>
                     </div>
                 </div>
@@ -114,7 +129,8 @@
                     <div class="highlight-image">🎉</div>
                     <div class="highlight-content">
                         <h3>Sự kiện Team Building</h3>
-                        <p>Hoạt động gắn kết đội nhóm tại Đà Lạt, tạo môi trường vui vẻ, thân thiện và tăng cường tinh thần đồng đội giữa các phòng ban.</p>
+                        <p>Hoạt động gắn kết đội nhóm tại Đà Lạt, tạo môi trường vui vẻ, thân thiện và tăng cường tinh
+                            thần đồng đội giữa các phòng ban.</p>
                         <p class="highlight-date">📅 Tháng 8/2024</p>
                     </div>
                 </div>
@@ -123,7 +139,8 @@
                     <div class="highlight-image">❤️</div>
                     <div class="highlight-content">
                         <h3>Chương trình CSR</h3>
-                        <p>Đồng hành cùng cộng đồng qua các hoạt động từ thiện, khám sức khỏe miễn phí cho người nghèo và trẻ em vùng cao.</p>
+                        <p>Đồng hành cùng cộng đồng qua các hoạt động từ thiện, khám sức khỏe miễn phí cho người nghèo
+                            và trẻ em vùng cao.</p>
                         <p class="highlight-date">📅 Tháng 7/2024</p>
                     </div>
                 </div>
@@ -132,7 +149,8 @@
                     <div class="highlight-image">🏆</div>
                     <div class="highlight-content">
                         <h3>Giải thưởng "Nơi làm việc tốt nhất"</h3>
-                        <p>HireSmart vinh dự nhận giải thưởng "Best Place to Work 2024" - công nhận cho môi trường làm việc chuyên nghiệp và nhân văn.</p>
+                        <p>HireSmart vinh dự nhận giải thưởng "Best Place to Work 2024" - công nhận cho môi trường làm
+                            việc chuyên nghiệp và nhân văn.</p>
                         <p class="highlight-date">📅 Tháng 6/2024</p>
                     </div>
                 </div>
@@ -141,7 +159,8 @@
                     <div class="highlight-image">💼</div>
                     <div class="highlight-content">
                         <h3>Hội thảo chuyên ngành</h3>
-                        <p>Tổ chức hội thảo với các chuyên gia hàng đầu về xu hướng mới trong ngành chăm sóc sức khỏe và công nghệ y tế.</p>
+                        <p>Tổ chức hội thảo với các chuyên gia hàng đầu về xu hướng mới trong ngành chăm sóc sức khỏe và
+                            công nghệ y tế.</p>
                         <p class="highlight-date">📅 Tháng 5/2024</p>
                     </div>
                 </div>
@@ -150,7 +169,8 @@
                     <div class="highlight-image">🌟</div>
                     <div class="highlight-content">
                         <h3>Chương trình Onboarding</h3>
-                        <p>Chào đón thành viên mới với chương trình định hướng toàn diện, giúp hòa nhập nhanh chóng vào văn hóa công ty.</p>
+                        <p>Chào đón thành viên mới với chương trình định hướng toàn diện, giúp hòa nhập nhanh chóng vào
+                            văn hóa công ty.</p>
                         <p class="highlight-date">📅 Hàng tháng</p>
                     </div>
                 </div>
@@ -178,7 +198,8 @@
 
                         <div class="form-group">
                             <label for="message">Nội dung liên hệ *</label>
-                            <textarea id="message" name="message" rows="5" placeholder="Nhập nội dung bạn muốn gửi..." required></textarea>
+                            <textarea id="message" name="message" rows="5" placeholder="Nhập nội dung bạn muốn gửi..."
+                                required></textarea>
                         </div>
 
                         <button type="submit" class="submit-btn">Gửi tin nhắn</button>
@@ -271,7 +292,8 @@
 
         <div class="footer-bottom">
             <p>&copy; 2025 HireSmart Company - Hệ thống Quét CV. All rights reserved.</p>
-            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Phát triển bởi Nhóm Sinh Viên Dự Án Quét CV - Đại học Duy Tân</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Phát triển bởi Nhóm Sinh Viên Dự Án Quét CV - Đại học Duy
+                Tân</p>
         </div>
     </footer>
 
@@ -284,8 +306,9 @@
             <button class="close-modal" onclick="closeModal()">Đóng</button>
         </div>
     </div>
-    
+
     <!-- Load JavaScript after DOM is ready -->
-    <script src="/frontend/Styles/hrjob.js"></script>
+    <script src="../Styles/hrjob.js"></script>
 </body>
+
 </html>

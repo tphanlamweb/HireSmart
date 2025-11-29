@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Management System</title>
+    <link rel="stylesheet" href="../Styles/profile.css">
+</head>
+<body>
+   <!-- Header -->
+    <header class="header">
+        <nav>
+            <div class="logo-container">
+                <img src="../templates/logo-2.png" alt="Logo">
+                <span>HireSmart</span>
+            </div>
+            <ul>
+                <li><a href="Home.html">Trang chủ</a></li>
+                <li><a href="Recruitment.html">Jobs</a></li>
+                <li><a href="Create_job.html" class="active">Dashboard HR</a></li>
+                <li class="language-menu">
+                    <div class="language-selector">
+                        <span id="currentLang">🇻🇳</span>
+                        <div class="language-dropdown">
+                            <div class="lang-option" data-lang="vi" data-flag="🇻🇳">Tiếng Việt</div>
+                            <div class="lang-option" data-lang="en" data-flag="🇺🇸">English</div>
+                        </div>
+                    </div>
+                </li>
+                <li class="user-menu"><a href="#" class="login-btn" onclick="handleHRLogin(event)"
+                        data-i18n="nav.hr_login">Đăng nhập HR</a>
+                    <div class="dropdown" id="dropdownMenu">
+                        <a href="#">Tài Khoản Của Tôi</a>
+                        <a href="Create_job.html" id="dashboardBtn">Dashboard HR</a>
+                        <a href="#" id="logoutBtn">Đăng Xuất</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="../templates/logo-2.png" alt="HireSmart Logo"
+                        style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
+                </div>
+                <div class="profile">
+                    <div class="profile-pic"></div>
+                    <div class="profile-info">
+                        <h3>Name</h3>
+                        <p>Admin</p>
+                    </div>
+                </div>
+            </div>
+            <div class="features-title">Features</div>
+            <div class="menu-item">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item">
+                <span>✉️</span>
+                <span>Messages</span>
+                <span class="badge">18</span>
+            </div>
+            <div class="menu-item active">
+                <span>💼</span>
+                <span>Jobs</span>
+            </div>
+            <div class="menu-item">
+                <span>👥</span>
+                <span>Candidates</span>
+            </div>
+            <div class="menu-item">
+                <span>📄</span>
+                <span>Resumes</span>
+            </div>
+            <div class="menu-item">
+                <span>📈</span>
+                <span>Report</span>
+            </div>
+            <div class = "menu-item">
+                <span>🔔</span>
+                <span>Notification</span>
+            </div>
+            <button class="logout-btn">
+                <span>🔓</span>
+                <span>Log Out</span>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+
+                <div class="icon-buttons">
+                    <button class="icon-btn notification">
+                        🔔
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="icon-btn settings">
+                        🔧
+                    </button>
+                    <button class="icon-btn messages">
+                        ✉️
+                        <span class="badge">18</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Your existing CV cards wrapped in stats-section -->
+            <div class="stats-section">
+                <!-- CV Display Card -->
+                <div class="cv-card">
+                    <div class="edit-icon edit-btn" onclick="openEditCV()">✏️</div>
+                    <div class="cv-header">
+                        <div class="avatar">
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <h2>Name</h2>
+                        <p>Address</p>
+                        <p>Example@gmail.com</p>
+                        <p>999000111</p>
+                        <p>Ngu Hanh Son, Da Nang</p>
+                        <p>01/01/2005</p>
+                    </div>
+                    <div class="cv-section">
+                        <h3>Education</h3>
+                        <p>ABC University Bachelor</p>
+                    </div>
+                    <div class="cv-section">
+                        <h3>Skills</h3>
+                        <div class="skills">
+                            <span class="skill-tag">React</span>
+                            <span class="skill-tag">MySQL</span>
+                        </div>
+                    </div>
+                    <div class="cv-section">
+                        <h3>Experience</h3>
+                        <p>- 3 years at company F</p>
+                        <p>- 2 years internship at company V</p>
+                    </div>
+                    <div class="cv-section">
+                        <h3>Projects</h3>
+                        <p><strong>Project: Recipe Suggestion Web</strong></p>
+                        <p>Python + MySQL + HTML/CSS</p>
+                        <p>Description: Suggestion website based on available ingredients</p>
+                    </div>
+                    <div class="cv-section">
+                        <h3>Certificate</h3>
+                    </div>
+                </div>
+                <!-- CV Info Card with Edit Button -->
+                <div class="cv-card">
+                    <div class="edit-icon edit-btn" onclick="openPersonalInfo()">✏️</div>
+                    <div class="cv-header">
+                        <div class="avatar">
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <h2>Name</h2>
+                        <p>Address</p>
+                    </div>
+                    <div style="text-align: left; padding: 0 10px;">
+                        <p style="display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 15px;">
+                            📧 <span>Example@gmail.com</span>
+                        </p>
+                        <p style="display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 15px;">
+                            📱 <span>999000111</span>
+                        </p>
+                        <p style="display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 15px;">
+                            📍 <span>Ngu Hanh Son, Da Nang</span>
+                        </p>
+                        <p style="display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 15px;">
+                            📅 <span>01/01/2025</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Personal Information Modal -->
+    <div id="personalInfoModal" class="overlay hidden">
+        <div class="modal">
+            <h2>Personal Information</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First name</label>
+                    <input type="text" placeholder="First name">
+                </div>
+                <div class="form-group">
+                    <label>Last name</label>
+                    <input type="text" placeholder="Last name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="Email">
+            </div>
+            <div class="form-group">
+                <label>Phone number</label>
+                <input type="tel" placeholder="Phone number">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Location</label>
+                    <select>
+                        <option>Select location</option>
+                        <option>Da Nang</option>
+                        <option>Ha Noi</option>
+                        <option>Ho Chi Minh</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <select>
+                        <option>Select district</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Date of birth</label>
+                <input type="date"`>
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="male"> Male</label>
+                    <label><input type="radio" name="gender" value="female"> Female</label>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-cancel" onclick="closePersonalInfo()">Cancel</button>
+                <button class="btn btn-save" onclick="closePersonalInfo()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editCVModal" class="overlay hidden">
+        <div class="modal">
+            <h2>Edit CV</h2>
+            <div class="form-group">
+                <label>Education</label>
+                <input type="text" placeholder="Education" value="ABC University Bachelor">
+            </div>
+            <div class="form-group">
+                <label>Skills</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" placeholder="Add skill" style="flex: 1;">
+                    <button class="btn-add">+ Add</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Experience</label>
+                <textarea placeholder="Add your experience">- 3 years at company F
+- 2 years internship at company V</textarea>
+            </div>
+            <div class="form-group">
+                <label>Projects</label>
+                <textarea placeholder="Add your projects">Recipe Suggestion Web
+Python + MySQL + HTML/CSS
+Build a recipe suggestion website based on available ingredients.</textarea>
+            </div>
+            <div class="form-group">
+                <label>Certificates</label>
+                <button class="btn-add-link">+ Add link Github</button>
+                <div class="upload-box"><p>📎 Upload file</p></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-cancel" onclick="closeEditCV()">Cancel</button>
+                <button class="btn btn-save" onclick="closeEditCV()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPersonalInfo() {
+            document.getElementById('personalInfoModal').classList.remove('hidden');
+        }
+        function closePersonalInfo() {
+            document.getElementById('personalInfoModal').classList.add('hidden');
+        }
+        function openEditCV() {
+            document.getElementById('editCVModal').classList.remove('hidden');
+        }
+        function closeEditCV() {
+            document.getElementById('editCVModal').classList.add('hidden');
+        }
+        document.getElementById('personalInfoModal').addEventListener('click', function(e) {
+            if (e.target === this) closePersonalInfo();
+        });
+        document.getElementById('editCVModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditCV();
+        });
+        // Add to your existing script
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        let sidebarOpen = false;
+
+        menuToggle.addEventListener('click', function() {
+            sidebarOpen = !sidebarOpen;
+            
+            if (sidebarOpen) {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                if (window.innerWidth > 768) {
+                    mainContent.classList.add('with-sidebar');
+                }
+            } else {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                mainContent.classList.remove('with-sidebar');
+            }
+        });
+
+        sidebarOverlay.addEventListener('click', function() {
+            sidebarOpen = false;
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            mainContent.classList.remove('with-sidebar');
+        });
+
+        // Auto toggle sidebar on large screens
+        function checkScreenSize() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.add('active');
+                mainContent.classList.add('with-sidebar');
+                sidebarOpen = true;
+            } else {
+                sidebar.classList.remove('active');
+                mainContent.classList.remove('with-sidebar');
+                sidebarOpen = false;
+            }
+        }
+
+        // Check on load and resize
+        window.addEventListener('load', checkScreenSize);
+        window.addEventListener('resize', checkScreenSize);
+
+        // User Menu Toggle
+        const userMenu = document.querySelector('.user-menu');
+        userMenu.addEventListener('click', function(e) {
+            if (e.target.closest('.login-btn')) return;
+            this.classList.toggle('active');
+            e.stopPropagation();
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                userMenu.classList.remove('active');
+            }
+            if (!e.target.closest('.search-container')) {
+                const searchContainer = document.querySelector('.search-container');
+                if (searchContainer) {
+                    searchContainer.classList.remove('expanded');
+                }
+            }
+        });
+
+        // Language selector
+        const langOptions = document.querySelectorAll('.lang-option');
+        const currentLang = document.getElementById('currentLang');
+
+        langOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const flag = this.getAttribute('data-flag');
+                const lang = this.getAttribute('data-lang');
+                currentLang.textContent = flag;
+                // You can add more logic here for language switching
+            });
+        });
+
+        // Mobile responsive menu
+        function initMobileMenu() {
+            const header = document.querySelector('.header');
+            if (window.innerWidth <= 768) {
+                header.classList.add('mobile');
+            } else {
+                header.classList.remove('mobile');
+            }
+        }
+
+        window.addEventListener('resize', initMobileMenu);
+        initMobileMenu();
+
+        // Handle HR Login
+        function handleHRLogin(event) {
+            event.preventDefault();
+            // Add your login logic here
+            console.log('HR Login clicked');
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Add your logout logic here
+            console.log('Logout clicked');
+        });
+
+        // Handle Dashboard navigation
+        document.getElementById('dashboardBtn').addEventListener('click', function(e) {
+            // You can add specific dashboard navigation logic here
+            console.log('Dashboard navigation');
+        });
+
+        // Handle notification clicks
+        const notificationBtn = document.querySelector('.notification');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', function() {
+                // Add your notification handling logic here
+                console.log('Notification clicked');
+            });
+        }
+
+        // Handle settings clicks
+        const settingsBtn = document.querySelector('.settings');
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', function() {
+                // Add your settings handling logic here
+                console.log('Settings clicked');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,19 +1,522 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tuyển dụng - Ứng tuyển ngay</title>
-    <link rel="stylesheet" href="/frontend/Styles/recruitment.css">
-    <script src="/frontend/Styles/recruitment.js" defer></script>
+<!--
+        <link rel="stylesheet" href="../Styles/recruitment.css">
+    <script src="../Styles/recruitment.js" defer></script>
+-->
 
 </head>
+
+
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s;
+}
+
+nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+}
+
+.logo-icon {
+    width: 100px;
+    height: auto;
+    object-fit: contain;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+    color: #2563eb;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 20px 20px;
+}
+
+/* Landing Page */
+.landing-page {
+    display: block;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.hero {
+    background: white;
+    border-radius: 20px;
+    padding: 60px 40px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    margin-bottom: 40px;
+}
+
+.hero h1 {
+    font-size: 3em;
+    color: #667eea;
+    margin-bottom: 20px;
+    animation: fadeInDown 1s;
+}
+
+.hero p {
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 30px;
+    animation: fadeInUp 1s;
+}
+
+.cta-button {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 18px 50px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+}
+
+.job-list {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.job-list h2 {
+    color: #667eea;
+    margin-bottom: 30px;
+    font-size: 2em;
+}
+
+.job-item {
+    background: #f8f9fa;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    border-left: 5px solid #667eea;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.job-item:hover {
+    transform: translateX(10px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.job-item h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.job-item p {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.view-jd-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s;
+}
+
+.view-jd-btn:hover {
+    background: #5568d3;
+    transform: scale(1.05);
+}
+
+/* Application Form */
+.application-form {
+    display: none;
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.application-form h2 {
+    color: #667eea;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 2.5em;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1em;
+    transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+}
+
+.file-upload {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+}
+
+.file-upload input[type="file"] {
+    visibility: visible;
+}
+
+.file-upload-label {
+    display: block;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border: 2px dashed #667eea;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+    position: absolute;
+}
+
+.file-upload-label:hover {
+    background: #e9ecef;
+    border-color: #5568d3;
+}
+
+.file-name {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.required {
+    color: #dc3545;
+}
+
+.btn-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+/* Confirmation Page */
+.confirmation-page {
+    display: none;
+    text-align: center;
+    background: white;
+    border-radius: 20px;
+    padding: 60px 40px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.success-icon {
+    font-size: 5em;
+    color: #28a745;
+    margin-bottom: 20px;
+    animation: scaleIn 0.5s;
+}
+
+.confirmation-page h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 2.5em;
+}
+
+.confirmation-page p {
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.review-section {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 15px;
+    margin: 30px 0;
+    text-align: left;
+}
+
+.review-section h3 {
+    color: #667eea;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.review-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.review-value {
+    color: #666;
+}
+
+/* Modal for JD */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 2% auto;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.pdf-viewer {
+    width: 100%;
+    height: 70vh;
+    border: none;
+    border-radius: 10px;
+}
+
+.jd-apply-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 30px;
+    transition: all 0.3s;
+}
+
+.jd-apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+#jdContent {
+    text-align: left;
+}
+
+#jdContent h3 {
+    color: #667eea;
+    margin: 20px 0 10px 0;
+}
+
+#jdContent ul {
+    padding-left: 20px;
+}
+
+#jdContent li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2em;
+    }
+
+    .hero p {
+        font-size: 1em;
+    }
+
+    .application-form,
+    .confirmation-page {
+        padding: 30px 20px;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+}
+
+
+
+</style>
+
 <body>
     <!-- Header -->
     <header id="header">
         <nav>
             <div class="logo">
-                <img src="/frontend/templates/logo-2.png" alt="Logo" class="logo-icon">
+                <img src="../templates/logo-2.png" alt="Logo" class="logo-icon">
             </div>
             <ul class="nav-menu">
                 <li><a href="Home.html">Trang chủ</a></li>
@@ -60,23 +563,20 @@
             <form id="candidateForm">
                 <div class="form-group">
                     <label>Họ và tên <span class="required">*</span></label>
-                    <input type="text" id="fullName" required placeholder="Nhập họ tên đầy đủ">
+                    <input type="text" id="fullName" required placeholder="Nhập họ tên đầy đủ" >
                 </div>
 
                 <div class="form-group">
                     <label>Email <span class="required">*</span></label>
-                    <input type="email" id="email" required placeholder="example@email.com">
+                    <input type="email" id="email" required placeholder="example@email.com" >
                 </div>
 
                 <div class="form-group">
                     <label>Số điện thoại (Zalo) <span class="required">*</span></label>
-                    <input type="tel" id="phone" required placeholder="0123456789">
+                    <input type="tel" id="phone" pattern="[0-9]{10}"
+                        required placeholder="0123456789" >
                 </div>
 
-                <div class="form-group">
-                    <label>Địa chỉ <span class="required">*</span></label>
-                    <input type="text" id="address" required placeholder="Nhập địa chỉ hiện tại">
-                </div>
 
                 <div class="form-group">
                     <label>Vị trí ứng tuyển <span class="required">*</span></label>
@@ -91,17 +591,18 @@
                 <div class="form-group">
                     <label>Upload CV (PDF/DOCX) <span class="required">*</span></label>
                     <div class="file-upload">
-                        <input type="file" id="cvFile" accept=".pdf,.doc,.docx" required onchange="displayFileName()">
-                        <label for="cvFile" class="file-upload-label">
+                        <label for="cvFile" class="file-upload-label" >
                             📎 Chọn file CV của bạn
                         </label>
+                        <input type="file" id="cvFile" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" required onchange="displayFileName()">
+
                         <div class="file-name" id="fileName"></div>
                     </div>
                 </div>
 
                 <div class="btn-group">
-                    <button type="button" class="btn btn-secondary" onclick="backToLanding()">Quay lại</button>
-                    <button type="submit" class="btn btn-primary">Nộp đơn ứng tuyển</button>
+                    <button class="btn btn-secondary" onclick="backToLanding()">Quay lại</button>
+                    <button class="btn btn-primary" type="submit">Nộp đơn ứng tuyển</button>
                 </div>
             </form>
         </div>
@@ -110,7 +611,8 @@
         <div id="confirmationPage" class="confirmation-page">
             <div class="success-icon">✓</div>
             <h2>Nộp CV thành công!</h2>
-            <p>Cảm ơn bạn đã ứng tuyển vào công ty chúng tôi. Chúng tôi sẽ xem xét hồ sơ và liên hệ với bạn trong thời gian sớm nhất.</p>
+            <p>Cảm ơn bạn đã ứng tuyển vào công ty chúng tôi. Chúng tôi sẽ xem xét hồ sơ và liên hệ với bạn trong thời
+                gian sớm nhất.</p>
 
             <div class="review-section">
                 <h3>Thông tin ứng tuyển của bạn</h3>
@@ -153,4 +655,241 @@
         </div>
     </div>
 </body>
+
+<script>
+
+
+    const jobDescriptions = {
+        backend: {
+            title: "Senior Backend Developer",
+            content: `
+                    <h3>Mô tả công việc:</h3>
+                    <ul>
+                        <li>Thiết kế và phát triển các API RESTful/GraphQL</li>
+                        <li>Tối ưu hiệu suất hệ thống và database</li>
+                        <li>Xây dựng kiến trúc microservices</li>
+                        <li>Code review và mentor các thành viên junior</li>
+                    </ul>
+                    <h3>Yêu cầu:</h3>
+                    <ul>
+                        <li>5+ năm kinh nghiệm Backend Development</li>
+                        <li>Thành thạo Node.js, Python hoặc Java</li>
+                        <li>Kinh nghiệm với PostgreSQL, MongoDB, Redis</li>
+                        <li>Hiểu biết về Docker, Kubernetes</li>
+                    </ul>
+                    <h3>Quyền lợi:</h3>
+                    <ul>
+                        <li>Lương cạnh tranh, thưởng theo hiệu suất</li>
+                        <li>Bảo hiểm đầy đủ, khám sức khỏe định kỳ</li>
+                        <li>Môi trường làm việc hiện đại, chuyên nghiệp</li>
+                        <li>Cơ hội thăng tiến rõ ràng</li>
+                    </ul>
+                `
+        },
+        designer: {
+            title: "UI/UX Designer",
+            content: `
+                    <h3>Mô tả công việc:</h3>
+                    <ul>
+                        <li>Thiết kế giao diện website và mobile app</li>
+                        <li>Nghiên cứu user experience và user behavior</li>
+                        <li>Tạo wireframe, prototype và mockup</li>
+                        <li>Làm việc chặt chẽ với team development</li>
+                    </ul>
+                    <h3>Yêu cầu:</h3>
+                    <ul>
+                        <li>3+ năm kinh nghiệm UI/UX Design</li>
+                        <li>Thành thạo Figma, Adobe XD, Sketch</li>
+                        <li>Hiểu biết về Design System và Material Design</li>
+                        <li>Portfolio ấn tượng</li>
+                    </ul>
+                    <h3>Quyền lợi:</h3>
+                    <ul>
+                        <li>Lương thỏa thuận theo năng lực</li>
+                        <li>Làm việc với các dự án quốc tế</li>
+                        <li>Đào tạo và phát triển kỹ năng liên tục</li>
+                        <li>Team building, du lịch hàng năm</li>
+                    </ul>
+                `
+        },
+        mobile: {
+            title: "Mobile Developer (React Native)",
+            content: `
+                    <h3>Mô tả công việc:</h3>
+                    <ul>
+                        <li>Phát triển ứng dụng mobile đa nền tảng với React Native</li>
+                        <li>Tích hợp API và third-party services</li>
+                        <li>Tối ưu hiệu suất ứng dụng</li>
+                        <li>Fix bug và maintain code</li>
+                    </ul>
+                    <h3>Yêu cầu:</h3>
+                    <ul>
+                        <li>2+ năm kinh nghiệm React Native</li>
+                        <li>Thành thạo JavaScript/TypeScript</li>
+                        <li>Kinh nghiệm với Redux, Context API</li>
+                        <li>Hiểu biết về iOS và Android native</li>
+                    </ul>
+                    <h3>Quyền lợi:</h3>
+                    <ul>
+                        <li>Mức lương hấp dẫn</li>
+                        <li>Làm việc remote linh hoạt</li>
+                        <li>Trang thiết bị làm việc hiện đại</li>
+                        <li>Phụ cấp ăn trưa, xăng xe</li>
+                    </ul>
+                `
+        }
+    };
+
+    let applicationData = {};
+
+    function showApplicationForm() {
+        document.getElementById('landingPage').style.display = 'none';
+        document.getElementById('applicationForm').style.display = 'block';
+        document.getElementById('confirmationPage').style.display = 'none';
+    }
+
+    function backToLanding() {
+        document.getElementById('landingPage').style.display = 'block';
+        document.getElementById('applicationForm').style.display = 'none';
+        document.getElementById('confirmationPage').style.display = 'none';
+        document.getElementById('candidateForm').reset();
+        document.getElementById('fileName').textContent = '';
+    }
+
+    function displayFileName() {
+        const input = document.getElementById('cvFile');
+        const fileNameDiv = document.getElementById('fileName');
+        if (input.files.length > 0) {
+            fileNameDiv.textContent = '✓ ' + input.files[0].name;
+            fileNameDiv.style.color = '#28a745';
+        }
+    }
+
+    function showJD(position) {
+        const modal = document.getElementById('jdModal');
+        const jd = jobDescriptions[position];
+        document.getElementById('jdTitle').textContent = jd.title;
+        document.getElementById('jdContent').innerHTML = jd.content;
+        modal.style.display = 'block';
+    }
+
+    function closeJD() {
+        document.getElementById('jdModal').style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        const modal = document.getElementById('jdModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    document.getElementById('candidateForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const fullName = document.getElementById('fullName').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const positionSelect = document.getElementById('position');
+        const positionValue = positionSelect.value;
+        const positionText = positionSelect.options[positionSelect.selectedIndex].text;
+        const file = document.getElementById('cvFile').files[0];
+
+        if (!file) {
+            alert("Vui lòng chọn file CV trước khi nộp.");
+            return;
+        }
+
+        // 👉 Tạo form data để gửi file + thông tin text
+        const formData = new FormData();
+        formData.append('fullName', fullName);
+        formData.append('email', email);
+        formData.append('phone', phone);
+        formData.append('position', positionText);
+        formData.append('fileName', file.name);
+        formData.append('file', file);  // đây là file PDF/DOCX thật sự
+
+        try {
+            const baseUrl = window.location.origin.includes('8000')
+                ? window.location.origin
+                : 'http://127.0.0.1:8000';
+
+
+            // 👉 Gửi request đến backend (ví dụ FastAPI)
+            const response = await fetch(`${baseUrl}/upload_cv`, {
+                method: 'POST',
+                body: formData
+            }).then(response => response);
+
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Upload thất bại: ${response.statusText}`);
+            }
+            
+
+            const data = await response.json();
+
+            // Hiển thị trang xác nhận
+            document.getElementById('reviewName').textContent = fullName;
+            document.getElementById('reviewEmail').textContent = email;
+            document.getElementById('reviewPhone').textContent = phone;
+            document.getElementById('reviewPosition').textContent = positionText;
+            document.getElementById('reviewCV').textContent = file.name;
+
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('applicationForm').style.display = 'none';
+            document.getElementById('confirmationPage').style.display = 'block';
+        } catch (error) {
+            alert("Lỗi khi gửi dữ liệu: " + error.message);
+            console.error(error);
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+
+
+    });
+    // Render created jobs from localStorage under the default list
+    (function renderCreatedJobs() {
+        try {
+            const container = document.getElementById('jobListContainer');
+            if (!container) return;
+            const stored = JSON.parse(localStorage.getItem('createdJobs') || '[]');
+            if (!Array.isArray(stored) || stored.length === 0) return;
+            stored.forEach(job => {
+                const div = document.createElement('div');
+                div.className = 'job-item';
+                div.innerHTML = `
+                        <h3>💼 ${job.title}</h3>
+                        <p>📍 ${job.location || ''} | 💰 Lương: ${job.salary || 'Thỏa thuận'} | ⏰ ${job.status === 'active' ? 'Active' : 'Status: ' + (job.status || 'N/A')}</p>
+                        <button class="view-jd-btn">Xem mô tả công việc</button>
+                    `;
+                const btn = div.querySelector('.view-jd-btn');
+                btn.addEventListener('click', function () {
+                    // Show JD modal with dynamic content
+                    document.getElementById('jdTitle').textContent = job.title;
+                    document.getElementById('jdContent').innerHTML = `
+                            <h3>Mô tả công việc:</h3>
+                            <p>${(job.description || '').replace(/\n/g, '<br>')}</p>
+                            <h3>Thông tin:</h3>
+                            <ul>
+                                <li>Phòng ban: ${job.department || 'N/A'}</li>
+                                <li>Địa điểm: ${job.location || 'N/A'}</li>
+                                <li>Mức lương: ${job.salary || 'Thỏa thuận'}</li>
+                                <li>Trạng thái: ${job.status || 'N/A'}</li>
+                            </ul>
+                        `;
+                    document.getElementById('jdModal').style.display = 'block';
+                });
+                container.appendChild(div);
+            });
+        } catch (err) {
+            console.error('Failed to render created jobs:', err);
+        }
+    })();
+
+
+
+</script>
+
 </html>

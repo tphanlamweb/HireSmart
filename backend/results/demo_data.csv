@@ -1,0 +1,109 @@
+filename: phanvanthanh_cv.pdf
+file_size: 133538
+mimetype: application/pdf
+cv_summary: 
+email: 
+phone: 0905360586
+full_name: 
+name: Phan Van Thanh
+title: Business Analyst
+objective: I am a final-year Management Information Systems student at Duy Tan University. I always strive to achieve the GPA 3. 0. I have led many group projects during University, developing my leadership and teamwork skills. I always learning to develop myself and ready contribute to organization. My goal is to begin as a intern and grow into roles like Project Manager, Business Intelligence or Business Analyst, applying my knowledge and leadership skills to support organizational success.
+contact: {"phone": "0905360586", "email": "pvthanh186@gmail. com", "address": "Thanh Khe, Da Nang, Viet Nam", "linkedin": "www. reallygreatsite. com"}
+projects: {'name': 'MOTOGO app', 'role': 'Team Leader', 'duration': 'Jan 2025 - March 2025', 'technologies': 'Kotlin/Java - MySQL', 'description': 'To build a software for renting and booking motorbike. ', 'responsibilities': 'Manage and assign tasks via Trello. Manage the project by Scrum process. Build FrontEnd for app. Create an OCR for Extracted information from citizen identification (By character recognition technology). Create Booking function include: Date booking. Collect information from a form. Build History, Log'} {'name': 'Integration Dashboard', 'role': 'Team Leader', 'duration': 'March 2025 - May 2025', 'technologies': 'Python - MySQL & T-SQL', 'description': 'To create a Dashboard web for manage data from both Payroll System and Human System. ', 'responsibilities': 'Manage and assign tasks via Jira. Manage version of software by Github. Create models to connect with database. Build an API to get all salary info from Payroll System. Build an API to get all Employees information from Human System. Connect with FrontEnd by Python and displays the extracted necessary information. Create login function using Middleware to authentication. '}
+activities: {'name': 'Dev Day (2024)', 'role': 'Supporter', 'description': 'The biggest technology event of central region in 2024'} {'name': 'P2A International - Hybrid Mobility (2024)', 'role': 'member of team 4', 'description': 'A competition for student of countries ASEAN group'} {'name': 'Duy Tan University - XFactor (2034)', 'role': 'Top 10', 'description': 'A play ground for student to show off their English skills'}
+academic_history: {"university": "Duy Tan University", "duration": "2022-2026", "degree": "Bachelor of Management Information System", "gpa": "3. 0"}
+certificate: {'name': 'English', 'score': '5. 0 IELTS'} {'name': 'Office informatics', 'description': 'MOS Certificate'}
+skills: html, css, javascript, Python, Prompting AI, Java / Java Android, C#, ChatGPT, Copilot, T-SQL, MySQL, Figma, Canva, Trello, Jira, Github, Communication, Problem - solving, Self - learning, Management
+----------------------------------------
+filename: phanvanthanh_cv.pdf
+file_size: 
+mimetype: application/pdf
+cv_summary: I am a final-year Management Information Systems student at Duy Tan University. I always strive to achieve the GPA 3. 0. I have led many group projects during University, developing my leadership and teamwork skills. I always learning to develop myself and ready contribute to organization. My goal is to begin as a intern and grow into roles like Project Manager, Business Intelligence or Business Analyst, applying my knowledge and leadership skills to support organizational success.
+email: 
+phone: 0905360586
+full_name: PHAN VAN THANH
+file_name: 
+contact: Phone: 0905360586 Email: pvthanh186@gmail. com Address: Thanh Khe, Da Nang, Viet Nam LinkedIn: www. reallygreatsite. com
+experience: MOTOGO app | Team Leader | Jan 2025 - March 2025 Kotlin/Java - MySQL Short description: To build a software for renting and booking motorbike. My responsibilites: Manage and assign tasks via Trello Manage the project by Scrum process Build FrontEnd for app Create an OCR for Extracted information from citizen identification (By character recognition technology) Create Booking function include: Date booking Collect information from a form Build History, Log Integration Dashboard | Team Leader | March 2025 - May 2025 Python - MySQL & T-SQL Short description: To create a Dashboard web for manage data from both Payroll System and Human System. My responsibilites: Manage and assign tasks via Jira. Manage version of software by Github. Create models to connect with database Build an API to get all salary info from Payroll System. Build an API to get all Employees information from Human System. Connect with FrontEnd by Python and displays the extracted necessary information. Create login function using Middleware to authentication.
+education: Duy Tan University | 2022-2026 Bachelor of Management Information System GPA 3. 0.
+hard_skills: html, css, javascript, Python, Prompting AI, Java / Java Android, C#, ChatGPT, Copilot, T-SQL, MySQL, Figma, Canva
+soft_skills: Communication, Problem - solving, Self - learning, Management
+activities: Dev Day (2024) | Supporter The biggest technology event of central region in 2024 P2A International - Hybrid Mobility (2024) | member of team 4 A competition for student of countries ASEAN group Duy Tan University - XFactor (2034) | Top 10 English: A play ground for student to show off their English skills
+references: English: 5. 0 IELTS, Office informatics: MOS Certificate, Programming Front-End, Back-End / API, Database Management Language, Design, Management: Trello Jira Github
+----------------------------------------
+filename: phanvanthanh_cv.pdf
+file_size: 133538
+mimetype: application/pdf
+cv_summary: I am a final-year Management Information Systems student at Duy Tan University. I always strive to achieve the GPA 3. 0. I have led many group projects during University, developing my leadership and teamwork skills. I always learning to develop myself and ready contribute to organization. My goal is to begin as a intern and grow into roles like Project Manager, Business Intelligence or Business Analyst, applying my knowledge and leadership skills to support organizational success.
+email: 
+phone: 0905360586
+full_name: PHAN VAN THANH
+contact: {"phone": "0905360586", "email": "pvthanh186@gmail. com", "address": "Thanh Khe, Da Nang, Viet Nam", "linkedin": "www. reallygreatsite. com"}
+experience: {'title': 'MOTOGO app | Team Leader', 'time': 'Jan 2025 - March 2025', 'description': 'To build a software for renting and booking motorbike. My responsibilites: Manage and assign tasks via Trello Manage the project by Scrum process Build FrontEnd for app Create an OCR for Extracted information from citizen identification (By character recognition technology) Create Booking function include: Date booking Collect information from a form Build History, Log'} {'title': 'Integration Dashboard | Team Leader', 'time': 'March 2025 - May 2025', 'description': 'To create a Dashboard web for manage data from both Payroll System and Human System. My responsibilites: Manage and assign tasks via Jira. Manage version of software by Github. Create models to connect with database Build an API to get all salary info from Payroll System. Build an API to get all Employees information from Human System. Connect with FrontEnd by Python and displays the extracted necessary information. Create login function using Middleware to authentication. '}.
+education: {'school': 'Duy Tan University', 'time': '2022-2026', 'degree': 'Bachelor of Management Information System', 'gpa': '3. 0'}.
+hard_skills: html, css, javascript, Python, Prompting AI, Java / Java Android, C#, ChatGPT, Copilot, T-SQL, MySQL
+soft_skills: Communication, Problem - solving, Self - learning, Flexible communication in English and Vietnamese
+activities: Dev Day (2024) | Supporter P2A International - Hybrid Mobility (2024) | member of team 4 Duy Tan University - XFactor (2034) | Top 10
+references: IELTS 5. 0 MOS Certificate Trello Jira Github Figma Canva Kotlin/Java
+----------------------------------------
+filename: phanvanthanh_cv.pdf
+file_size: 133538
+mimetype: application/pdf
+cv_summary: I am a final-year Management Information Systems student at Duy Tan University. I always strive to achieve the GPA 3. 0. I have led many group projects during University, developing my leadership and teamwork skills. I always learning to develop myself and ready contribute to organization. My goal is to begin as a intern and grow into roles like Project Manager, Business Intelligence or Business Analyst, applying my knowledge and leadership skills to support organizational success.
+phone: 0905360586
+full_name: PHAN VAN THANH
+email: pvthanh186@gmail.com
+contact: Thanh Khe, Da Nang, Viet Nam LinkedIn: www. reallygreatsite. com
+experience: MOTOGO app | Team Leader | Jan 2025 - March 2025 Kotlin/Java - MySQL Short description: To build a software for renting and booking motorbike. My responsibilites: Manage and assign tasks via Trello Manage the project by Scrum process Build FrontEnd for app Create an OCR for Extracted information from citizen identification (By character recognition technology) Create Booking function include: Date booking Collect information from a form Build History, Log Integration Dashboard | Team Leader | March 2025 - May 2025 Python - MySQL & T-SQL Short description: To create a Dashboard web for manage data from both Payroll System and Human System. My responsibilites: Manage and assign tasks via Jira. Manage version of software by Github. Create models to connect with database Build an API to get all salary info from Payroll System. Build an API to get all Employees information from Human System. Connect with FrontEnd by Python and displays the extracted necessary information. Create login function using Middleware to authentication.
+education: Duy Tan University | 2022-2026 Bachelor of Management Information System GPA 3. 0.
+hard_skills: html, css, javascript, Python, Prompting AI, Java / Java Android, C#, ChatGPT, Copilot, T-SQL, MySQL, Figma, Canva
+soft_skills: Communication, Flexible communication in English and Vietnamese, Problem - solving, Self - learning, Management
+activities: Dev Day (2024) | Supporter The biggest technology event of central region in 2024 P2A International - Hybrid Mobility (2024) | member of team 4 A competition for student of countries ASEAN group Duy Tan University - XFactor (2034) | Top 10 English: A play ground for student to show off their English skills
+references: English: 5. 0 IELTS Office informatics: MOS Certificate Programming Front-End: Back-End / API: Database Management Language: Trello Jira Github
+----------------------------------------
+filename: phanvanthanh_cv.pdf
+file_size: 133538
+mimetype: application/pdf
+cv_summary: I am a final-year Management Information Systems student at Duy Tan University. I always strive to achieve the GPA 3. 0. I have led many group projects during University, developing my leadership and teamwork skills. I always learning to develop myself and ready contribute to organization. My goal is to begin as a intern and grow into roles like Project Manager, Business Intelligence or Business Analyst, applying my knowledge and leadership skills to support organizational success.
+full_name: PHAN VAN THANH
+phone: 0905360586
+email: pvthanh186@gmail.com
+contact: Address: Thanh Khe, Da Nang, Viet Nam LinkedIn: www. reallygreatsite. com
+experience: MOTOGO app | Team Leader | Jan 2025 - March 2025 Kotlin/Java - MySQL Short description: To build a software for renting and booking motorbike. My responsibilites: Manage and assign tasks via Trello Manage the project by Scrum process Build FrontEnd for app Create an OCR for Extracted information from citizen identification (By character recognition technology) Create Booking function include: Date booking Collect information from a form Build History, Log Integration Dashboard | Team Leader | March 2025 - May 2025 Python - MySQL & T-SQL Short description: To create a Dashboard web for manage data from both Payroll System and Human System. My responsibilites: Manage and assign tasks via Jira. Manage version of software by Github. Create models to connect with database Build an API to get all salary info from Payroll System. Build an API to get all Employees information from Human System. Connect with FrontEnd by Python and displays the extracted necessary information. Create login function using Middleware to authentication.
+education: Duy Tan University | 2022-2026 Bachelor of Management Information System GPA 3. 0.
+hard_skills: html, css, javascript, Python, Prompting AI, Java / Java Android, C#, T-SQL, MySQL
+soft_skills: Communication, Flexible communication in English and Vietnamese, Problem - solving, Self - learning
+activities: Dev Day (2024) | Supporter The biggest technology event of central region in 2024 P2A International - Hybrid Mobility (2024) | member of team 4 A competition for student of countries ASEAN group Duy Tan University - XFactor (2034) | Top 10 English: A play ground for student to show off their English skills
+references: English: 5. 0 IELTS Office informatics: MOS Certificate Management: Trello Jira Github Design: Figma, Canva
+----------------------------------------
+filename: phanvanthanh_cv.pdf
+file_size: 133538
+mimetype: application/pdf
+cv_summary: I am a final-year Management Information Systems student at Duy Tan University. I always strive to achieve the GPA 3. 0. I have led many group projects during University, developing my leadership and teamwork skills. I always learning to develop myself and ready contribute to organization. My goal is to begin as a intern and grow into roles like Project Manager, Business Intelligence or Business Analyst, applying my knowledge and leadership skills to support organizational success.
+full_name: PHAN VAN THANH
+phone: 0905360586
+email: pvthanh186@gmail.com
+contact: Address: Thanh Khe, Da Nang, Viet Nam LinkedIn: www. reallygreatsite. com
+experience: MOTOGO app | Team Leader | Jan 2025 - March 2025 Kotlin/Java - MySQL Short description: To build a software for renting and booking motorbike. My responsibilites: Manage and assign tasks via Trello Manage the project by Scrum process Build FrontEnd for app Create an OCR for Extracted information from citizen identification (By character recognition technology) Create Booking function include: Date booking Collect information from a form Build History, Log Integration Dashboard | Team Leader | March 2025 - May 2025 Python - MySQL & T-SQL Short description: To create a Dashboard web for manage data from both Payroll System and Human System. My responsibilites: Manage and assign tasks via Jira. Manage version of software by Github. Create models to connect with database Build an API to get all salary info from Payroll System. Build an API to get all Employees information from Human System. Connect with FrontEnd by Python and displays the extracted necessary information. Create login function using Middleware to authentication.
+education: Duy Tan University | 2022-2026 Bachelor of Management Information System GPA 3. 0.
+hard_skills: html, css, javascript, Python, Prompting AI, Java / Java Android, C#, ChatGPT, Copilot, T-SQL, MySQL, Figma, Canva
+soft_skills: Communication, Flexible communication in English and Vietnamese, Problem - solving, Self - learning, Management, Trello, Jira, Github
+activities: Dev Day (2024) | Supporter The biggest technology event of central region in 2024 P2A International - Hybrid Mobility (2024) | member of team 4 A competition for student of countries ASEAN group Duy Tan University - XFactor (2034) | Top 10 English: A play ground for student to show off their English skills
+references: English: 5. 0 IELTS | Office informatics: MOS Certificate
+----------------------------------------
+filename: phanvanthanh_cv.pdf
+file_size: 133538
+mimetype: application/pdf
+cv_summary: I am a final-year Management Information Systems student at Duy Tan University. I always strive to achieve the GPA 3. 0. I have led many group projects during University, developing my leadership and teamwork skills. I always learning to develop myself and ready contribute to organization. My goal is to begin as a intern and grow into roles like Project Manager, Business Intelligence or Business Analyst, applying my knowledge and leadership skills to support organizational success.
+full_name: PHAN VAN THANH
+phone: 0905360586
+email: pvthanh186@gmail.com
+contact: Address: Thanh Khe, Da Nang, Viet Nam LinkedIn: www. reallygreatsite. com
+experience: MOTOGO app | Team Leader | Jan 2025 - March 2025 Kotlin/Java - MySQL Short description: To build a software for renting and booking motorbike. My responsibilites: Manage and assign tasks via Trello Manage the project by Scrum process Build FrontEnd for app Create an OCR for Extracted information from citizen identification (By character recognition technology) Create Booking function include: Date booking Collect information from a form Build History, Log Integration Dashboard | Team Leader | March 2025 - May 2025 Python - MySQL & T-SQL Short description: To create a Dashboard web for manage data from both Payroll System and Human System. My responsibilites: Manage and assign tasks via Jira. Manage version of software by Github. Create models to connect with database Build an API to get all salary info from Payroll System. Build an API to get all Employees information from Human System. Connect with FrontEnd by Python and displays the extracted necessary information. Create login function using Middleware to authentication.
+education: Duy Tan University | 2022-2026 Bachelor of Management Information System GPA 3. 0.
+hard_skills: html, css, javascript, Python, Prompting AI, Java / Java Android, C#, ChatGPT, Copilot, T-SQL, MySQL, Figma, Canva
+soft_skills: Communication, Flexible communication in English and Vietnamese, Problem - solving, Self - learning
+activities: Dev Day (2024) | Supporter The biggest technology event of central region in 2024 P2A International - Hybrid Mobility (2024) | member of team 4 A competition for student of countries ASEAN group Duy Tan University - XFactor (2034) | Top 10 English: A play ground for student to show off their English skills
+certificates: 5. 0 IELTS Office informatics: MOS Certificate
+tools: Trello, Jira, Github
+----------------------------------------

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< Updated upstream
-    <title>Job Management Dashboard</title>
+    <title>Job Management</title>
     <style>
         * {
             margin: 0;
@@ -16,23 +16,98 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f5f5;
             display: flex;
+            flex-direction: column;
             min-height: 100vh;
+        }
+
+        /* Header - Fixed */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .header .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header .logo-container img {
+            width: 100px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .header .logo-container span {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .header ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .header ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .header ul li a:hover,
+        .header ul li a.active {
+            color: #2563eb;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            margin-top: 80px;
+            flex: 1;
         }
 
         /* Sidebar */
         .sidebar {
-            width: 300px;
+            width: 280px;
             background: linear-gradient(180deg, #1e5a8e 0%, #134168 100%);
             color: white;
             display: flex;
             flex-direction: column;
             padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 80px;
+            bottom: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 999;
+            transform: translateX(-100%);
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
         }
 
         .logo-section {
             text-align: center;
             padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             margin-bottom: 30px;
         }
 
@@ -53,7 +128,7 @@
             height: 60px;
             border-radius: 50%;
             border: 3px solid white;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .profile-info h3 {
@@ -84,7 +159,7 @@
         }
 
         .menu-item:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .menu-item.active {
@@ -129,30 +204,46 @@
         /* Main Content */
         .main-content {
             flex: 1;
-            padding: 100px 30px 30px;
+            margin-left: 0;
+            padding: 30px;
             overflow-y: auto;
+            transition: margin-left 0.3s ease;
         }
 
+        /* Desktop only - shift content when sidebar open */
+        @media (min-width: 769px) {
+            .main-content.with-sidebar {
+                margin-left: 280px;
+            }
+        }
+
+        /* Top Bar */
         .top-bar {
             display: flex;
             gap: 20px;
             margin-bottom: 30px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .menu-toggle {
             background: white;
-            border: none;
-            padding: 15px 20px;
+            border: 1px solid #ddd;
+            padding: 12px 18px;
             cursor: pointer;
             border-radius: 8px;
-            font-size: 24px;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover {
+            background: #f5f5f5;
         }
 
         .dropdown {
             background: #2d4a8c;
             color: white;
-            padding: 15px 30px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -160,24 +251,60 @@
         }
 
         .search-container {
-            flex: 1;
             position: relative;
+            width: 50px;
+            height: 50px;
+            transition: width 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: visible;
+        }
+
+        .search-container.expanded {
+            width: 350px;
         }
 
         .search-input {
+            position: absolute;
+            left: 0;
+            top: 0;
             width: 100%;
-            padding: 15px 50px 15px 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            height: 100%;
+            padding: 12px 20px 12px 55px;
+            border: 2px solid #245ee6;
+            border-radius: 25px;
             font-size: 16px;
+            background: white;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .search-container.expanded .search-input {
+            opacity: 1;
+            visibility: visible;
         }
 
         .search-icon {
             position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
+            left: 0;
+            top: 0;
+            color: #2d4a8c;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 2;
+            background: white;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid #245ee6;
+            transition: all 0.3s ease;
+        }
+
+        .search-container.expanded .search-icon {
+            border-radius: 25px 0 0 25px;
+            border-right: none;
         }
 
         .icon-buttons {
@@ -193,6 +320,11 @@
             cursor: pointer;
             position: relative;
             font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
         }
 
         .icon-btn.notification {
@@ -225,18 +357,21 @@
             justify-content: center;
         }
 
+        /* Action Buttons */
         .action-buttons {
             display: flex;
             gap: 20px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
-        .action-buttons button {
+        .btn-create {
+            background: #ffc107;
+            color: #000;
             border: none;
-            padding: 20px 40px;
+            padding: 15px 30px;
             border-radius: 8px;
-<<<<<<< Updated upstream
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
@@ -247,53 +382,46 @@
             transform: translateY(-2px);
         }
 
-        .btn-list, .btn-news {
+        .btn-list,
+        .btn-news {
             background: #e8eef7;
             color: #000;
             border: none;
-            padding: 20px 40px;
+            padding: 15px 30px;
             border-radius: 8px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-list:hover, .btn-news:hover {
-=======
             font-size: 16px;
             cursor: pointer;
             transition: all 0.3s;
-            background: #e8eef7;
-            color: #000;
         }
 
-        .action-buttons button:hover {
->>>>>>> Stashed changes
+        .btn-list:hover,
+        .btn-news:hover {
             background: #d1ddef;
-        }
-
-        .action-buttons button.active {
-            background: #fbbf24;
-            color: #1e5088;
-            font-weight: 600;
         }
 
         .back-btn {
             background: #4caf50;
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 24px;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
             margin-bottom: 30px;
+            transition: all 0.3s;
         }
 
+        .back-btn:hover {
+            background: #45a049;
+        }
+
+        /* Stats Section */
         .stats-section {
             background: white;
             padding: 30px;
             border-radius: 12px;
             margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .stats-header h2 {
@@ -308,7 +436,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -331,6 +459,15 @@
             color: #2d4a8c;
         }
 
+        /* Form Section */
+        .form-section {
+            display: block;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
         .form-section h3 {
             font-size: 20px;
             margin-bottom: 20px;
@@ -338,7 +475,7 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 20px;
         }
@@ -361,7 +498,7 @@
         .form-group input,
         .form-group select,
         .form-group textarea {
-            padding: 15px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
@@ -378,7 +515,7 @@
             background: #000;
             color: white;
             border: none;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             font-size: 18px;
             font-weight: bold;
@@ -390,9 +527,107 @@
             background: #333;
         }
 
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* Responsive Design */
         @media (max-width: 1024px) {
-            .sidebar {
-                width: 250px;
+            .header ul {
+                gap: 1rem;
+            }
+
+            .header ul li a {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header nav {
+                padding: 0.8rem 1rem;
+            }
+
+            .header .logo-container img {
+                width: 60px;
+            }
+
+            .header .logo-container span {
+                font-size: 1.2rem;
+            }
+
+            .header ul {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .main-content.with-sidebar {
+                margin-left: 0;
+            }
+
+            .top-bar {
+                gap: 10px;
+            }
+
+            .search-container {
+                width: 45px;
+                height: 45px;
+            }
+
+            .search-container.expanded {
+                position: sticky;
+                top: 90px;
+                left: 10px;
+                right: 10px;
+                width: calc(100% - 20px);
+                z-index: 1001;
+            }
+
+            .search-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+
+            .icon-buttons {
+                gap: 5px;
+            }
+
+            .icon-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .action-buttons {
+                gap: 10px;
+            }
+
+            .btn-create,
+            .btn-list,
+            .btn-news,
+            .back-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
 
             .form-grid {
@@ -400,25 +635,15 @@
             }
         }
 
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
+        @media (max-width: 480px) {
+            .stats-section {
+                padding: 20px;
             }
 
-            .sidebar {
-                width: 100%;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .top-bar {
-                flex-wrap: wrap;
+            .stat-value {
+                font-size: 24px;
             }
         }
-<<<<<<< Updated upstream
-=======
 
         .user-menu {
     position: relative;
@@ -514,420 +739,17 @@
   .lang-option:hover {
     background-color: #f5f5f5;
   }
-
-        /* Job Description Section */
-        .jd-section {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            margin-top: 20px;
-        }
-
-        .jd-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .jd-header h3 {
-            font-size: 18px;
-            color: #2563eb;
-        }
-
-        .add-custom-btn {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-
-        .add-custom-btn:hover {
-            background: #059669;
-        }
-
-        .jd-stats {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .stat-badge {
-            background: #f0f4ff;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: 600;
-            color: #2563eb;
-        }
-
-        .search-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .search-container input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 15px;
-        }
-
-        .drag-drop-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            min-height: 600px;
-        }
-
-        /* Requirements Pool */
-        .requirements-pool {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 20px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .requirements-pool::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .requirements-pool::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .requirements-pool::-webkit-scrollbar-thumb {
-            background: #2563eb;
-            border-radius: 10px;
-        }
-
-        .requirements-pool h4 {
-            color: #2563eb;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        .category-section {
-            margin-bottom: 20px;
-        }
-
-        .category-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 8px;
-        }
-
-        .requirement-item {
-            background: white;
-            border: 2px solid #2563eb;
-            border-radius: 10px;
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            cursor: grab;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .requirement-item:hover {
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .requirement-item.dragging {
-            opacity: 0.5;
-        }
-
-        .requirement-text {
-            font-size: 14px;
-            color: #333;
-        }
-
-        /* Drop Zone */
-        .drop-zone {
-            background: white;
-            border: 3px dashed #2563eb;
-            border-radius: 12px;
-            padding: 20px;
-            min-height: 600px;
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .drop-zone h4 {
-            color: #2563eb;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        .drop-zone.drag-over {
-            background: rgba(37, 99, 235, 0.05);
-            border-color: #1e40af;
-            border-style: solid;
-        }
-
-        .drop-zone-empty {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #999;
-            text-align: center;
-        }
-
-        .drop-zone-empty .icon {
-            font-size: 60px;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        .dropped-items {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .dropped-item {
-            background: linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%);
-            border: 2px solid #2563eb;
-            border-radius: 10px;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: move;
-            transition: all 0.3s;
-            animation: slideIn 0.4s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .dropped-item-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .dropped-item-index {
-            font-weight: bold;
-            color: #2563eb;
-            min-width: 20px;
-        }
-
-        .dropped-item-text {
-            color: #333;
-            font-size: 14px;
-        }
-
-        .remove-btn {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s;
-        }
-
-        .remove-btn:hover {
-            background: #cc0000;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 500px;
-            width: 90%;
-            animation: modalSlideIn 0.3s ease;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-content h3 {
-            margin-bottom: 20px;
-            color: #2563eb;
-            font-size: 18px;
-        }
-
-        .modal-content input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 15px;
-            margin-bottom: 20px;
-        }
-
-        .modal-content input:focus {
-            outline: none;
-            border-color: #2563eb;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .modal-actions button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-cancel {
-            background: #e5e7eb;
-            color: #333;
-        }
-
-        .btn-cancel:hover {
-            background: #d1d5db;
-        }
-
-        .btn-add {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-add:hover {
-            background: #059669;
-        }
-
-        @media (max-width: 1024px) {
-            .drag-drop-wrapper {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0 !important;
-            }
-
-            .jd-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .add-custom-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .drag-drop-wrapper {
-                grid-template-columns: 1fr;
-                min-height: auto;
-                gap: 20px;
-                position: relative;
-                z-index: 10;
-            }
-
-            .requirements-pool,
-            .drop-zone {
-                max-height: 400px;
-                position: relative;
-                z-index: 10;
-            }
-        }
->>>>>>> Stashed changes
     </style>
-=======
-    <title>Job Management</title>
-    <link rel="stylesheet" href="/frontend/Styles/Create_job.css">
-    <script src="/frontend/Styles/Create_job.js" defer></script>
->>>>>>> Stashed changes
 </head>
+
 <body>
-<<<<<<< Updated upstream
     <!-- Header -->
-<<<<<<< Updated upstream
-    <header style="background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: fixed; width: 100%; top: 0; z-index: 1000;">
-        <nav style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <img src="../templates/logo-2.png" alt="Logo" style="width: 100px; height: auto; object-fit: contain;">
-                <span style="font-size: 1.6rem; font-weight: bold; color: #2563eb;">HireSmart</span>
-=======
-=======
->>>>>>> Stashed changes
     <header class="header">
         <nav>
             <div class="logo-container">
-                <img src="/frontend/templates/logo-2.png" alt="Logo">
+                <img src="../templates/logo-2.png" alt="Logo">
                 <span>HireSmart</span>
->>>>>>> Stashed changes
             </div>
-<<<<<<< Updated upstream
-            <ul style="display: flex; list-style: none; gap: 2rem;">
-                <li><a href="Home.html" style="text-decoration: none; color: #333; font-weight: 500;">Trang chủ</a></li>
-                <li><a href="Recruitment.html" style="text-decoration: none; color: #333; font-weight: 500;">Jobs</a></li>
-                <li><a href="Create_job.html" style="text-decoration: none; color: #2563eb; font-weight: 500;">Dashboard HR</a></li>
-=======
             <ul>
                 <li><a href="Home.html">Trang chủ</a></li>
                 <li><a href="Recruitment.html">Jobs</a></li>
@@ -941,38 +763,24 @@
                         </div>
                     </div>
                 </li>
-                <li class="user-menu">
-                    <a href="#" class="login-btn" onclick="handleHRLogin(event)" data-i18n="nav.hr_login">Đăng nhập HR</a>
+                <li class="user-menu"><a href="#" class="login-btn" onclick="handleHRLogin(event)"
+                        data-i18n="nav.hr_login">Đăng nhập HR</a>
                     <div class="dropdown" id="dropdownMenu">
                         <a href="#">Tài Khoản Của Tôi</a>
                         <a href="Create_job.html" id="dashboardBtn">Dashboard HR</a>
                         <a href="#" id="logoutBtn">Đăng Xuất</a>
                     </div>
                 </li>
->>>>>>> Stashed changes
             </ul>
         </nav>
     </header>
-<<<<<<< Updated upstream
-    
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo">
-                <img src="../templates/logo-2.png" alt="HireSmart Logo" style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
-            </div>
-            <div class="profile">
-                <div class="profile-pic"></div>
-                <div class="profile-info">
-                    <h3>Name</h3>
-                    <p>Admin</p>
-=======
 
     <div class="main-container">
+        <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="logo-section">
                 <div class="logo">
-                    <img src="/frontend/templates/logo-2.png" alt="HireSmart Logo"
+                    <img src="../templates/logo-2.png" alt="HireSmart Logo"
                         style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
                 </div>
                 <div class="profile">
@@ -981,175 +789,87 @@
                         <h3>Name</h3>
                         <p>Admin</p>
                     </div>
->>>>>>> Stashed changes
                 </div>
             </div>
-<<<<<<< Updated upstream
-        </div>
-
-        <div class="features-title">Features</div>
-        
-        <div class="menu-item">
-            <span>📊</span>
-            <span>Dashboard</span>
-        </div>
-
-        <div class="menu-item">
-            <span>✉️</span>
-            <span>Messages</span>
-            <span class="badge">18</span>
-        </div>
-
-        <div class="menu-item active">
-            <span>💼</span>
-            <span>Jobs</span>
-        </div>
-
-        <div class="menu-item">
-            <span>👥</span>
-            <span>Candidates</span>
-        </div>
-
-        <div class="menu-item">
-            <span>📄</span>
-            <span>Resumes</span>
-        </div>
-
-        <div class="menu-item">
-            <span>📈</span>
-            <span>Report</span>
-        </div>
-
-        <button class="logout-btn">
-            <span>🔓</span>
-            <span>Log Out</span>
-        </button>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <button class="menu-toggle">☰</button>
-            <select class="dropdown">
-                <option>Select Option</option>
-                <option>Option 1</option>
-                <option>Option 2</option>
-            </select>
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search...">
-                <span class="search-icon">🔍</span>
+            <div class="features-title">Features</div>
+            <div class="menu-item">
+                <span>📊</span>
+                <span>Dashboard</span>
             </div>
-            <div class="icon-buttons">
-                <button class="icon-btn notification">
-                    🔔
-                    <span class="badge">3</span>
-                </button>
-                <button class="icon-btn settings">
-                    🔧
-                </button>
-                <button class="icon-btn messages">
-                    ✉️
-                    <span class="badge">18</span>
-                </button>
+            <div class="menu-item">
+                <span>✉️</span>
+                <span>Messages</span>
+                <span class="badge">18</span>
             </div>
+            <div class="menu-item active">
+                <span>💼</span>
+                <span>Jobs</span>
+            </div>
+            <div class="menu-item">
+                <span>👥</span>
+                <span>Candidates</span>
+            </div>
+            <div class="menu-item">
+                <span>📄</span>
+                <span>Resumes</span>
+            </div>
+            <div class="menu-item">
+                <span>📈</span>
+                <span>Report</span>
+            </div>
+            <div class = "menu-item">
+                <span>🔔</span>
+                <span>Notification</span>
+            </div>
+            <button class="logout-btn">
+                <span>🔓</span>
+                <span>Log Out</span>
+            </button>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="btn-create" onclick="toggleForm()">Create new JD</button>
-            <button class="btn-list" onclick="window.location.href='Job_list.html'">Job List</button>
-            <button class="btn-news">News</button>
-        </div>
+        <!-- Sidebar Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <button class="back-btn">Back</button>
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
 
-        <!-- Stats Section -->
-        <div class="stats-section">
-            <div class="stats-header">
-                <h2>Job Management</h2>
-                <p>Create, manage, and track your job postings and CV applications.</p>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Jobs</div>
-                    <div class="stat-value" id="totalJobs">3</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Active Jobs</div>
-                    <div class="stat-value" id="activeJobs">3</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total CVs Paid</div>
-                    <div class="stat-value" id="totalCVs">3</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Avg CVs per Job</div>
-                    <div class="stat-value" id="avgCVs">3</div>
+                <div class="icon-buttons">
+                    <button class="icon-btn notification">
+                        🔔
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="icon-btn settings">
+                        🔧
+                    </button>
+                    <button class="icon-btn messages">
+                        ✉️
+                        <span class="badge">18</span>
+                    </button>
                 </div>
             </div>
 
-<<<<<<< Updated upstream
-            <!-- Create Job Form -->
-            <div class="form-section" id="jobForm">
-                <h3>Create New Job Description</h3>
-                <form onsubmit="handleSubmit(event)">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Job Title</label>
-                            <input type="text" id="jobTitle" required>
-=======
 
 
             <!-- Stats Section -->
-=======
-
-            <div class="features-title">Features</div>
-            <div class="menu-item"><span>📊</span><span>Dashboard</span></div>
-            <div class="menu-item"><span>✉️</span><span>Messages</span><span class="badge">18</span></div>
-            <div class="menu-item active"><span>💼</span><span>Jobs</span></div>
-            <div class="menu-item"><span>👥</span><span>Candidates</span></div>
-            <div class="menu-item"><span>📄</span><span>Resumes</span></div>
-            <div class="menu-item"><span>📈</span><span>Report</span></div>
-            <div class="menu-item"><span>🔔</span><span>Notification</span></div>
-
-            <button class="logout-btn"><span>🔓</span><span>Log Out</span></button>
-        </div>
-
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-        <div class="main-content" id="mainContent">
-            <div class="top-bar">
-                <button class="menu-toggle" id="menuToggle">☰</button>
-                <div class="icon-buttons">
-                    <button class="icon-btn notification">🔔<span class="badge">3</span></button>
-                    <button class="icon-btn settings">🔧</button>
-                    <button class="icon-btn messages">✉️<span class="badge">18</span></button>
-                </div>
-            </div>
-
->>>>>>> Stashed changes
             <div class="stats-section">
                 <div class="stats-header">
                     <h2>Job Management</h2>
                     <p>Create, manage, and track your job postings and CV applications.</p>
                 </div>
-<<<<<<< Updated upstream
                             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="btn-create active" onclick="toggleForm()">Create new JD</button>
+                <button class="btn-create" onclick="toggleForm()">Create new JD</button>
                 <button class="btn-list" onclick="window.location.href='Job_list.html'">Job List</button>
                 <button class="btn-news">News</button>
-            </div>
-=======
 
-                <div class="action-buttons">
-                    <button class="btn-create active" onclick="toggleForm()">Create new JD</button>
-                    <button class="btn-list" onclick="window.location.href='Job_list.html'">Job List</button>
-                    <button class="btn-news">News</button>
+                <div class="search-container" id="searchContainer">
+                    <div class="search-icon" id="searchIcon">🔍</div>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search...">
                 </div>
->>>>>>> Stashed changes
+            </div>
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1170,14 +890,27 @@
                     </div>
                 </div>
 
+                <!-- Create Job Form -->
                 <div class="form-section" id="jobForm">
                     <h3>Create New Job Description</h3>
                     <form onsubmit="handleSubmit(event)">
                         <div class="form-grid">
-                            <div class="form-group"><label>Job Title</label><input type="text" id="jobTitle" required></div>
-                            <div class="form-group"><label>Department</label><input type="text" id="department" required></div>
-                            <div class="form-group"><label>Location</label><input type="text" id="location" required></div>
-                            <div class="form-group"><label>Salary</label><input type="text" id="salary" required></div>
+                            <div class="form-group">
+                                <label>Job Title</label>
+                                <input type="text" id="jobTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Department</label>
+                                <input type="text" id="department" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Location</label>
+                                <input type="text" id="location" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Salary</label>
+                                <input type="text" id="salary" required>
+                            </div>
                             <div class="form-group">
                                 <label>Status</label>
                                 <select id="status">
@@ -1186,357 +919,25 @@
                                     <option value="closed">Closed</option>
                                 </select>
                             </div>
-<<<<<<< Updated upstream
                             <div class="form-group">
                                 <label>CVs paid</label>
                                 <input type="number" id="cvsPaid" value="0" required>
                             </div>
-                           <!-- Job decription -->
-                           <div class="form-group full-width">
-                            <div class="jd-section">
-                                <div class="jd-header">
-                                    <h3>✨ Job Requirements</h3>
-                                    <button type="button" class="add-custom-btn" onclick="openCustomModal()">
-                                        <span>➕</span>
-                                        <span>Add Custom</span>
-                                    </button>
-                                </div>
-    
-                                <div class="jd-stats">
-                                    <div class="stat-badge">
-                                        <span>📋 Total: 34</span>
-                                    </div>
-                                    <div class="stat-badge">
-                                        <span>✅ Selected: <span id="selectedCount">0</span></span>
-                                    </div>
-                                </div>
-    
-                                <div class="search-container">
-                                    <input type="text" id="searchInput" placeholder="🔍 Search requirements...">
-                                </div>
-    
-                                <div class="drag-drop-wrapper">
-                                    <!-- Requirements Pool -->
-                                    <div class="requirements-pool" id="requirementsPool">
-                                        <h4>📦 Available Requirements</h4>
-                                        
-                                        <!-- Education -->
-                                        <div class="category-section">
-                                            <div class="category-title">🎓 Education</div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🎓</span>
-                                                <span class="requirement-text">Bachelor's degree in related field</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🎓</span>
-                                                <span class="requirement-text">Master's degree is a plus</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">📜</span>
-                                                <span class="requirement-text">Professional certifications</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🎯</span>
-                                                <span class="requirement-text">GPA 3.0 or higher</span>
-                                            </div>
-                                        </div>
-    
-                                        <!-- Experience -->
-                                        <div class="category-section">
-                                            <div class="category-title">💼 Experience</div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🌟</span>
-                                                <span class="requirement-text">Fresh graduates welcome</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">⭐</span>
-                                                <span class="requirement-text">1-2 years of experience</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">⭐⭐</span>
-                                                <span class="requirement-text">3-5 years of experience</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">⭐⭐⭐</span>
-                                                <span class="requirement-text">5+ years of experience</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🚀</span>
-                                                <span class="requirement-text">Startup experience</span>
-                                            </div>
-                                        </div>
-    
-                                        <!-- Technical Skills -->
-                                        <div class="category-section">
-                                            <div class="category-title">💻 Technical Skills</div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">⚛️</span>
-                                                <span class="requirement-text">React / React Native / Vue.js</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🐍</span>
-                                                <span class="requirement-text">Python, Django/Flask</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">📗</span>
-                                                <span class="requirement-text">Node.js, Express.js</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🗄️</span>
-                                                <span class="requirement-text">SQL, MongoDB, PostgreSQL</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">☁️</span>
-                                                <span class="requirement-text">AWS / Azure / Google Cloud</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🐳</span>
-                                                <span class="requirement-text">Docker, Kubernetes, CI/CD</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🔒</span>
-                                                <span class="requirement-text">Security & encryption knowledge</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">📱</span>
-                                                <span class="requirement-text">Mobile Development (iOS/Android)</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🎨</span>
-                                                <span class="requirement-text">HTML, CSS, JavaScript, TypeScript</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🔧</span>
-                                                <span class="requirement-text">Git, Agile/Scrum methodology</span>
-                                            </div>
-                                        </div>
-    
-                                        <!-- Soft Skills -->
-                                        <div class="category-section">
-                                            <div class="category-title">🤝 Soft Skills</div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">👥</span>
-                                                <span class="requirement-text">Effective teamwork</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">💬</span>
-                                                <span class="requirement-text">Excellent communication skills</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">⏰</span>
-                                                <span class="requirement-text">Time management</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🎯</span>
-                                                <span class="requirement-text">Problem-solving mindset</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">👔</span>
-                                                <span class="requirement-text">Self-motivated and independent</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🎓</span>
-                                                <span class="requirement-text">Quick learner</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">💡</span>
-                                                <span class="requirement-text">Creative thinking</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🎭</span>
-                                                <span class="requirement-text">Work well under pressure</span>
-                                            </div>
-                                        </div>
-    
-                                        <!-- Languages -->
-                                        <div class="category-section">
-                                            <div class="category-title">🌐 Languages</div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🇬🇧</span>
-                                                <span class="requirement-text">Basic English communication</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🇬🇧</span>
-                                                <span class="requirement-text">Fluent English (TOEIC 750+)</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🇯🇵</span>
-                                                <span class="requirement-text">Japanese N3 or higher</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🇰🇷</span>
-                                                <span class="requirement-text">Korean is a plus</span>
-                                            </div>
-                                            <div class="requirement-item" draggable="true">
-                                                <span class="requirement-icon">🇨🇳</span>
-                                                <span class="requirement-text">Chinese is a plus</span>
-                                            </div>
-                                        </div>
-                                    </div>
-    
-                                    <!-- Drop Zone -->
-                                    <div class="drop-zone" id="dropZone">
-                                        <h4>✅ Selected Requirements</h4>
-                                        <div class="drop-zone-empty" id="emptyState">
-                                            <div class="icon">👆</div>
-                                            <div><strong>Drag & Drop here</strong></div>
-                                            <div style="font-size: 14px; margin-top: 10px;">You can reorder after dropping</div>
-                                        </div>
-                                        <div class="dropped-items" id="droppedItems" style="display: none;"></div>
-                                    </div>
-                                </div>
-    
-                                <input type="hidden" id="jobDescription" required>
-                            </div>
->>>>>>> Stashed changes
-                        </div>
-                        <div class="form-group">
-                            <label>Department</label>
-                            <input type="text" id="department" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Location</label>
-                            <input type="text" id="location" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Salary</label>
-                            <input type="text" id="salary" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Status</label>
-                            <select id="status">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="closed">Closed</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>CVs paid</label>
-                            <input type="number" id="cvsPaid" value="0" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Job Description</label>
-                            <textarea id="jobDescription" required></textarea>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn-submit">Create job</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Custom Requirement Modal -->
-    <div class="modal" id="customModal">
-        <div class="modal-content">
-            <h3>Add Custom Requirement</h3>
-            <input type="text" id="customRequirement" placeholder="Enter your custom requirement...">
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeCustomModal()">Cancel</button>
-                <button class="btn-add" onclick="addCustomRequirement()">Add</button>
-=======
-                            <div class="form-group"><label>CVs paid</label><input type="number" id="cvsPaid" value="0" required></div>
-
                             <div class="form-group full-width">
-                                <div class="jd-section">
-                                    <div class="jd-header">
-                                        <h3>✨ Job Requirements</h3>
-                                        <button type="button" class="add-custom-btn" onclick="openCustomModal()">
-                                            <span>➕</span><span>Add Custom</span>
-                                        </button>
-                                    </div>
-
-                                    <div class="jd-stats">
-                                        <div class="stat-badge"><span>📋 Total: 34</span></div>
-                                        <div class="stat-badge"><span>✅ Selected: <span id="selectedCount">0</span></span></div>
-                                    </div>
-
-                                    <div class="search-container">
-                                        <input type="text" id="searchInput" placeholder="🔍 Search requirements...">
-                                    </div>
-
-                                    <div class="drag-drop-wrapper">
-                                        <div class="requirements-pool" id="requirementsPool">
-                                            <h4>📦 Available Requirements</h4>
-                                            
-                                            <div class="category-section">
-                                                <div class="category-title">🎓 Education</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎓</span><span class="requirement-text">Bachelor's degree in related field</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎓</span><span class="requirement-text">Master's degree is a plus</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">📜</span><span class="requirement-text">Professional certifications</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎯</span><span class="requirement-text">GPA 3.0 or higher</span></div>
-                                            </div>
-
-                                            <div class="category-section">
-                                                <div class="category-title">💼 Experience</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🌟</span><span class="requirement-text">Fresh graduates welcome</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⭐</span><span class="requirement-text">1-2 years of experience</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⭐⭐</span><span class="requirement-text">3-5 years of experience</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⭐⭐⭐</span><span class="requirement-text">5+ years of experience</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🚀</span><span class="requirement-text">Startup experience</span></div>
-                                            </div>
-
-                                            <div class="category-section">
-                                                <div class="category-title">💻 Technical Skills</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⚛️</span><span class="requirement-text">React / React Native / Vue.js</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🐍</span><span class="requirement-text">Python, Django/Flask</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">📗</span><span class="requirement-text">Node.js, Express.js</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🗄️</span><span class="requirement-text">SQL, MongoDB, PostgreSQL</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">☁️</span><span class="requirement-text">AWS / Azure / Google Cloud</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🐳</span><span class="requirement-text">Docker, Kubernetes, CI/CD</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🔒</span><span class="requirement-text">Security & encryption knowledge</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">📱</span><span class="requirement-text">Mobile Development (iOS/Android)</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎨</span><span class="requirement-text">HTML, CSS, JavaScript, TypeScript</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🔧</span><span class="requirement-text">Git, Agile/Scrum methodology</span></div>
-                                            </div>
-
-                                            <div class="category-section">
-                                                <div class="category-title">🤝 Soft Skills</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">👥</span><span class="requirement-text">Effective teamwork</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">💬</span><span class="requirement-text">Excellent communication skills</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⏰</span><span class="requirement-text">Time management</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎯</span><span class="requirement-text">Problem-solving mindset</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">👔</span><span class="requirement-text">Self-motivated and independent</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎓</span><span class="requirement-text">Quick learner</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">💡</span><span class="requirement-text">Creative thinking</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎭</span><span class="requirement-text">Work well under pressure</span></div>
-                                            </div>
-
-                                            <div class="category-section">
-                                                <div class="category-title">🌐 Languages</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇬🇧</span><span class="requirement-text">Basic English communication</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇬🇧</span><span class="requirement-text">Fluent English (TOEIC 750+)</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇯🇵</span><span class="requirement-text">Japanese N3 or higher</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇰🇷</span><span class="requirement-text">Korean is a plus</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇨🇳</span><span class="requirement-text">Chinese is a plus</span></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="drop-zone" id="dropZone">
-                                            <h4>✅ Selected Requirements</h4>
-                                            <div class="drop-zone-empty" id="emptyState">
-                                                <div class="icon">👆</div>
-                                                <div><strong>Drag & Drop here</strong></div>
-                                                <div style="font-size: 14px; margin-top: 10px;">You can reorder after dropping</div>
-                                            </div>
-                                            <div class="dropped-items" id="droppedItems" style="display: none;"></div>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" id="jobDescription" required>
-                                </div>
+                                <label>Job Description</label>
+                                <textarea id="jobDescription" required></textarea>
                             </div>
-                            <button type="submit" class="btn-submit">Create job</button>
                         </div>
+                        <button type="submit" class="btn-submit">Create job</button>
                     </form>
                 </div>
->>>>>>> Stashed changes
             </div>
         </div>
     </div>
 
-<<<<<<< Updated upstream
     <script>
         // Check login status before allowing access to Dashboard
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             const user = localStorage.getItem('loggedInUser');
             if (!user) {
                 alert('Bạn cần đăng nhập HR để truy cập Dashboard!');
@@ -1546,9 +947,6 @@
             console.log('HR Dashboard accessed by:', user);
         });
 
-<<<<<<< Updated upstream
-        // Jobs data storage
-=======
         // Menu toggle functionality
         const menuToggle = document.getElementById('menuToggle');
         const sidebar = document.getElementById('sidebar');
@@ -1582,13 +980,41 @@
             mainContent.classList.remove('with-sidebar');
         });
 
+        // Search functionality
+        const searchContainer = document.getElementById('searchContainer');
+        const searchIcon = document.getElementById('searchIcon');
+        const searchInput = document.getElementById('searchInput');
+        let searchOpen = false;
+
+        searchIcon.addEventListener('click', function (e) {
+            e.stopPropagation();
+            searchOpen = !searchOpen;
+
+            if (searchOpen) {
+                searchContainer.classList.add('expanded');
+                setTimeout(() => {
+                    searchInput.focus();
+                }, 300);
+            } else {
+                searchContainer.classList.remove('expanded');
+                searchInput.value = '';
+            }
+        });
+
+        // Close search when clicking outside
+        document.addEventListener('click', function (e) {
+            if (searchOpen && !searchContainer.contains(e.target)) {
+                searchOpen = false;
+                searchContainer.classList.remove('expanded');
+                searchInput.value = '';
+            }
+        });
 
         // Jobs data
->>>>>>> Stashed changes
         let jobs = [
-            {id: 1, title: 'Senior Developer', status: 'active', cvs: 5},
-            {id: 2, title: 'Marketing Manager', status: 'active', cvs: 3},
-            {id: 3, title: 'HR Specialist', status: 'active', cvs: 2}
+            { id: 1, title: 'Senior Developer', status: 'active', cvs: 5 },
+            { id: 2, title: 'Marketing Manager', status: 'active', cvs: 3 },
+            { id: 3, title: 'HR Specialist', status: 'active', cvs: 2 }
         ];
 
         // Update statistics
@@ -1607,28 +1033,12 @@
         // Toggle form visibility
         function toggleForm() {
             const form = document.getElementById('jobForm');
-            if (form.style.display === 'none') {
-                form.style.display = 'block';
-            } else {
-                form.style.display = 'none';
-            }
+            form.classList.toggle('active');
         }
 
         // Handle form submission
         function handleSubmit(event) {
             event.preventDefault();
-<<<<<<< Updated upstream
-            
-=======
-
-            if (selectedRequirements.length === 0) {
-                alert('Please select at least one requirement');
-                return;
-            }
-
-            updateJobDescription();
-
->>>>>>> Stashed changes
             const newJob = {
                 id: jobs.length + 1,
                 title: document.getElementById('jobTitle').value,
@@ -1637,14 +1047,13 @@
                 salary: document.getElementById('salary').value,
                 status: document.getElementById('status').value,
                 cvs: parseInt(document.getElementById('cvsPaid').value),
-                requirements: selectedRequirements,
                 description: document.getElementById('jobDescription').value
             };
 
             jobs.push(newJob);
             updateStats();
 
-            // Persist to localStorage for Recruitment page consumption
+            // Persist to localStorage
             try {
                 const storageKey = 'createdJobs';
                 const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
@@ -1654,48 +1063,34 @@
                     location: newJob.location,
                     salary: newJob.salary,
                     status: newJob.status,
-                    requirements: newJob.requirements,
                     description: newJob.description
                 });
                 localStorage.setItem(storageKey, JSON.stringify(existing));
-                alert('Job posting created successfully!\n\nJob Title: ' + newJob.title + '\nRequirements: ' + newJob.requirements.length);
             } catch (e) {
                 console.error('Failed to save job to localStorage', e);
-                alert('Error saving job');
             }
 
+            alert('Job created successfully!');
             event.target.reset();
-<<<<<<< Updated upstream
-            // Navigate to Jobs page so the new posting is visible
             window.location.href = 'Recruitment.html';
-=======
-            selectedRequirements = [];
-            document.getElementById('droppedItems').innerHTML = '';
-            document.getElementById('emptyState').style.display = 'flex';
-            document.getElementById('droppedItems').style.display = 'none';
-            updateStats();
-            // window.location.href = 'Recruitment.html';
->>>>>>> Stashed changes
         }
 
         // Menu item click handler
         document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function () {
                 document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
             });
         });
 
         // Logout functionality
-        document.querySelector('.logout-btn').addEventListener('click', function() {
+        document.querySelector('.logout-btn').addEventListener('click', function () {
             localStorage.removeItem('loggedInUser');
             window.location.href = '../html/Login.html';
         });
 
         // Initialize
         updateStats();
-<<<<<<< Updated upstream
-=======
 
     function handleHRLogin(event) {
     event.preventDefault();
@@ -1722,9 +1117,6 @@ function updateLanguageUI() {
 }
 
 function translatePage() {
-    if (typeof translations === 'undefined') {
-        return;
-    }
     const elements = document.querySelectorAll('[data-i18n]');
     elements.forEach(element => {
         const key = element.getAttribute('data-i18n');
@@ -1804,302 +1196,8 @@ function initializeUserAuth() {
         });
     }
 }
-        // ==================== JOB REQUIREMENTS DRAG & DROP ====================
-        let selectedRequirements = [];
-        let draggedElement = null;
 
-        // Initialize drag-drop and search as soon as DOM is ready
-        function initializeDragDropSystem() {
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    initializeSearch();
-                    initializeDragDrop();
-                });
-            } else {
-                initializeSearch();
-                initializeDragDrop();
-            }
-        }
-        initializeDragDropSystem();
-
-        // Also initialize on window load for safety
-        window.addEventListener('load', function() {
-            // Reinitialize in case elements were added dynamically
-            const requirementItems = document.querySelectorAll('.requirement-item');
-            if (requirementItems.length > 0) {
-                initializeDragDrop();
-            }
-        });
-
-        function initializeDragDrop() {
-            try {
-                const requirementItems = document.querySelectorAll('.requirement-item');
-                const dropZone = document.getElementById('dropZone');
-                const droppedItems = document.getElementById('droppedItems');
-
-                if (!dropZone || !droppedItems) {
-                    console.warn('Drop zone or dropped items container not found');
-                    return;
-                }
-
-                requirementItems.forEach(item => {
-                    item.addEventListener('dragstart', handleDragStart);
-                    item.addEventListener('dragend', handleDragEnd);
-                });
-
-                dropZone.addEventListener('dragover', handleDragOver);
-                dropZone.addEventListener('dragleave', handleDragLeave);
-                dropZone.addEventListener('drop', handleDrop);
-
-                droppedItems.addEventListener('dragover', handleReorderDragOver);
-                droppedItems.addEventListener('drop', handleReorderDrop);
-            } catch (error) {
-                console.error('Error initializing drag and drop:', error);
-            }
-        }
-
-        function handleDragStart(e) {
-            this.classList.add('dragging');
-            draggedElement = this;
-            e.dataTransfer.effectAllowed = 'copy';
-            e.dataTransfer.setData('text/plain', this.querySelector('.requirement-text').textContent);
-        }
-
-        function handleDragEnd(e) {
-            this.classList.remove('dragging');
-            draggedElement = null;
-        }
-
-        function handleDragOver(e) {
-            if (e.preventDefault) e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
-            document.getElementById('dropZone').classList.add('drag-over');
-            return false;
-        }
-
-        function handleDragLeave(e) {
-            if (e.target.id === 'dropZone') {
-                document.getElementById('dropZone').classList.remove('drag-over');
-            }
-        }
-
-        function handleDrop(e) {
-            if (e.stopPropagation) e.stopPropagation();
-            if (e.preventDefault) e.preventDefault();
-
-            document.getElementById('dropZone').classList.remove('drag-over');
-
-            const requirementText = e.dataTransfer.getData('text/plain');
-
-            if (requirementText && !selectedRequirements.includes(requirementText)) {
-                selectedRequirements.push(requirementText);
-                addDroppedItem(requirementText);
-                updateSelectedStats();
-                hideEmptyState();
-                updateJobDescription();
-            }
-
-            return false;
-        }
-
-        function addDroppedItem(text) {
-            const droppedItems = document.getElementById('droppedItems');
-            const index = selectedRequirements.indexOf(text);
-
-            const droppedItemDiv = document.createElement('div');
-            droppedItemDiv.className = 'dropped-item';
-            droppedItemDiv.draggable = true;
-            
-            // Properly escape text for HTML attribute
-            const encodedText = text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            droppedItemDiv.innerHTML = `
-                <div class="dropped-item-content">
-                    <span class="dropped-item-index">${index + 1}</span>
-                    <span class="dropped-item-text">${text}</span>
-                </div>
-                <button type="button" class="remove-btn" onclick="removeDroppedItem('${encodedText}', this)">Remove</button>
-            `;
-
-            droppedItemDiv.addEventListener('dragstart', handleReorderDragStart);
-            droppedItemDiv.addEventListener('dragend', handleReorderDragEnd);
-
-            droppedItems.appendChild(droppedItemDiv);
-        }
-
-        function handleReorderDragStart(e) {
-            draggedElement = this;
-            e.dataTransfer.effectAllowed = 'move';
-            this.style.opacity = '0.5';
-        }
-
-        function handleReorderDragEnd(e) {
-            this.style.opacity = '1';
-            draggedElement = null;
-        }
-
-        function handleReorderDragOver(e) {
-            if (e.preventDefault) e.preventDefault();
-            const isReordering = draggedElement && draggedElement.classList.contains('dropped-item');
-            e.dataTransfer.dropEffect = isReordering ? 'move' : 'copy';
-            return false;
-        }
-
-        function handleReorderDrop(e) {
-            const isReordering = draggedElement && draggedElement.classList.contains('dropped-item');
-
-            if (isReordering) {
-                if (e.stopPropagation) e.stopPropagation();
-                if (e.preventDefault) e.preventDefault();
-
-                const allItems = document.querySelectorAll('.dropped-item');
-                const draggedIndex = Array.from(allItems).indexOf(draggedElement);
-                const targetItem = e.target.closest('.dropped-item');
-                const targetIndex = Array.from(allItems).indexOf(targetItem);
-
-                if (draggedIndex !== -1 && targetIndex !== -1 && draggedIndex !== targetIndex) {
-                    if (draggedIndex < targetIndex) {
-                        targetItem.parentNode.insertBefore(draggedElement, targetItem.nextSibling);
-                    } else {
-                        targetItem.parentNode.insertBefore(draggedElement, targetItem);
-                    }
-                    reindexItems();
-                    updateSelectedRequirementsOrder();
-                    updateJobDescription();
-                }
-
-                return false;
-            }
-
-            // If the dragged element is a fresh requirement, fallback to the main drop handler
-            handleDrop(e);
-        }
-
-        function removeDroppedItem(text, button) {
-            try {
-                const index = selectedRequirements.indexOf(text);
-                if (index > -1) {
-                    selectedRequirements.splice(index, 1);
-                }
-                const itemElement = button.closest('.dropped-item');
-                if (itemElement) {
-                    itemElement.remove();
-                }
-                updateSelectedStats();
-                updateJobDescription();
-
-                if (selectedRequirements.length === 0) {
-                    document.getElementById('emptyState').style.display = 'flex';
-                    document.getElementById('droppedItems').style.display = 'none';
-                } else {
-                    reindexItems();
-                }
-            } catch (error) {
-                console.error('Error removing item:', error);
-            }
-        }
-
-        function reindexItems() {
-            const items = document.querySelectorAll('.dropped-item-index');
-            items.forEach((item, index) => {
-                item.textContent = index + 1;
-            });
-        }
-
-        function updateSelectedRequirementsOrder() {
-            const items = document.querySelectorAll('.dropped-item-text');
-            selectedRequirements = [];
-            items.forEach(item => {
-                selectedRequirements.push(item.textContent);
-            });
-        }
-
-        function updateSelectedStats() {
-            document.getElementById('selectedCount').textContent = selectedRequirements.length;
-        }
-
-        function updateJobDescription() {
-            const description = selectedRequirements.join('\n');
-            document.getElementById('jobDescription').value = description;
-        }
-
-        function hideEmptyState() {
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('droppedItems').style.display = 'flex';
-        }
-
-        function initializeSearch() {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    const query = this.value.toLowerCase();
-                    const items = document.querySelectorAll('.requirement-item');
-
-                    items.forEach(item => {
-                        const text = item.querySelector('.requirement-text').textContent.toLowerCase();
-                        item.style.display = text.includes(query) ? 'flex' : 'none';
-                    });
-                });
-            }
-        }
-
-        function openCustomModal() {
-            document.getElementById('customModal').classList.add('active');
-            document.getElementById('customRequirement').focus();
-        }
-
-        function closeCustomModal() {
-            document.getElementById('customModal').classList.remove('active');
-            document.getElementById('customRequirement').value = '';
-        }
-
-        function addCustomRequirement() {
-            const customText = document.getElementById('customRequirement').value.trim();
-            if (customText === '') {
-                alert('Please enter a requirement');
-                return;
-            }
-
-            if (selectedRequirements.includes(customText)) {
-                alert('This requirement is already selected');
-                return;
-            }
-
-            selectedRequirements.push(customText);
-            addDroppedItem(customText);
-            updateStats();
-            hideEmptyState();
-            closeCustomModal();
-        }
-
-        // Close modal when clicking outside
-        document.addEventListener('click', function(event) {
-            const modal = document.getElementById('customModal');
-            if (modal && event.target === modal) {
-                closeCustomModal();
-            }
-        });
-
-        // Allow Enter key to add custom requirement
-        document.addEventListener('keypress', function(event) {
-            const modal = document.getElementById('customModal');
-            if (modal && modal.classList.contains('active') && event.key === 'Enter') {
-                addCustomRequirement();
-            }
-        });
-
->>>>>>> Stashed changes
     </script>
 </body>
+
 </html>
-=======
-    <div class="modal" id="customModal">
-        <div class="modal-content">
-            <h3>Add Custom Requirement</h3>
-            <input type="text" id="customRequirement" placeholder="Enter your custom requirement...">
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeCustomModal()">Cancel</button>
-                <button class="btn-add" onclick="addCustomRequirement()">Add</button>
-            </div>
-        </div>
-    </div>
->>>>>>> Stashed changes

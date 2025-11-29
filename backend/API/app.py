@@ -1,9 +1,3 @@
-<<<<<<< Updated upstream
-from flask import Flask, render_template
-
-
-app = Flask(__name__)
-=======
 # app.py
 from pathlib import Path
 from fastapi import FastAPI, Request
@@ -11,16 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from API.Scan_CV import router as sc
-from API.dashboard import router as db
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+from backend.API.Scan_CV import router as sc
+from backend.API.dashboard import router as db
+from backend.API.Email_send_respon.render_mail import router as email_renderer
+from backend.API.Email_send_respon.send_mail import router as email_sender
 # Import router từ file Scan_CV (giả sử scan router khai báo: router = APIRouter() trong Scan_CV.py)
 
-BASE_DIR = Path(__file__).resolve().parent
-# Frontend thật ở HireSmart/frontend (2 cấp trên API)
-FRONTEND_DIR = BASE_DIR.parent.parent / "frontend"   # thư mục chứa HTML/CSS/JS
+BASE_DIR = Path(__file__).resolve().parent.parent.parent  # d:\Cap 1\HireSmart
+FRONTEND_DIR = BASE_DIR / "frontend"   # thư mục chứa index.html và các file tĩnh
 
 app = FastAPI(title="HireSmart API")
 
@@ -33,32 +25,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount toàn bộ thư mục frontend để phục vụ tài nguyên tĩnh (CSS/JS/ảnh)
-if FRONTEND_DIR.exists():
-    app.mount("/frontend", StaticFiles(directory=str(FRONTEND_DIR)), name="frontend")
->>>>>>> Stashed changes
+# Mount thư mục frontend để truy cập file tĩnh (ví dụ: /frontend/index.html hoặc /frontend/Styles/style.css)
 
-root = ''
-@app.route(f"/{root}")
-def list_users():
-    return render_template(f"{root}.html")
 
-<<<<<<< Updated upstream
-if __name__ == "__main__":
-    app.run(debug=True)
-    
-    
-    
-    
-    
-=======
+# Nếu bạn có thư mục static bên trong frontend (ví dụ frontend/static), có thể mount thêm:
+STATIC_DIR = FRONTEND_DIR / "static"
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+# Include router chứa /upload_cv và các route khác
+app.include_router(sc)
+app.include_router(db)
+app.include_router(email_renderer, prefix="/email", tags=["email"])
+app.include_router(email_sender, prefix="/email", tags=["email"])
+
 
 # Route gốc trả về index.html nếu tồn tại, else trả thông báo
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    # File HTML nằm trong frontend/html
-    index_path = FRONTEND_DIR / "html" / "Recruitment.html"
+    index_path = FRONTEND_DIR / "Recruitment.html"
     if index_path.exists():
         return FileResponse(str(index_path))
     return HTMLResponse("<pre>API is running. Use /upload_cv to submit PDF CV.</pre>")
->>>>>>> Stashed changes
