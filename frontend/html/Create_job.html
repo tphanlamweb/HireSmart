@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< Updated upstream
     <title>Job Management Dashboard</title>
     <style>
         * {
@@ -896,8 +897,14 @@
         }
 >>>>>>> Stashed changes
     </style>
+=======
+    <title>Job Management</title>
+    <link rel="stylesheet" href="/frontend/Styles/Create_job.css">
+    <script src="/frontend/Styles/Create_job.js" defer></script>
+>>>>>>> Stashed changes
 </head>
 <body>
+<<<<<<< Updated upstream
     <!-- Header -->
 <<<<<<< Updated upstream
     <header style="background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: fixed; width: 100%; top: 0; z-index: 1000;">
@@ -906,6 +913,8 @@
                 <img src="../templates/logo-2.png" alt="Logo" style="width: 100px; height: auto; object-fit: contain;">
                 <span style="font-size: 1.6rem; font-weight: bold; color: #2563eb;">HireSmart</span>
 =======
+=======
+>>>>>>> Stashed changes
     <header class="header">
         <nav>
             <div class="logo-container">
@@ -913,10 +922,34 @@
                 <span>HireSmart</span>
 >>>>>>> Stashed changes
             </div>
+<<<<<<< Updated upstream
             <ul style="display: flex; list-style: none; gap: 2rem;">
                 <li><a href="Home.html" style="text-decoration: none; color: #333; font-weight: 500;">Trang chủ</a></li>
                 <li><a href="Recruitment.html" style="text-decoration: none; color: #333; font-weight: 500;">Jobs</a></li>
                 <li><a href="Create_job.html" style="text-decoration: none; color: #2563eb; font-weight: 500;">Dashboard HR</a></li>
+=======
+            <ul>
+                <li><a href="Home.html">Trang chủ</a></li>
+                <li><a href="Recruitment.html">Jobs</a></li>
+                <li><a href="Create_job.html" class="active">Dashboard HR</a></li>
+                <li class="language-menu">
+                    <div class="language-selector">
+                        <span id="currentLang">🇻🇳</span>
+                        <div class="language-dropdown">
+                            <div class="lang-option" data-lang="vi" data-flag="🇻🇳">Tiếng Việt</div>
+                            <div class="lang-option" data-lang="en" data-flag="🇺🇸">English</div>
+                        </div>
+                    </div>
+                </li>
+                <li class="user-menu">
+                    <a href="#" class="login-btn" onclick="handleHRLogin(event)" data-i18n="nav.hr_login">Đăng nhập HR</a>
+                    <div class="dropdown" id="dropdownMenu">
+                        <a href="#">Tài Khoản Của Tôi</a>
+                        <a href="Create_job.html" id="dashboardBtn">Dashboard HR</a>
+                        <a href="#" id="logoutBtn">Đăng Xuất</a>
+                    </div>
+                </li>
+>>>>>>> Stashed changes
             </ul>
         </nav>
     </header>
@@ -936,7 +969,6 @@
 =======
 
     <div class="main-container">
-        <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="logo-section">
                 <div class="logo">
@@ -952,6 +984,7 @@
 >>>>>>> Stashed changes
                 </div>
             </div>
+<<<<<<< Updated upstream
         </div>
 
         <div class="features-title">Features</div>
@@ -1070,17 +1103,53 @@
 
 
             <!-- Stats Section -->
+=======
+
+            <div class="features-title">Features</div>
+            <div class="menu-item"><span>📊</span><span>Dashboard</span></div>
+            <div class="menu-item"><span>✉️</span><span>Messages</span><span class="badge">18</span></div>
+            <div class="menu-item active"><span>💼</span><span>Jobs</span></div>
+            <div class="menu-item"><span>👥</span><span>Candidates</span></div>
+            <div class="menu-item"><span>📄</span><span>Resumes</span></div>
+            <div class="menu-item"><span>📈</span><span>Report</span></div>
+            <div class="menu-item"><span>🔔</span><span>Notification</span></div>
+
+            <button class="logout-btn"><span>🔓</span><span>Log Out</span></button>
+        </div>
+
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="main-content" id="mainContent">
+            <div class="top-bar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <div class="icon-buttons">
+                    <button class="icon-btn notification">🔔<span class="badge">3</span></button>
+                    <button class="icon-btn settings">🔧</button>
+                    <button class="icon-btn messages">✉️<span class="badge">18</span></button>
+                </div>
+            </div>
+
+>>>>>>> Stashed changes
             <div class="stats-section">
                 <div class="stats-header">
                     <h2>Job Management</h2>
                     <p>Create, manage, and track your job postings and CV applications.</p>
                 </div>
+<<<<<<< Updated upstream
                             <!-- Action Buttons -->
             <div class="action-buttons">
                 <button class="btn-create active" onclick="toggleForm()">Create new JD</button>
                 <button class="btn-list" onclick="window.location.href='Job_list.html'">Job List</button>
                 <button class="btn-news">News</button>
             </div>
+=======
+
+                <div class="action-buttons">
+                    <button class="btn-create active" onclick="toggleForm()">Create new JD</button>
+                    <button class="btn-list" onclick="window.location.href='Job_list.html'">Job List</button>
+                    <button class="btn-news">News</button>
+                </div>
+>>>>>>> Stashed changes
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1101,27 +1170,14 @@
                     </div>
                 </div>
 
-                <!-- Create Job Form -->
                 <div class="form-section" id="jobForm">
                     <h3>Create New Job Description</h3>
                     <form onsubmit="handleSubmit(event)">
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label>Job Title</label>
-                                <input type="text" id="jobTitle" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Department</label>
-                                <input type="text" id="department" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Location</label>
-                                <input type="text" id="location" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Salary</label>
-                                <input type="text" id="salary" required>
-                            </div>
+                            <div class="form-group"><label>Job Title</label><input type="text" id="jobTitle" required></div>
+                            <div class="form-group"><label>Department</label><input type="text" id="department" required></div>
+                            <div class="form-group"><label>Location</label><input type="text" id="location" required></div>
+                            <div class="form-group"><label>Salary</label><input type="text" id="salary" required></div>
                             <div class="form-group">
                                 <label>Status</label>
                                 <select id="status">
@@ -1130,6 +1186,7 @@
                                     <option value="closed">Closed</option>
                                 </select>
                             </div>
+<<<<<<< Updated upstream
                             <div class="form-group">
                                 <label>CVs paid</label>
                                 <input type="number" id="cvsPaid" value="0" required>
@@ -1376,10 +1433,107 @@
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeCustomModal()">Cancel</button>
                 <button class="btn-add" onclick="addCustomRequirement()">Add</button>
+=======
+                            <div class="form-group"><label>CVs paid</label><input type="number" id="cvsPaid" value="0" required></div>
+
+                            <div class="form-group full-width">
+                                <div class="jd-section">
+                                    <div class="jd-header">
+                                        <h3>✨ Job Requirements</h3>
+                                        <button type="button" class="add-custom-btn" onclick="openCustomModal()">
+                                            <span>➕</span><span>Add Custom</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="jd-stats">
+                                        <div class="stat-badge"><span>📋 Total: 34</span></div>
+                                        <div class="stat-badge"><span>✅ Selected: <span id="selectedCount">0</span></span></div>
+                                    </div>
+
+                                    <div class="search-container">
+                                        <input type="text" id="searchInput" placeholder="🔍 Search requirements...">
+                                    </div>
+
+                                    <div class="drag-drop-wrapper">
+                                        <div class="requirements-pool" id="requirementsPool">
+                                            <h4>📦 Available Requirements</h4>
+                                            
+                                            <div class="category-section">
+                                                <div class="category-title">🎓 Education</div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎓</span><span class="requirement-text">Bachelor's degree in related field</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎓</span><span class="requirement-text">Master's degree is a plus</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">📜</span><span class="requirement-text">Professional certifications</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎯</span><span class="requirement-text">GPA 3.0 or higher</span></div>
+                                            </div>
+
+                                            <div class="category-section">
+                                                <div class="category-title">💼 Experience</div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🌟</span><span class="requirement-text">Fresh graduates welcome</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⭐</span><span class="requirement-text">1-2 years of experience</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⭐⭐</span><span class="requirement-text">3-5 years of experience</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⭐⭐⭐</span><span class="requirement-text">5+ years of experience</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🚀</span><span class="requirement-text">Startup experience</span></div>
+                                            </div>
+
+                                            <div class="category-section">
+                                                <div class="category-title">💻 Technical Skills</div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⚛️</span><span class="requirement-text">React / React Native / Vue.js</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🐍</span><span class="requirement-text">Python, Django/Flask</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">📗</span><span class="requirement-text">Node.js, Express.js</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🗄️</span><span class="requirement-text">SQL, MongoDB, PostgreSQL</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">☁️</span><span class="requirement-text">AWS / Azure / Google Cloud</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🐳</span><span class="requirement-text">Docker, Kubernetes, CI/CD</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🔒</span><span class="requirement-text">Security & encryption knowledge</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">📱</span><span class="requirement-text">Mobile Development (iOS/Android)</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎨</span><span class="requirement-text">HTML, CSS, JavaScript, TypeScript</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🔧</span><span class="requirement-text">Git, Agile/Scrum methodology</span></div>
+                                            </div>
+
+                                            <div class="category-section">
+                                                <div class="category-title">🤝 Soft Skills</div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">👥</span><span class="requirement-text">Effective teamwork</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">💬</span><span class="requirement-text">Excellent communication skills</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⏰</span><span class="requirement-text">Time management</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎯</span><span class="requirement-text">Problem-solving mindset</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">👔</span><span class="requirement-text">Self-motivated and independent</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎓</span><span class="requirement-text">Quick learner</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">💡</span><span class="requirement-text">Creative thinking</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎭</span><span class="requirement-text">Work well under pressure</span></div>
+                                            </div>
+
+                                            <div class="category-section">
+                                                <div class="category-title">🌐 Languages</div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇬🇧</span><span class="requirement-text">Basic English communication</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇬🇧</span><span class="requirement-text">Fluent English (TOEIC 750+)</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇯🇵</span><span class="requirement-text">Japanese N3 or higher</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇰🇷</span><span class="requirement-text">Korean is a plus</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇨🇳</span><span class="requirement-text">Chinese is a plus</span></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="drop-zone" id="dropZone">
+                                            <h4>✅ Selected Requirements</h4>
+                                            <div class="drop-zone-empty" id="emptyState">
+                                                <div class="icon">👆</div>
+                                                <div><strong>Drag & Drop here</strong></div>
+                                                <div style="font-size: 14px; margin-top: 10px;">You can reorder after dropping</div>
+                                            </div>
+                                            <div class="dropped-items" id="droppedItems" style="display: none;"></div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="jobDescription" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-submit">Create job</button>
+                        </div>
+                    </form>
+                </div>
+>>>>>>> Stashed changes
             </div>
         </div>
     </div>
 
+<<<<<<< Updated upstream
     <script>
         // Check login status before allowing access to Dashboard
         window.addEventListener('load', function() {
@@ -1937,3 +2091,15 @@ function initializeUserAuth() {
     </script>
 </body>
 </html>
+=======
+    <div class="modal" id="customModal">
+        <div class="modal-content">
+            <h3>Add Custom Requirement</h3>
+            <input type="text" id="customRequirement" placeholder="Enter your custom requirement...">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeCustomModal()">Cancel</button>
+                <button class="btn-add" onclick="addCustomRequirement()">Add</button>
+            </div>
+        </div>
+    </div>
+>>>>>>> Stashed changes

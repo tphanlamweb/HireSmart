@@ -205,9 +205,13 @@
 
         /* Dashboard Grid */
         .dashboard-grid {
+<<<<<<< Updated upstream
             display: flex;
             flex-direction: column;
             gap: 20px;
+=======
+            display: block;
+>>>>>>> Stashed changes
             margin-bottom: 30px;
         }
 
@@ -218,18 +222,37 @@
             flex-wrap: wrap;
         }
 
+<<<<<<< Updated upstream
         .action-buttons button {
+=======
+        .action-card {
+>>>>>>> Stashed changes
             border: none;
             padding: 15px 30px;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
+<<<<<<< Updated upstream
             transition: all 0.3s;
             background: #e8eef7;
             color: #000;
         }
 
         .action-buttons button:hover {
+=======
+            transition: all 0.2s ease;
+            background: #e8eef7;
+            color: #000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            box-sizing: border-box;
+            min-width: 150px;
+        }
+
+        .action-card:hover {
+>>>>>>> Stashed changes
             background: #d1ddef;
         }
 
@@ -239,6 +262,26 @@
             font-weight: 600;
         }
 
+<<<<<<< Updated upstream
+=======
+        .action-card.blue {
+            background: #fbbf24;
+            color: #1e5088;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .quick-actions {
+                gap: 10px;
+            }
+            .action-card {
+                min-width: 0;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+
+>>>>>>> Stashed changes
         /* Job Management Section */
         .job-section {
             background: white;
@@ -924,6 +967,7 @@
     </div>
 
     <script>
+<<<<<<< Updated upstream
         function setActiveButton(type) {
             document.querySelectorAll('.btn-create, .btn-list, .btn-news').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.' + type).forEach(btn => btn.classList.add('active'));
@@ -933,6 +977,40 @@
             setActiveButton('btn-create');
             window.location.href = 'Create_job.html';
         }
+=======
+        // Handle action card active state
+        function initActionCards() {
+            const cards = document.querySelectorAll('.quick-actions .action-card');
+            const saved = localStorage.getItem('selectedAction');
+            
+            // restore saved active state
+            cards.forEach(card => {
+                card.classList.remove('yellow');
+            });
+            
+            if (saved) {
+                cards.forEach((card, idx) => {
+                    if (saved === idx.toString()) {
+                        card.classList.add('yellow');
+                    }
+                });
+            } else {
+                // default: Job List (second button) is active
+                if (cards[1]) cards[1].classList.add('yellow');
+            }
+
+            // add click handlers to all cards
+            cards.forEach((card, idx) => {
+                card.addEventListener('click', function() {
+                    cards.forEach(c => c.classList.remove('yellow'));
+                    card.classList.add('yellow');
+                    localStorage.setItem('selectedAction', idx.toString());
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initActionCards);
+>>>>>>> Stashed changes
 
         function showJobDetails() {
             document.getElementById('jobListView').classList.add('hidden');
@@ -945,14 +1023,26 @@
             document.getElementById('jobDetailsView').classList.add('hidden');
             document.getElementById('jobListView').classList.remove('hidden');
             document.getElementById('newsView').classList.add('hidden');
+<<<<<<< Updated upstream
             setActiveButton('btn-list');
+=======
+            // ensure Job List button (index 1) stays yellow
+            localStorage.setItem('selectedAction', '1');
+            initActionCards();
+>>>>>>> Stashed changes
         }
 
         function showNews() {
             document.getElementById('jobListView').classList.add('hidden');
             document.getElementById('jobDetailsView').classList.add('hidden');
             document.getElementById('newsView').classList.remove('hidden');
+<<<<<<< Updated upstream
             setActiveButton('btn-news');
+=======
+            // ensure News button (index 2) stays yellow
+            localStorage.setItem('selectedAction', '2');
+            initActionCards();
+>>>>>>> Stashed changes
         }
 
         setActiveButton('btn-list');
