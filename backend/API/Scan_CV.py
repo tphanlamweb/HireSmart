@@ -23,9 +23,12 @@ app.add_middleware(
 
 CSV_FILE = "demo_data.csv"
 
+<<<<<<< Updated upstream
 static_dir = os.path.dirname(os.path.abspath(__file__))
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+=======
+>>>>>>> Stashed changes
 GEMINI_API_KEY = os.getenv(
     "GEMINI_API_KEY",
     "AIzaSyDbZr4J9HIaALo5gl5MMRpoKV2Jkma-YbY"

@@ -205,41 +205,38 @@
 
         /* Dashboard Grid */
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: 200px 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
             margin-bottom: 30px;
         }
 
-        .quick-actions {
+        .action-buttons {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
-        .action-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
+        .action-buttons button {
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
-            transition: transform 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            background: #e8eef7;
+            color: #000;
         }
 
-        .action-card:hover {
-            transform: translateY(-3px);
+        .action-buttons button:hover {
+            background: #d1ddef;
         }
 
-        .action-card.yellow {
+        .action-buttons button.active {
             background: #fbbf24;
             color: #1e5088;
             font-weight: 600;
-        }
-
-        .action-card.blue {
-            background: #e0e7ff;
-            color: #2e4a7f;
         }
 
         /* Job Management Section */
@@ -589,7 +586,7 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="logo">
-                <img src="../templates/logo-2.png" alt="HireSmart Logo" style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
+                <img src="/frontend/templates/logo-2.png" alt="HireSmart Logo" style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
             </div>
             <div class="profile">
                 <div class="profile-pic"></div>
@@ -649,10 +646,10 @@
                 </div>
 
                 <div class="dashboard-grid">
-                    <div class="quick-actions">
-                        <div class="action-card" onclick="window.location.href='Create_job.html'">Create new JD</div>
-                        <div class="action-card yellow" onclick="showJobList()">Job List</div>
-                        <div class="action-card blue" onclick="showNews()">News</div>
+                    <div class="action-buttons">
+                        <button class="btn-create" onclick="openCreateJob()">Create new JD</button>
+                        <button class="btn-list" onclick="showJobList()">Job List</button>
+                        <button class="btn-news" onclick="showNews()">News</button>
                     </div>
 
                     <div class="job-section">
@@ -776,10 +773,10 @@
                 </div>
 
                 <div class="dashboard-grid">
-                    <div class="quick-actions">
-                        <div class="action-card" onclick="window.location.href='Create_job.html'">Create new JD</div>
-                        <div class="action-card yellow" onclick="showJobList()">Job List</div>
-                        <div class="action-card blue" onclick="showNews()">News</div>
+                    <div class="action-buttons">
+                        <button class="btn-create" onclick="openCreateJob()">Create new JD</button>
+                        <button class="btn-list" onclick="showJobList()">Job List</button>
+                        <button class="btn-news" onclick="showNews()">News</button>
                     </div>
 
                     <div class="job-details">
@@ -838,10 +835,10 @@
                 </div>
 
                 <div class="dashboard-grid">
-                    <div class="quick-actions">
-                        <div class="action-card" onclick="window.location.href='Create_job.html'">Create new JD</div>
-                        <div class="action-card yellow" onclick="showJobList()">Job List</div>
-                        <div class="action-card blue" onclick="showNews()">News</div>
+                    <div class="action-buttons">
+                        <button class="btn-create" onclick="openCreateJob()">Create new JD</button>
+                        <button class="btn-list" onclick="showJobList()">Job List</button>
+                        <button class="btn-news" onclick="showNews()">News</button>
                     </div>
 
                     <div class="news-section">
@@ -927,23 +924,38 @@
     </div>
 
     <script>
+        function setActiveButton(type) {
+            document.querySelectorAll('.btn-create, .btn-list, .btn-news').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.' + type).forEach(btn => btn.classList.add('active'));
+        }
+
+        function openCreateJob() {
+            setActiveButton('btn-create');
+            window.location.href = 'Create_job.html';
+        }
+
         function showJobDetails() {
             document.getElementById('jobListView').classList.add('hidden');
             document.getElementById('jobDetailsView').classList.remove('hidden');
             document.getElementById('newsView').classList.add('hidden');
+            setActiveButton('btn-list');
         }
 
         function showJobList() {
             document.getElementById('jobDetailsView').classList.add('hidden');
             document.getElementById('jobListView').classList.remove('hidden');
             document.getElementById('newsView').classList.add('hidden');
+            setActiveButton('btn-list');
         }
 
         function showNews() {
             document.getElementById('jobListView').classList.add('hidden');
             document.getElementById('jobDetailsView').classList.add('hidden');
             document.getElementById('newsView').classList.remove('hidden');
+            setActiveButton('btn-news');
         }
+
+        setActiveButton('btn-list');
     </script>
 </body>
 </html>
