@@ -19,6 +19,12 @@ engine = create_engine(DATABASE_URL)
 metadata = MetaData()
 metadata.reflect(bind=engine)  # 🔍 Tự động tải cấu trúc tất cả bảng có sẵn
 
+id_user = 2
+action = "edit text"
+table_name = "none"
+old_values = "text"
+new_values = "new_text"
+ip_address = "none"
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -79,5 +85,55 @@ print( "candidates tables: \n")  # In ra tên các cột của bảng
 conn = engine.connect()
 for row in conn.execute(select(datatable.c.id,datatable.c.full_name,datatable.c.phone)).fetchall():
     print(row)
-    
+
+
+
+
+
+
+
+
+
+
+@app.api_route("/audit_logs/save", methods=["GET", "POST"])
+def save_audit_log(db: Session = Depends(get_db)):
+    try:
+        table = metadata.tables["audit_logs"]
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Bảng 'audit_logs' không tồn tại trong DB")
+
+    # Chuẩn bị payload chỉ với các cột thực sự có trong bảng
+    cols = set(table.c.keys())
+    payload = {}
+    # map nhiều tên cột khả dĩ (id_user vs user_id, ip_address vs ip ...)
+    if "id_user" in cols:
+        payload["id_user"] = id_user
+    elif "user_id" in cols:
+        payload["user_id"] = id_user
+
+    if "action" in cols:
+        payload["action"] = action
+    if "table_name" in cols:
+        payload["table_name"] = table_name
+    if "old_values" in cols:
+        payload["old_values"] = old_values
+    if "new_values" in cols:
+        payload["new_values"] = new_values
+    if "ip_address" in cols:
+        payload["ip_address"] = ip_address
+    elif "ip" in cols:
+        payload["ip"] = ip_address
+
+    if not payload:
+        raise HTTPException(status_code=400, detail="Không tìm được cột phù hợp trong audit_logs để insert")
+
+    try:
+        res = db.execute(table.insert().values(**payload))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Lỗi khi insert: {e}")
+
+    return {"status": "ok", "inserted": True, "rowcount": getattr(res, "rowcount", None)}
+
 

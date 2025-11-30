@@ -560,7 +560,7 @@ nav {
         <!-- Application Form -->
         <div id="applicationForm" class="application-form">
             <h2>📝 Form Ứng Tuyển</h2>
-            <form id="candidateForm">
+            <form id="candidateForm" action="javascript:void(0);">
                 <div class="form-group">
                     <label>Họ và tên <span class="required">*</span></label>
                     <input type="text" id="fullName" required placeholder="Nhập họ tên đầy đủ" >
@@ -601,7 +601,7 @@ nav {
                 </div>
 
                 <div class="btn-group">
-                    <button class="btn btn-secondary" onclick="backToLanding()">Quay lại</button>
+                    <button class="btn btn-secondary" type ="button" onclick="backToLanding()">Quay lại</button>
                     <button class="btn btn-primary" type="submit">Nộp đơn ứng tuyển</button>
                 </div>
             </form>
@@ -784,70 +784,87 @@ nav {
         }
     }
 
-    document.getElementById('candidateForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('candidateForm');
+        if (!form) return;
 
-        const fullName = document.getElementById('fullName').value;
-        const email = document.getElementById('email').value;
-        const phone = document.getElementById('phone').value;
-        const positionSelect = document.getElementById('position');
-        const positionValue = positionSelect.value;
-        const positionText = positionSelect.options[positionSelect.selectedIndex].text;
-        const file = document.getElementById('cvFile').files[0];
+        // disable native action as extra safety
+        form.action = 'javascript:void(0);';
+        // remove any inline onsubmit to avoid conflicts
+        form.onsubmit = null;
 
-        if (!file) {
-            alert("Vui lòng chọn file CV trước khi nộp.");
-            return;
-        }
+        async function submitHandler(e) {
+            console.log('candidateForm submit handler fired');
+            e.preventDefault();
+            e.stopPropagation();
+            // ngăn các handler submit khác
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
 
-        // 👉 Tạo form data để gửi file + thông tin text
-        const formData = new FormData();
-        formData.append('fullName', fullName);
-        formData.append('email', email);
-        formData.append('phone', phone);
-        formData.append('position', positionText);
-        formData.append('fileName', file.name);
-        formData.append('file', file);  // đây là file PDF/DOCX thật sự
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.textContent : '';
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Đang gửi...'; }
 
-        try {
-            const baseUrl = window.location.origin.includes('8000')
-                ? window.location.origin
-                : 'http://127.0.0.1:8000';
+            try {
+                const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const positionSelect = document.getElementById('position');
+                const positionText = positionSelect.options[positionSelect.selectedIndex].text;
+                const file = document.getElementById('cvFile').files[0];
 
+                if (!file) {
+                    alert("Vui lòng chọn file CV trước khi nộp.");
+                    return false;
+                }
 
-            // 👉 Gửi request đến backend (ví dụ FastAPI)
-            const response = await fetch(`${baseUrl}/upload_cv`, {
-                method: 'POST',
-                body: formData
-            }).then(response => response);
+                const formData = new FormData();
+                formData.append('fullName', fullName);
+                formData.append('email', email);
+                formData.append('phone', phone);
+                formData.append('position', positionText);
+                formData.append('fileName', file.name);
+                formData.append('file', file);
 
+                const baseUrl = window.location.origin.includes('8000') ? window.location.origin : 'http://127.0.0.1:8000';
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `Upload thất bại: ${response.statusText}`);
+                const response = await fetch(`${baseUrl}/upload_cv`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || `Upload thất bại: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                // Update UI (không reload)
+                document.getElementById('reviewName').textContent = fullName;
+                document.getElementById('reviewEmail').textContent = email;
+                document.getElementById('reviewPhone').textContent = phone;
+                document.getElementById('reviewPosition').textContent = positionText;
+                document.getElementById('reviewCV').textContent = file.name;
+
+                document.getElementById('landingPage').style.display = 'none';
+                document.getElementById('applicationForm').style.display = 'none';
+                document.getElementById('confirmationPage').style.display = 'block';
+
+            } catch (error) {
+                alert("Lỗi khi gửi dữ liệu: " + error.message);
+                console.error(error);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    if (originalText) submitBtn.textContent = originalText;
+                }
             }
-            
 
-            const data = await response.json();
-
-            // Hiển thị trang xác nhận
-            document.getElementById('reviewName').textContent = fullName;
-            document.getElementById('reviewEmail').textContent = email;
-            document.getElementById('reviewPhone').textContent = phone;
-            document.getElementById('reviewPosition').textContent = positionText;
-            document.getElementById('reviewCV').textContent = file.name;
-
-            document.getElementById('landingPage').style.display = 'none';
-            document.getElementById('applicationForm').style.display = 'none';
-            document.getElementById('confirmationPage').style.display = 'block';
-        } catch (error) {
-            alert("Lỗi khi gửi dữ liệu: " + error.message);
-            console.error(error);
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
+            return false;
         }
 
-
+        // gắn ở capture để đảm bảo chạy trước các listener khác
+        form.addEventListener('submit', submitHandler, { capture: true });
     });
     // Render created jobs from localStorage under the default list
     (function renderCreatedJobs() {

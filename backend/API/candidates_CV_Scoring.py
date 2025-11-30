@@ -4,14 +4,16 @@ import os
 from langdetect import detect
 import json
 
+from backend.dataAndModels.config import DATABASE_URL
 
+import backend.API.scoring.education_scoring as education_scoring
+import backend.API.scoring.experience_scoring as experience_scoring
+import backend.API.scoring.technical_skill_scoring as technical_skill_scoring
+import backend.API.scoring.soft_skills_scoring as soft_skills_scoring
+import backend.API.scoring.tools_and_certificates_scoring as tools_and_certificates_scoring
+import backend.API.scoring.similarity_scoring as sim_scoring
+import backend.dataAndModels.candidates_table as candidates_table
 
-import scoring.education_scoring as education_scoring
-import scoring.experience_scoring as experience_scoring
-import scoring.technical_skill_scoring as technical_skill_scoring
-import scoring.soft_skills_scoring as soft_skills_scoring
-import scoring.tools_and_certificates_scoring as tools_and_certificates_scoring
-import scoring.similarity_scoring as sim_scoring
 
 
 
@@ -23,7 +25,6 @@ def clean_text(text: str) -> str:
     text = re.sub(r"\s{2,}", " ", text)
     return text.strip()
 
-
 def extract_field(block: str, field_name: str) -> str:
 
     pattern = rf"{field_name}\s*:\s*(.*?)(?=\n\w+?:|\Z)"
@@ -31,7 +32,6 @@ def extract_field(block: str, field_name: str) -> str:
     if match:
         return clean_text(match.group(1))
     return ""
-
 
 def parse_candidate_block(block: str) -> Dict[str, str]:
 
@@ -87,7 +87,6 @@ def parse_candidate_block(block: str) -> Dict[str, str]:
         "tools": tools_text,
         "summary": summary_text,
     }
-
 
 def get_last_candidate(file_path: str) -> Dict[str, str]:
     
@@ -155,7 +154,46 @@ def sim_score(cv ,jd, max_score):
         "max_score": similarity["max_score"]
     }
     
+def scoring_summary(candidate ,jd_full):
+        #------ EDUCATION SCORING ------
+    print("\n=== CHẤM ĐIỂM HỌC VẤN ===")
+    education = education_score(candidate,jd_full)["total_score"]
+    print( "Tổng điểm học vấn: ",json.dumps(education, ensure_ascii=False, indent=4), "/ 100đ")
 
+    
+    #------ EXPERIENCE SCORING ------
+    print("\n=== CHẤM ĐIỂM KINH NGHIỆM ===")
+    experience = experience_score(candidate,jd_full, 250)["total_score"]
+    print("Tổng điểm kinh nghiệm: ",json.dumps(experience, ensure_ascii=False, indent=4),"/ 250đ")
+    
+    
+    #------ TECHNICAL SKILLS SCORING ------
+    print("\n=== CHẤM ĐIỂM KỸ NĂNG CHUYÊN MÔN ===")
+    technical = technical_skill_score(candidate,jd_full, 250)["total_score"]
+    print("Tổng điểm Kỹ năng chuyên môn: ",json.dumps(technical, ensure_ascii=True, indent=4), "/ 250đ")
+    
+    
+    #------ SOFT SKILLS SCORING ------
+    print("\n=== CHẤM ĐIỂM KỸ NĂNG MỀM ===")
+    soft = soft_skills_score(candidate,jd_full, 150)["total_score"]
+    print("Tổng điểm kỹ năng mềm: ",json.dumps(soft, ensure_ascii=False, indent=4),"/ 150đ")
+    
+    #------ TOOLS AND CERTIFICATES SCORING ------
+    print("\n=== CHẤM ĐIỂM CÔNG CỤ VÀ CHỨNG CHỈ ===")
+    tools = tools_and_certificates_score(candidate,jd_full, 150)["total_score"]
+    print("Tổng điểm Công cụu và chứng chỉ: ",json.dumps(tools, ensure_ascii=False, indent=4), "/ 150đ")
+
+    #------ SIMILARITY SCORING ------
+    print("\n=== CHẤM ĐIỂM TƯƠNG ĐỒNG AI ===")
+    sim = sim_score(candidate, jd_full, 150)["total_score"]
+    print("Tổng điểm Tương đồng AI: ",json.dumps(sim, ensure_ascii=False, indent=4), " / 150đ")
+    
+    
+    print("\n=== TỔNG ĐIỂM ỨNG VIÊN ===")
+    total_score = education + experience + technical + soft + tools + sim
+    print("Tổng điểm ứng viên: ", json.dumps(total_score, ensure_ascii=False, indent=4), "/ 1000đ")
+
+    return total_score
 
 
 
@@ -163,23 +201,6 @@ def main():
     filename = 'demo_data.csv'
     file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f'../results/{filename}'))
     candidate = get_last_candidate(file_path)
-    
-    #------- Extracted fields -------
-    candidate_file = candidate["filename"]
-    candidates_filesize = candidate["file_size"]
-    candidate_mime_type = candidate["mimetype"]
-    candidate_cv_summary = candidate["cv_summary"]
-    candidate_name = candidate["full_name"]
-    candidate_phone = candidate["phone"]
-    candidate_email = candidate["email"]
-    candidate_address = candidate["address"]
-    candidate_experience = candidate["experience"]
-    candidate_education = candidate["education"]
-    candidate_hard_skills = candidate["hard_skills"]
-    candidate_soft_skills = candidate["soft_skills"]
-    candidate_activities = candidate["activities"]
-    candidate_certificates = candidate["certificates"]
-    candidate_tools = candidate["tools"]
     
     jd_full = {
         "certificates": "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing.",
@@ -221,35 +242,9 @@ def main():
     
     
     #print(detect_language(json.dumps(candidate, ensure_ascii=False)))
-    print("ứng viên: ", candidate_name)
+    print("ứng viên: ", candidate['full_name'])
     
-    #------ EDUCATION SCORING ------
-    print("\n=== CHẤM ĐIỂM HỌC VẤN ===")
-    print( "Tổng điểm học vấn: ",json.dumps(education_score(candidate,jd_full)["total_score"], ensure_ascii=False, indent=4), "/ 100đ")
+    candidate['overall_cv_score'] = int(scoring_summary(candidate ,jd_full))
+    
+#main()
 
-    
-    #------ EXPERIENCE SCORING ------
-    print("\n=== CHẤM ĐIỂM KINH NGHIỆM ===")
-    print("Tổng điểm kinh nghiệm: ",json.dumps(experience_score(candidate,jd_full, 250)["total_score"], ensure_ascii=False, indent=4),"/ 250đ")
-    
-    
-    #------ TECHNICAL SKILLS SCORING ------
-    print("\n=== CHẤM ĐIỂM KỸ NĂNG CHUYÊN MÔN ===")
-    print("Tổng điểm Kỹ năng chuyên môn: ",json.dumps(technical_skill_score(candidate,jd_full, 250)["total_score"], ensure_ascii=True, indent=4), "/ 250đ")
-    
-    
-    #------ SOFT SKILLS SCORING ------
-    print("\n=== CHẤM ĐIỂM KỸ NĂNG MỀM ===")
-    print("Tổng điểm kỹ năng mềm: ",json.dumps(soft_skills_score(candidate,jd_full, 150)["total_score"], ensure_ascii=False, indent=4),"/ 150đ")
-    
-    #------ TOOLS AND CERTIFICATES SCORING ------
-    print("\n=== CHẤM ĐIỂM CÔNG CỤ VÀ CHỨNG CHỈ ===")
-    print("Tổng điểm Công cụu và chứng chỉ: ",json.dumps(tools_and_certificates_score(candidate,jd_full, 150)["total_score"], ensure_ascii=False, indent=4), "/ 150đ")
-
-    #------ SIMILARITY SCORING ------
-    print("\n=== CHẤM ĐIỂM TƯƠNG ĐỒNG AI ===")
-    print("Tổng điểm Tương đồng AI: ",(sim_score(candidate, jd_full, 150)), " / 150đ")
-
-
-
-main()
