@@ -16,8 +16,6 @@ CSV_FILE = os.path.join(os.path.dirname(__file__), "..", "results", "demo_data.c
 static_dir = os.path.dirname(os.path.abspath(__file__))
 router.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-=======
->>>>>>> Stashed changes
 GEMINI_API_KEY = os.getenv(
     "GEMINI_API_KEY",
     "AIzaSyDbZr4J9HIaALo5gl5MMRpoKV2Jkma-YbY"
