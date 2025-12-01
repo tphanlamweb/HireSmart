@@ -3,6 +3,7 @@ from typing import Dict
 import os
 from langdetect import detect
 import json
+import concurrent.futures
 
 from backend.dataAndModels.config import DATABASE_URL
 
@@ -153,43 +154,43 @@ def sim_score(cv ,jd, max_score):
         "max_score": similarity["max_score"]
     }
     
-def scoring_summary(candidate ,jd_full):
-        #------ EDUCATION SCORING ------
+def scoring_summary(candidate, jd_full):
+    """
+    Chạy các phần scoring song song bằng ThreadPoolExecutor để tiết kiệm thời gian.
+    Nếu các hàm scoring là CPU-bound nặng thì cân nhắc dùng ProcessPoolExecutor thay vì ThreadPoolExecutor.
+    """
     print("\n=== CHẤM ĐIỂM HỌC VẤN ===")
-    education = education_score(candidate,jd_full)["total_score"]
-    print( "Tổng điểm học vấn: ",json.dumps(education, ensure_ascii=False, indent=4), "/ 100đ")
 
-    
-    #------ EXPERIENCE SCORING ------
-    print("\n=== CHẤM ĐIỂM KINH NGHIỆM ===")
-    experience = experience_score(candidate,jd_full, 250)["total_score"]
-    print("Tổng điểm kinh nghiệm: ",json.dumps(experience, ensure_ascii=False, indent=4),"/ 250đ")
-    
-    
-    #------ TECHNICAL SKILLS SCORING ------
-    print("\n=== CHẤM ĐIỂM KỸ NĂNG CHUYÊN MÔN ===")
-    technical = technical_skill_score(candidate,jd_full, 250)["total_score"]
-    print("Tổng điểm Kỹ năng chuyên môn: ",json.dumps(technical, ensure_ascii=True, indent=4), "/ 250đ")
-    
-    
-    #------ SOFT SKILLS SCORING ------
-    print("\n=== CHẤM ĐIỂM KỸ NĂNG MỀM ===")
-    soft = soft_skills_score(candidate,jd_full, 150)["total_score"]
-    print("Tổng điểm kỹ năng mềm: ",json.dumps(soft, ensure_ascii=False, indent=4),"/ 150đ")
-    
-    #------ TOOLS AND CERTIFICATES SCORING ------
-    print("\n=== CHẤM ĐIỂM CÔNG CỤ VÀ CHỨNG CHỈ ===")
-    tools = tools_and_certificates_score(candidate,jd_full, 150)["total_score"]
-    print("Tổng điểm Công cụu và chứng chỉ: ",json.dumps(tools, ensure_ascii=False, indent=4), "/ 150đ")
+    # khởi pool (max_workers tùy chỉnh theo môi trường)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as ex:
+        f_education   = ex.submit(education_score, candidate, jd_full)
+        f_experience  = ex.submit(experience_score, candidate, jd_full, 250)
+        f_technical   = ex.submit(technical_skill_score, candidate, jd_full, 250)
+        f_soft        = ex.submit(soft_skills_score, candidate, jd_full, 150)
+        f_tools       = ex.submit(tools_and_certificates_score, candidate, jd_full, 150)
+        f_sim         = ex.submit(sim_score, candidate, jd_full, 150)
 
-    #------ SIMILARITY SCORING ------
-    print("\n=== CHẤM ĐIỂM TƯƠNG ĐỒNG AI ===")
-    sim = sim_score(candidate, jd_full, 150)["total_score"]
-    print("Tổng điểm Tương đồng AI: ",json.dumps(sim, ensure_ascii=False, indent=4), " / 150đ")
-    
-    
-    print("\n=== TỔNG ĐIỂM ỨNG VIÊN ===")
+        # lấy kết quả (sẽ chờ nếu chưa xong)
+        education = f_education.result()["total_score"]
+        print("Tổng điểm học vấn: ", json.dumps(education, ensure_ascii=False, indent=4), "/ 100đ")
+
+        experience = f_experience.result()["total_score"]
+        print("Tổng điểm kinh nghiệm: ", json.dumps(experience, ensure_ascii=False, indent=4), "/ 250đ")
+
+        technical = f_technical.result()["total_score"]
+        print("Tổng điểm Kỹ năng chuyên môn: ", json.dumps(technical, ensure_ascii=False, indent=4), "/ 250đ")
+
+        soft = f_soft.result()["total_score"]
+        print("Tổng điểm kỹ năng mềm: ", json.dumps(soft, ensure_ascii=False, indent=4), "/ 150đ")
+
+        tools = f_tools.result()["total_score"]
+        print("Tổng điểm Công cụu và chứng chỉ: ", json.dumps(tools, ensure_ascii=False, indent=4), "/ 150đ")
+
+        sim = f_sim.result()["total_score"]
+        print("Tổng điểm Tương đồng AI: ", json.dumps(sim, ensure_ascii=False, indent=4), "/ 150đ")
+
     total_score = education + experience + technical + soft + tools + sim
+    print("\n=== TỔNG ĐIỂM ỨNG VIÊN ===")
     print("Tổng điểm ứng viên: ", json.dumps(total_score, ensure_ascii=False, indent=4), "/ 1000đ")
 
     return total_score
