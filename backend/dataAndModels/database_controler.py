@@ -60,10 +60,6 @@ def read_users(db: Session = Depends(get_db)):
 
 @app.get("/table/{table_name}")
 def read_table(table_name: str, db: Session = Depends(get_db)):
-    """
-    🔹 API tổng quát: Lấy dữ liệu từ bất kỳ bảng nào bằng tên bảng trên URL.
-    Ví dụ: GET /table/products  → lấy dữ liệu từ bảng 'products'
-    """
     if table_name not in metadata.tables:
         raise HTTPException(status_code=404, detail=f"Bảng '{table_name}' không tồn tại!")
 

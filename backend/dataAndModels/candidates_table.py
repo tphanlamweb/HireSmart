@@ -1,114 +1,16 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import create_engine, MetaData, Table, select
 from sqlalchemy.orm import sessionmaker, Session
-#from backend.dataAndModels.config import DATABASE_URL
+from backend.dataAndModels.config import DATABASE_URL, engine , get_db, metadata
+from backend.API.candidates_CV_Scoring import score_candidate
 import re
 import os
+import base64
 
 from typing import Dict
 
-def clean_text(text: str) -> str:
-    if not text:
-        return ""
-    text = str(text)
-    text = re.sub(r"[\n\r\t]+", " ", text)
-    text = re.sub(r"\s{2,}", " ", text)
-    return text.strip()
 
-def extract_field(block: str, field_name: str) -> str:
-
-    pattern = rf"{field_name}\s*:\s*(.*?)(?=\n\w+?:|\Z)"
-    match = re.search(pattern, block, flags=re.DOTALL | re.IGNORECASE)
-    if match:
-        return clean_text(match.group(1))
-    return ""
-
-def parse_candidate_block(block: str) -> Dict[str, str]:
-
-    filename = extract_field(block, "filename")
-    file_size = extract_field(block, "file_size")
-    mimetype = extract_field(block, "mimetype")
-    cv_summary = extract_field(block, "cv_summary")
-    full_name = extract_field(block, "full_name")
-    phone = extract_field(block, "phone")
-    email = extract_field(block, "email")
-    address = extract_field(block, "address")
-    
-    education_text = extract_field(block, "education")
-    experience_text = extract_field(block, "experience")
-    hard_skills = extract_field(block, "hard_skills")
-
-    # Soft skills có thể nằm ở personal_skills hoặc tương tự
-    soft_skills_text = extract_field(block, "personal_skills")
-    if not soft_skills_text:
-        soft_skills_text = extract_field(block, "soft_skills")
-
-    # certificates gồm reference / certifications / awards
-    certificates_text = " ".join([
-        extract_field(block, "certificates"),
-        extract_field(block, "awards"),
-    ])
-    
-    #tools
-    tools_text = " ".join([
-        extract_field(block, "tools"),
-    ])
-
-    # Summary gồm objective + cv_summary + summary
-    summary_text = extract_field(block, "cv_summary")
-    activities_text = extract_field(block, "activities")
-
-    return {
-        "filename": filename,
-        "file_size": file_size,
-        "mimetype": mimetype,
-        "cv_summary": cv_summary,
-        "full_name": full_name,
-        "phone": phone,
-        "email": email,
-        "address": address,
-        "experience": experience_text,
-
-        "education": education_text,
-        "hard_skills": hard_skills,
-        "soft_skills": soft_skills_text,
-        "activities": activities_text,
-        "certificates" : certificates_text,
-        "tools": tools_text,
-        "summary": summary_text,
-    }
-
-def get_last_candidate(file_path: str) -> Dict[str, str]:
-    
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    # Tách theo đường kẻ ----------------------------------------
-    blocks = re.split(r"-{5,}", content)
-    blocks = [b.strip() for b in blocks if b.strip()]
-
-    if not blocks:
-        raise ValueError("Không tìm thấy ứng viên nào trong file")
-
-    last_block = blocks[-1]
-    return parse_candidate_block(last_block)
-
-
-
-
-filename = 'demo_data.csv'
-file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f'../results/{filename}'))
-candidate = get_last_candidate(file_path)
-
-#engine = create_engine(DATABASE_URL)
-metadata = MetaData()
-#metadata.reflect(bind=engine)
-
-#SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-
-
+metadata.reflect(bind=engine)
 
 
 def extract_programming_languages(cv_or_text):
@@ -218,7 +120,7 @@ def extract_frameworks_and_libraries(cv_or_text):
 
     return sorted(found)
 
-def insert_candidates(candidate : dict):
+def insert_candidates(candidate : dict ,db: Session = Depends(get_db)):
     table = metadata.tables["candidates"]
     cols = set(table.c.keys())
     data = {}
@@ -275,8 +177,33 @@ def insert_candidates(candidate : dict):
     if 'filename' in cols: data['filename'] = candidate['filename']
     else: print("filename = null")
     
-    if 'filedata' in cols: data['filedata'] = open(file_path, 'rb').read()
-    else: print("filedata = null")###########################################
+    # filedata: accept raw bytes or base64 string coming from record
+    if 'filedata' in cols:
+        raw = candidate.get('filedata')
+        file_bytes = None
+        if raw is None:
+            file_bytes = None
+        elif isinstance(raw, (bytes, bytearray)):
+            file_bytes = bytes(raw)
+        elif isinstance(raw, str):
+            # try to detect if string is base64; decode, else leave None
+            try:
+                file_bytes = base64.b64decode(raw, validate=True)
+            except Exception:
+                # not a valid base64 string — try utf-8 decode then re-encode
+                try:
+                    file_bytes = raw.encode('utf-8')
+                except Exception:
+                    file_bytes = None
+        else:
+            file_bytes = None
+
+        if file_bytes is not None:
+            data['filedata'] = file_bytes
+        else:
+            print("filedata = null or unsupported type")
+    else:
+        print("filedata = null")
     
     if 'mimetype' in cols: data['mimetype'] = candidate['mimetype']
     else: print("mimetype = null")
@@ -284,15 +211,28 @@ def insert_candidates(candidate : dict):
     if 'cv_summary' in cols: data['cv_summary'] = candidate['cv_summary']
     else: print("cv_summary = null")
     
-    if 'overall_cv_score' in cols: data['overall_cv_score'] = candidate['overall_cv_score']
+    overall_score = score_candidate(candidate)
+    if 'overall_cv_score' in cols: data['overall_cv_score'] = overall_score
     else: print("overall cv score = null")
     
-    if 'matching_percentage' in cols: data['matching_percentage'] = round(candidate['overall_cv_score']/1000*100, 1)
+    if 'matching_percentage' in cols: data['matching_percentage'] = round(overall_score/1000*100, 1)
     else: print("matching percentage = null")
     
     if 'file_size' in cols: data['file_size'] = candidate['file_size']
     else: print("file size = null")
     
+    if not data:
+        raise HTTPException(status_code=400, detail="data = null")
+    
+    try:
+        res = db.execute(table.insert().values(**data))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Lỗi khi insert: {e}")
+    
+    return {"status": "ok", "inserted": True, "rowcount": getattr(res, "rowcount", None)}
+
 
 
 
