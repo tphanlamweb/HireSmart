@@ -16,8 +16,6 @@ import backend.API.scoring.similarity_scoring as sim_scoring
 import backend.dataAndModels.candidates_table as candidates_table
 
 
-
-
 # def clean_text(text: str) -> str:
 #     if not text:
 #         return ""
@@ -103,13 +101,12 @@ import backend.dataAndModels.candidates_table as candidates_table
 #     last_block = blocks[-1]
 #     return parse_candidate_block(last_block)
 
-
-def detect_language(text: str) -> str:
-    try:
-        lang = detect(text)
-        return lang  # 'vi', 'en', 'fr', ...
-    except:
-        return 'unknown'
+# def detect_language(text: str) -> str:
+#     try:
+#         lang = detect(text)
+#         return lang  # 'vi', 'en', 'fr', ...
+#     except:
+#         return 'unknown'
 
 def education_score(cv ,jd):
     education = education_scoring.score_education(cv, jd)
@@ -155,10 +152,7 @@ def sim_score(cv ,jd, max_score):
     }
     
 def scoring_summary(candidate, jd_full):
-    """
-    Chạy các phần scoring song song bằng ThreadPoolExecutor để tiết kiệm thời gian.
-    Nếu các hàm scoring là CPU-bound nặng thì cân nhắc dùng ProcessPoolExecutor thay vì ThreadPoolExecutor.
-    """
+
     print("\n=== CHẤM ĐIỂM HỌC VẤN ===")
 
     # khởi pool (max_workers tùy chỉnh theo môi trường)
