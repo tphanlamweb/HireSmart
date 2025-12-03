@@ -916,12 +916,13 @@
                                 </td>
                                 <td>{{ user.phone or 'N/A' }}</td>
                                 <td>
-                                    <select class="status-select" data-candidate-id="{{ user.id }}" onchange="updateStatus(this.dataset.candidateId, this.value)">
+                                    <!-- <select class="status-select" data-candidate-id="{{ user.id }}" onchange="updateStatus(this.dataset.candidateId, this.value)">
                                         <option value="suitable" {% if user.application_status == 'suitable' %}selected{% endif %}>Phù hợp</option>
                                         <option value="inviting" {% if user.application_status == 'inviting' %}selected{% endif %}>Đang mời</option>
                                         <option value="accepted" {% if user.application_status == 'accepted' %}selected{% endif %}>Đã chấp nhận</option>
                                         <option value="rejected" {% if user.application_status == 'rejected' %}selected{% endif %}>Từ chối</option>
-                                    </select>
+                                    </select> -->
+                                    {{ user.application_status or 'N/A' }}
                                 </td>
                                 <td>
                                     <div class="action-buttons-cell">
