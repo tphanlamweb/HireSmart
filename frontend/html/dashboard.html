@@ -854,8 +854,32 @@
                 <div class="table-section">
                     <div class="table-header">
                         <h2>Danh sách ứng viên</h2>
+<<<<<<< HEAD
                         <div><span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span> | Đã chọn: <span
                                 id="selectedCount">0</span></div>
+=======
+                        <div>
+                            <span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span>
+                            <span>Đã chọn: <span id="selectedCount">0</span></span>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="action-btn-bulk" onclick="reloadCandidatesData()" id="reloadBtn" title="Làm mới dữ liệu">
+                            🔄 Làm mới
+                        </button>
+                        <button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">
+                            🔘 Chọn nhiều
+                        </button>
+                        <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>
+                            📧 Gửi email hàng loạt
+                        </button>
+                        <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>
+                            📥 Xuất dữ liệu đã chọn
+                         </button>
+                        <button class="action-btn-bulk" onclick="changeStatusBulk()" id="changeStatusBtn" disabled>
+                            🔄 Thay đổi trạng thái
+                        </button>
+>>>>>>> 8527fe4 (up date verify)
                     </div>
                     <div style="padding: 15px 25px;"><button class="action-btn-bulk" onclick="toggleMultiSelect()"
                             id="multiSelectBtn">🔘 Chọn nhiều</button><button class="action-btn-bulk"
@@ -875,7 +899,39 @@
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
+<<<<<<< HEAD
                             <tbody id="candidatesBody"></tbody>
+=======
+                            <tbody id="candidatesBody">
+                            {% for user in users %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="candidate-checkbox" data-candidate-id="{{ user.id }}" disabled onchange="updateSelectionState()">
+                                </td>
+                                <td class="candidate-name">{{ user.full_name }}</td>
+                                <td>
+                                    <span class="cv-points {% if user.overall_cv_score >= 85 %}high{% elif user.overall_cv_score >= 70 %}medium{% else %}low{% endif %}">
+                                        {{ user.overall_cv_score or 'N/A' }}
+                                    </span>
+                                </td>
+                                <td>{{ user.phone or 'N/A' }}</td>
+                                <td>
+                                    <select class="status-select" data-candidate-id="{{ user.id }}" onchange="updateStatus(this.dataset.candidateId, this.value)">
+                                        <option value="suitable" {% if user.application_status == 'suitable' %}selected{% endif %}>Phù hợp</option>
+                                        <option value="inviting" {% if user.application_status == 'inviting' %}selected{% endif %}>Đang mời</option>
+                                        <option value="accepted" {% if user.application_status == 'accepted' %}selected{% endif %}>Đã chấp nhận</option>
+                                        <option value="rejected" {% if user.application_status == 'rejected' %}selected{% endif %}>Từ chối</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <div class="action-buttons-cell">
+                                        <button class="table-icon-btn" data-candidate-id="{{ user.id }}" onclick="showDetail(this.dataset.candidateId)" title="Chi tiết">📋</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+>>>>>>> 8527fe4 (up date verify)
                         </table>
                     </div>
                     <div id="emptyState" class="empty-state" style="display:none;">
@@ -910,6 +966,51 @@
 
         document.addEventListener('DOMContentLoaded', () => { setupEventListeners(); applyFiltersAndRender(); });
 
+<<<<<<< HEAD
+=======
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            setupEventListeners();
+            updateStatusCounts();
+            updateStats();
+            // Auto refresh mỗi 30 giây để cập nhật trạng thái từ database
+            setInterval(reloadCandidatesData, 30000);
+        });
+        
+        // Reload dữ liệu từ API
+        async function reloadCandidatesData() {
+            try {
+                const response = await fetch("/candidates");
+                if (!response.ok) {
+                    console.error("Lỗi khi reload dữ liệu:", response.statusText);
+                    return;
+                }
+                
+                const data = await response.json();
+                const candidates = data.candidates || [];
+                
+                // Cập nhật status select boxes
+                candidates.forEach(candidate => {
+                    const statusSelect = document.querySelector(
+                        `.status-select[data-candidate-id="${candidate.id}"]`
+                    );
+                    if (statusSelect && statusSelect.value !== candidate.application_status) {
+                        statusSelect.value = candidate.application_status;
+                    }
+                });
+                
+                // Cập nhật thống kê
+                updateStatusCounts();
+                updateStats();
+                
+                console.log("[DEBUG] Đã reload dữ liệu từ database");
+            } catch (error) {
+                console.error("Lỗi khi reload dữ liệu:", error);
+            }
+        }
+
+        // Setup Event Listeners
+>>>>>>> 8527fe4 (up date verify)
         function setupEventListeners() {
             const sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay'), mainContent = document.getElementById('mainContent');
             let sidebarOpen = false;
@@ -924,6 +1025,7 @@
             window.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); });
         }
 
+<<<<<<< HEAD
         // Chuẩn hóa status string dựa trên giá trị chính xác lưu trong DB
         function normalizeStatus(s) {
             if (s === null || s === undefined) return 'suitable';
@@ -938,6 +1040,99 @@
                 default:
                     // Trường hợp không mong đợi: chuẩn hoá nhưng không ép về 'suitable'
                     return t.toLowerCase().replace(/\s+/g, '_');
+=======
+        // Filter and Sort Table Rows
+        function filterTable() {
+            const tbody = document.getElementById('candidatesBody');
+            if (!tbody) return;
+            
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length < 3) return;
+
+                const nameCell = cells[1];
+                const scoreCell = cells[2];
+                const phoneCell = cells[3];
+
+                let show = true;
+
+                // Filter by status
+                if (currentFilter.status !== 'all') {
+                    const statusSelect = row.querySelector('.status-select');
+                    if (statusSelect) {
+                        const rowStatus = statusSelect.value;
+                        if (rowStatus !== currentFilter.status) {
+                            show = false;
+                        }
+                    } else {
+                        show = false;
+                    }
+                }
+
+                // Filter by name
+                if (currentFilter.searchName && nameCell) {
+                    const nameText = nameCell.textContent.toLowerCase();
+                    if (!nameText.includes(currentFilter.searchName)) {
+                        show = false;
+                    }
+                }
+
+                // Filter by min points
+                if (currentFilter.minPoints && scoreCell) {
+                    const scoreText = scoreCell.textContent.trim();
+                    const score = parseFloat(scoreText);
+                    if (isNaN(score) || score < parseFloat(currentFilter.minPoints)) {
+                        show = false;
+                    }
+                }
+
+                // Filter by experience/phone (if searching in phone)
+                if (currentFilter.searchExperience && phoneCell) {
+                    const phoneText = phoneCell.textContent.toLowerCase();
+                    if (!phoneText.includes(currentFilter.searchExperience)) {
+                        show = false;
+                    }
+                }
+
+                // Show/hide row
+                row.style.display = show ? '' : 'none';
+                if (show) visibleCount++;
+            });
+
+            document.getElementById('resultsCount').textContent = `Hiển thị ${visibleCount} kết quả`;
+            document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
+
+            // Sort visible rows
+            if (currentFilter.sortBy) {
+                const visibleRows = rows.filter(r => r.style.display !== 'none');
+                visibleRows.sort((a, b) => {
+                    const aCells = a.querySelectorAll('td');
+                    const bCells = b.querySelectorAll('td');
+                    
+                    switch (currentFilter.sortBy) {
+                        case 'points-desc':
+                            const aScore = parseFloat(aCells[2]?.textContent) || 0;
+                            const bScore = parseFloat(bCells[2]?.textContent) || 0;
+                            return bScore - aScore;
+                        case 'points-asc':
+                            const aScore2 = parseFloat(aCells[2]?.textContent) || 0;
+                            const bScore2 = parseFloat(bCells[2]?.textContent) || 0;
+                            return aScore2 - bScore2;
+                        case 'name-asc':
+                            return (aCells[1]?.textContent || '').localeCompare(bCells[1]?.textContent || '');
+                        case 'name-desc':
+                            return (bCells[1]?.textContent || '').localeCompare(aCells[1]?.textContent || '');
+                        default:
+                            return 0;
+                    }
+                });
+
+                // Reorder in DOM
+                visibleRows.forEach(row => tbody.appendChild(row));
+>>>>>>> 8527fe4 (up date verify)
             }
         }
 
@@ -956,6 +1151,7 @@
 
         function renderTable() {
             const tbody = document.getElementById('candidatesBody');
+<<<<<<< HEAD
             const displayCount = currentPage * PAGE_SIZE;
             const toShow = filteredCandidates.slice(0, displayCount);
 
@@ -1007,6 +1203,115 @@
             document.getElementById('acceptedCount').textContent = counts.accepted;
         }
 
+=======
+            if (!tbody) return;
+            
+            const rows = tbody.querySelectorAll('tr');
+            const totalRows = rows.length;
+            document.getElementById('totalCandidates').textContent = totalRows;
+            
+            // Đếm theo application_status từ select box
+            let suitableCount = 0;
+            let invitingCount = 0;
+            let acceptedCount = 0;
+            let rejectedCount = 0;
+            
+            rows.forEach(row => {
+                const statusSelect = row.querySelector('.status-select');
+                if (statusSelect) {
+                    const status = statusSelect.value;
+                    if (status === 'suitable') suitableCount++;
+                    else if (status === 'inviting') invitingCount++;
+                    else if (status === 'accepted') acceptedCount++;
+                    else if (status === 'rejected') rejectedCount++;
+                }
+            });
+            
+            document.getElementById('suitableCount').textContent = suitableCount;
+            document.getElementById('invitingCount').textContent = invitingCount;
+            document.getElementById('acceptedCount').textContent = acceptedCount;
+        }
+
+        // Update Status Counts
+        function updateStatusCounts() {
+            const tbody = document.getElementById('candidatesBody');
+            if (!tbody) return;
+            
+            const rows = tbody.querySelectorAll('tr');
+            const totalRows = rows.length;
+            document.getElementById('count-all').textContent = totalRows;
+            
+            // Đếm theo application_status từ select box
+            let suitableCount = 0;
+            let invitingCount = 0;
+            let acceptedCount = 0;
+            let rejectedCount = 0;
+            
+            rows.forEach(row => {
+                const statusSelect = row.querySelector('.status-select');
+                if (statusSelect) {
+                    const status = statusSelect.value;
+                    if (status === 'suitable') suitableCount++;
+                    else if (status === 'inviting') invitingCount++;
+                    else if (status === 'accepted') acceptedCount++;
+                    else if (status === 'rejected') rejectedCount++;
+                }
+            });
+            
+            document.getElementById('count-suitable').textContent = suitableCount;
+            document.getElementById('count-inviting').textContent = invitingCount;
+            document.getElementById('count-accepted').textContent = acceptedCount;
+            document.getElementById('count-rejected').textContent = rejectedCount;
+        }
+
+        // Update Candidate Status
+        async function updateStatus(id, newStatus) {
+            console.log(`Updating candidate ${id} to status: ${newStatus}`);
+            
+            try {
+                const response = await fetch("/update-status", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        candidate_id: parseInt(id),
+                        status: newStatus
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    console.error("Lỗi cập nhật trạng thái:", error);
+                    alert(error.detail || "Cập nhật trạng thái thất bại.");
+                    // Khôi phục giá trị cũ
+                    const select = document.querySelector(`.status-select[data-candidate-id="${id}"]`);
+                    if (select) {
+                        // Tìm giá trị cũ từ data attribute hoặc từ trước khi thay đổi
+                        // Ở đây ta sẽ để người dùng tự chọn lại
+                    }
+                    return;
+                }
+
+                const result = await response.json();
+                console.log("Cập nhật thành công:", result);
+                
+                // Cập nhật UI
+                updateStatusCounts();
+                updateStats();
+                
+                // Cập nhật filter nếu đang filter theo status
+                if (currentFilter.status !== 'all') {
+                    filterTable();
+                }
+            } catch (error) {
+                console.error("Lỗi gọi API /update-status:", error);
+                alert("Có lỗi khi kết nối tới server.");
+            }
+        }
+
+        // Show Detail
+>>>>>>> 8527fe4 (up date verify)
         function showDetail(id) {
             const c = allCandidates.find(x => x.id === id);
             if (!c) return;

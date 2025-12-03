@@ -9,6 +9,7 @@ from backend.API.Scan_CV import router as scan_cv
 from backend.API.dashboard import router as dashboard
 from backend.API.Email_send_respon.render_mail import router as email_renderer
 from backend.API.Email_send_respon.send_mail import router as email_sender
+from backend.API.Email_send_respon.verify_mail import router as email_verifier
 # Import router từ file Scan_CV (giả sử scan router khai báo: router = APIRouter() trong Scan_CV.py)
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # d:\Cap 1\HireSmart
@@ -38,6 +39,7 @@ app.include_router(scan_cv)
 app.include_router(dashboard)
 app.include_router(email_renderer, prefix="/email", tags=["email"])
 app.include_router(email_sender, prefix="/email", tags=["email"])
+app.include_router(email_verifier, tags=["email"])
 
 
 # Route gốc trả về index.html nếu tồn tại, else trả thông báo
