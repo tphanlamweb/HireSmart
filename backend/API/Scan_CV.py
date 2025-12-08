@@ -1,4 +1,5 @@
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, Depends
+from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 import httpx, json, re, pdfplumber, base64, os
 from PIL import Image
@@ -7,6 +8,8 @@ import docx2txt
 from io import BytesIO
 from rapidfuzz import process
 import backend.API.getcandidate as g
+from backend.dataAndModels.config import get_db
+from backend.dataAndModels.candidates_table import insert_candidates as insert 
 
 router = APIRouter()
 
@@ -237,7 +240,9 @@ async def upload_cv(
     email : str = Form(...),
     phone : str = Form(...),
     position : str = Form(...),
-    file: UploadFile = File(...)):
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)     # ← thêm dependency
+):
     
     filename = file.filename.lower()
     file_bytes = await file.read()
@@ -313,8 +318,7 @@ async def upload_cv(
         if record.get(key):
             record[key] = ensure_sentence_end(record[key])
     
-    g.print_candidate(record)
-
+    insert(record,db)  # Insert vào bảng candidates
     # Ghi CSV theo dạng key,value dễ đọc
     with open(CSV_FILE, "a", encoding="utf-8") as f:
         for k, v in record.items():
