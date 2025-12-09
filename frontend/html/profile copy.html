@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Management System</title>
+    <style>
+        :root {
+            --primary: #165ba8;
+            --primary-dark: #134a7a;
+            --sidebar-bg: linear-gradient(180deg, #165ba8 0%, #134a7a 100%);
+            --sidebar-width: 220px;
+            --card-radius: 16px;
+            --modal-radius: 18px;
+            --shadow: 0 4px 24px rgba(22,91,168,0.08);
+            --yellow: #ffd600;
+            --danger: #ff3333;
+            --success: #28a745;
+            --gray: #f5f5f5;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray);
+        }
+        .container {
+            display: flex;
+            gap: 32px;
+            max-width: 1400px;
+            margin: 36px auto;
+            flex-wrap: wrap;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            padding: 28px 0 24px 0;
+            border-radius: var(--card-radius);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: var(--shadow);
+            height: 95vh;
+        }
+        .logo {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 18px;
+            letter-spacing: 2px;
+        }
+        .user-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(22,91,168,0.08);
+        }
+        .avatar img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .avatar svg {
+            width: 36px;
+            height: 36px;
+            fill: var(--primary);
+        }
+        .user-profile span {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .menu-item {
+            width: 85%;
+            padding: 13px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: background 0.2s, color 0.2s;
+            font-size: 15px;
+            margin-bottom: 6px;
+            font-weight: 400;
+            text-decoration: none;
+            color: white;
+        }
+        .menu-item:hover {
+            background: rgba(255,255,255,0.13);
+        }
+        .menu-item.active {
+            background: var(--yellow);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .menu-item img {
+            width: 22px;
+            height: 22px;
+        }
+        .logout-btn {
+            margin-top: auto;
+            background: var(--danger);
+            padding: 13px 0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 15px;
+            width: 85%;
+            color: #fff;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(255,51,51,0.08);
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .logout-btn:hover {
+            background: #d90000;
+        }
+
+        /* CV Card */
+        .cv-card {
+            background: white;
+            padding: 36px 32px 32px 32px;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            width: 370px;
+            min-width: 320px;
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .cv-card:last-child {
+            width: 300px;
+            min-width: 260px;
+        }
+        .edit-icon {
+            position: absolute;
+            top: 28px;
+            right: 28px;
+            cursor: pointer;
+            color: #888;
+            font-size: 22px;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .edit-icon:hover {
+            color: var(--primary);
+            transform: scale(1.15);
+        }
+        .cv-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .cv-header .avatar {
+            margin: 0 auto 12px auto;
+            background: #f0f0f0;
+        }
+        .cv-header h2 {
+            font-size: 1.35em;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        .cv-header p {
+            color: #888;
+            font-size: 15px;
+            margin: 2px 0;
+        }
+        .cv-section {
+            margin-bottom: 18px;
+        }
+        .cv-section h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .cv-section p {
+            color: #444;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 4px;
+        }
+        .skills {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .skill-tag {
+            padding: 7px 20px;
+            border: 1.5px solid var(--primary);
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--primary-dark);
+            background: #f8faff;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .skill-tag:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* Modal */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(22,91,168,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .hidden { display: none !important; }
+
+        .modal {
+            background: white;
+            padding: 38px 36px 32px 36px;
+            border-radius: var(--modal-radius);
+            box-shadow: var(--shadow);
+            width: 480px;
+            max-width: 98vw;
+            position: relative;
+            animation: fadeIn 0.2s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .modal h2 {
+            font-size: 1.3em;
+            margin-bottom: 28px;
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-align: center;
+        }
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: var(--primary-dark);
+            margin-bottom: 7px;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 7px;
+            font-size: 15px;
+            font-family: inherit;
+            background: #f8faff;
+            transition: border 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 24px;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: normal;
+            font-size: 15px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 28px;
+        }
+        .btn {
+            padding: 11px 28px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-cancel {
+            background: white;
+            color: var(--danger);
+            border: 1.5px solid var(--danger);
+        }
+        .btn-cancel:hover { background: #fff5f5; }
+        .btn-save {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-save:hover { background: var(--primary-dark); }
+
+        .btn-add {
+            padding: 7px 18px;
+            background: white;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s, border 0.2s;
+        }
+        .btn-add:hover {
+            background: #f8faff;
+            border-color: var(--primary);
+        }
+        .btn-add-link {
+            padding: 9px 18px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 8px;
+        }
+        .btn-add-link:hover { background: #218838; }
+        .upload-box {
+            border: 2px dashed #e0e0e0;
+            border-radius: 7px;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8faff;
+            color: var(--primary-dark);
+            font-size: 15px;
+        }
+        .upload-box:hover {
+            border-color: var(--primary);
+            background: #f0f6ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .container { flex-direction: column; align-items: center; }
+            .sidebar {
+                height: auto; width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                padding: 18px 0;
+                border-radius: 0 0 var(--card-radius) var(--card-radius);
+            }
+            .cv-card, .cv-card:last-child {
+                width: 98vw;
+                min-width: 0;
+                margin: 0 auto 24px auto;
+            }
+        }
+        @media (max-width: 700px) {
+            .modal { padding: 18px 8px; width: 98vw; }
+            .container { gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">LOGO</div>
+            <div class="user-profile">
+                <div class="avatar"><img src="../templates/avatar.png" alt="Logo"></div>
+                <span>Name</span>
+            </div>
+            <a href="#" class="menu-item">
+                <img src="../templates/mail.png" alt="Email"> Email
+            </a>
+            <a href="#" class="menu-item active">
+                <img src="../templates/clipboard.png" alt="Profile"> Profile
+            </a>
+            <a href="#" class="menu-item">
+                <img src="../templates/saved.png" alt="Saved Jobs"> Saved Jobs
+            </a>
+            <a href="#" class="menu-item">
+                <img src="../templates/upload.png" alt="Upload CV"> Upload CV
+            </a>
+            <a href="#" class="menu-item">
+                <img src="../templates/bell.png" alt="Notification"> Notification
+            </a>
+            <a href="#" class="menu-item">
+                <img src="../templates/clock.png" alt="History"> Application History
+            </a>
+            <div class="logout-btn">
+                <img src="../templates/logout.png" alt="Logout"> Log Out
+            </div>
+        </div>
+
+        <!-- Personal Info Card -->
+        <div class="cv-card">
+            <div class="edit-icon" onclick="openPersonalInfo()">
+                <img src="../templates/edit-3.png" alt="Edit">
+            </div>
+            <div class="cv-header">
+                <div class="avatar">
+                    <img src="../templates/avatar.png" alt="Avatar">
+            </div>
+            <h2>Name</h2>
+            <p>Ngu Hanh Son, Da Nang</p>
+            <div style="text-align: left; padding: 0 10px;">
+                <p>📧 Example@gmail.com</p>
+                <p>📱 999000111</p>
+                <p>📍 Ngu Hanh Son, Da Nang</p>
+                <p>📅 01/01/2025</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CV Display Card -->
+        <div class="cv-card">
+            <div class="edit-icon" onclick="openEditCV()">
+                <img src="../templates/edit-3.png" alt="Edit CV">
+            </div>
+            <div class="cv-header">
+                <div class="avatar">
+                    <img src="../templates/avatar.png" alt="Avatar">
+                </div>
+                <h2>Name</h2>
+                <p>Example@gmail.com</p>
+                <p>999000111</p>
+                <p>Ngu Hanh Son, Da Nang</p>
+                <p>01/01/2005</p>
+            </div>
+            <div class="cv-section">
+                <h3>Education</h3>
+                <p>ABC University - Bachelor</p>
+            </div>
+            <div class="cv-section">
+                <h3>Skills</h3>
+                <div class="skills">
+                    <span class="skill-tag">React</span>
+                    <span class="skill-tag">MySQL</span>
+                </div>
+            </div>
+            <div class="cv-section">
+                <h3>Experience</h3>
+                <p>- 3 years at company F</p>
+                <p>- 2 years internship at company V</p>
+            </div>
+            <div class="cv-section">
+                <h3>Projects</h3>
+                <p><strong>Recipe Suggestion Web</strong></p>
+                <p>Python + MySQL + HTML/CSS</p>
+                <p>Website suggests recipes based on available ingredients.</p>
+            </div>
+            <div class="cv-section">
+                <h3>Certificates</h3>
+                <p>None yet</p>
+            </div>
+        </div>
+        
+    <!-- Modals -->
+    <div id="personalInfoModal" class="overlay hidden">
+        <div class="modal">
+            <h2>Personal Information</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First name</label>
+                    <input type="text" placeholder="First name">
+                </div>
+                <div class="form-group">
+                    <label>Last name</label>
+                    <input type="text" placeholder="Last name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="Email">
+            </div>
+            <div class="form-group">
+                <label>Phone number</label>
+                <input type="tel" placeholder="Phone number">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Location</label>
+                    <select>
+                        <option>Select location</option>
+                        <option>Da Nang</option>
+                        <option>Ha Noi</option>
+                        <option>Ho Chi Minh</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <select>
+                        <option>Select district</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Date of birth</label>
+                <input type="date">
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="male"> Male</label>
+                    <label><input type="radio" name="gender" value="female"> Female</label>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-cancel" onclick="closePersonalInfo()">Cancel</button>
+                <button class="btn btn-save" onclick="closePersonalInfo()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editCVModal" class="overlay hidden">
+        <div class="modal">
+            <h2>Edit CV</h2>
+            <div class="form-group">
+                <label>Education</label>
+                <input type="text" placeholder="Education" value="ABC University Bachelor">
+            </div>
+            <div class="form-group">
+                <label>Skills</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" placeholder="Add skill" style="flex: 1;">
+                    <button class="btn-add">+ Add</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Experience</label>
+                <textarea placeholder="Add your experience">- 3 years at company F
+- 2 years internship at company V</textarea>
+            </div>
+            <div class="form-group">
+                <label>Projects</label>
+                <textarea placeholder="Add your projects">Recipe Suggestion Web
+Python + MySQL + HTML/CSS
+Build a recipe suggestion website based on available ingredients.</textarea>
+            </div>
+            <div class="form-group">
+                <label>Certificates</label>
+                <button class="btn-add-link">+ Add link Github</button>
+                <div class="upload-box"><p>📎 Upload file</p></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-cancel" onclick="closeEditCV()">Cancel</button>
+                <button class="btn btn-save" onclick="closeEditCV()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPersonalInfo() {
+            document.getElementById('personalInfoModal').classList.remove('hidden');
+        }
+        function closePersonalInfo() {
+            document.getElementById('personalInfoModal').classList.add('hidden');
+        }
+        function openEditCV() {
+            document.getElementById('editCVModal').classList.remove('hidden');
+        }
+        function closeEditCV() {
+            document.getElementById('editCVModal').classList.add('hidden');
+        }
+        document.getElementById('personalInfoModal').addEventListener('click', function(e) {
+            if (e.target === this) closePersonalInfo();
+        });
+        document.getElementById('editCVModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditCV();
+        });
+    </script>
+</body>
+</html>

@@ -36,6 +36,7 @@
 
         .cv-content {
             width: 100%;
+<<<<<<< HEAD
             max-width: 1200px;
             display: flex;
             justify-content: center;
@@ -89,6 +90,25 @@
             min-width: 0;
         }
         
+=======
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        
+        .cv-left {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .cv-right {
+            display: flex;
+            flex-direction: column;
+        }
+>>>>>>> 99620b06a08d5e21bbd72cede49f37cff1a56e5f
         /* Sidebar */
         .sidebar {
             background: var(--sidebar-bg);
@@ -184,10 +204,22 @@
             padding: 36px 32px 32px 32px;
             border-radius: var(--card-radius);
             box-shadow: var(--shadow);
+<<<<<<< HEAD
             width: 100%;
             position: relative;
             margin-bottom: 24px;
         }
+=======
+            width: 370px;
+            min-width: 320px;
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .cv-card:last-child {
+            width: 300px;
+            min-width: 260px;
+        }
+>>>>>>> 99620b06a08d5e21bbd72cede49f37cff1a56e5f
         .edit-icon {
             position: absolute;
             top: 28px;
@@ -575,6 +607,7 @@
 
 /* Main Container */
 .main-container {
+<<<<<<< HEAD
             display: flex;
             margin-top: 80px;
             flex: 1;
@@ -582,6 +615,14 @@
             height: calc(100vh - 80px);
             overflow: hidden;
         }/* Sidebar */
+=======
+    display: flex;
+    margin-top: 80px;
+    flex: 1;
+}
+
+/* Sidebar */
+>>>>>>> 99620b06a08d5e21bbd72cede49f37cff1a56e5f
 .sidebar {
     width: 280px;
     background: linear-gradient(180deg, #1e5a8e 0%, #134168 100%);
@@ -702,6 +743,7 @@
 
 /* Main Content */
 .main-content {
+<<<<<<< HEAD
             flex: 1;
             margin-left: 0;
             padding: 30px;
@@ -711,6 +753,16 @@
             flex-direction: row;
             gap: 20px;
         }/* Desktop only - shift content when sidebar open */
+=======
+    flex: 1;
+    margin-left: 0;
+    padding: 30px;
+    overflow-y: auto;
+    transition: margin-left 0.3s ease;
+}
+
+/* Desktop only - shift content when sidebar open */
+>>>>>>> 99620b06a08d5e21bbd72cede49f37cff1a56e5f
 @media (min-width: 769px) {
     .main-content.with-sidebar {
         margin-left: 280px;

@@ -10,8 +10,6 @@ from backend.API.dashboard import router as dashboard
 from backend.API.Email_send_respon.render_mail import router as email_renderer
 from backend.API.Email_send_respon.send_mail import router as email_sender
 from backend.API.Email_send_respon.verify_mail import router as email_verifier
-
-# ⬇⬇⬇ THÊM DÒNG NÀY
 from backend.API.login import router as login_router
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -39,8 +37,6 @@ app.include_router(dashboard)
 app.include_router(email_renderer, prefix="/email", tags=["email"])
 app.include_router(email_sender, prefix="/email", tags=["email"])
 app.include_router(email_verifier, tags=["email"])
-
-# ⬇⬇⬇ THÊM ROUTER LOGIN VÀO ĐÂY
 app.include_router(login_router, prefix="/login", tags=["login"])
 
 # Home

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(180deg, #1e5088 0%, #153a5f 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 10px;
+        }
+
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #4a7ba7;
+        }
+
+        .profile-info h3 {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+
+        .profile-info p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .features {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+
+        .menu {
+            flex: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.active {
+            background: #fbbf24;
+            color: #1e5088;
+        }
+
+        .menu-item .icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .menu-item .badge {
+            position: absolute;
+            right: 15px;
+            background: #ef4444;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .hamburger {
+            font-size: 28px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dropdown {
+            background: #2e4a7f;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 300px;
+        }
+
+        .icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .icon-btn:nth-child(1) {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .icon-btn:nth-child(2) {
+            background: #fbbf24;
+            color: white;
+        }
+
+        .icon-btn:nth-child(3) {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: block;
+            margin-bottom: 30px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-card {
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #e8eef7;
+            color: #000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            box-sizing: border-box;
+            min-width: 150px;
+        }
+
+        .action-card:hover {
+            background: #d1ddef;
+        }
+
+        .action-card.yellow {
+            background: #fbbf24;
+            color: #1e5088;
+            font-weight: 600;
+        }
+
+        .action-card.blue {
+            background: #fbbf24;
+            color: #1e5088;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .quick-actions {
+                gap: 10px;
+            }
+            .action-card {
+                min-width: 0;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+
+        /* Job Management Section */
+        .job-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .job-section h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .job-section p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e4a7f;
+        }
+
+        /* Job List */
+        .job-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .job-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            transition: box-shadow 0.3s;
+        }
+
+        .job-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .job-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .job-title h3 {
+            font-size: 16px;
+            color: #1e5088;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge.green {
+            background: #86efac;
+            color: #166534;
+        }
+
+        .badge.yellow {
+            background: #fde047;
+            color: #854d0e;
+        }
+
+        .job-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .job-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .job-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .job-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .job-description {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .job-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Job Details View */
+        .job-details {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .back-btn {
+            background: #22c55e;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .job-details h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .job-details h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+            color: #1e5088;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .detail-item h4 {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .detail-item .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e5088;
+        }
+
+        .responsibilities {
+            margin-bottom: 30px;
+        }
+
+        .responsibilities h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .responsibilities p {
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .responsibilities ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .responsibilities li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .responsibilities li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #1e5088;
+            font-weight: bold;
+        }
+
+        .view-docs-btn {
+            background: #22c55e;
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* News View */
+        .news-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .news-section h2 {
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: #1e5088;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .news-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .news-image.blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        }
+
+        .news-image.green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .news-image.orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .news-image.red {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .news-image.purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        }
+
+        .news-content {
+            padding: 20px;
+        }
+
+        .news-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .news-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e5088;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .news-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .news-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e0e7ff;
+            color: #4338ca;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="../templates/logo-2.png" alt="HireSmart Logo" style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
+            </div>
+            <div class="profile">
+                <div class="profile-pic"></div>
+                <div class="profile-info">
+                    <h3>Name</h3>
+                    <p>Admin</p>
+                </div>
+            </div>
+            <div class="features">Features</div>
+            <div class="menu">
+                <div class="menu-item" onclick="window.location.href='dashboard.html'">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item">
+                    <span class="icon">✉️</span>
+                    <span>Messages</span>
+                    <span class="badge">3</span>
+                </div>
+                <div class="menu-item active" onclick="window.location.href='Job_list.html'">
+                    <span class="icon">💼</span>
+                    <span>Jobs</span>
+                </div>
+                <div class="menu-item">
+                    <span class="icon">👥</span>
+                    <span>Candidates</span>
+                </div>
+                <div class="menu-item">
+                    <span class="icon">📄</span>
+                    <span>Resumes</span>
+                </div>
+                <div class="menu-item">
+                    <span class="icon">📈</span>
+                    <span>Report</span>
+                </div>
+            </div>
+            <button class="logout-btn">⏻ Log Out</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Job List View -->
+            <div id="jobListView">
+                <div class="header">
+                    <span class="hamburger">☰</span>
+                    <div class="search-box">
+                        <select class="dropdown">
+                            <option>All Categories</option>
+                        </select>
+                        <input type="text" class="search-input" placeholder="Search...">
+                    </div>
+                    <div class="icons">
+                        <div class="icon-btn">🔔</div>
+                        <div class="icon-btn">✏️</div>
+                        <div class="icon-btn">📧</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="quick-actions">
+                        <div class="action-card" onclick="window.location.href='Create_job.html'">Create new JD</div>
+                        <div class="action-card yellow" onclick="showJobList()">Job List</div>
+                        <div class="action-card blue" onclick="showNews()">News</div>
+                    </div>
+
+                    <div class="job-section">
+                        <h2>Job Management</h2>
+                        <p>Create, manage, and track your job postings and CV applications.</p>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h4>Total Jobs</h4>
+                                <div class="number">3</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Active Jobs</h4>
+                                <div class="number">3</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Total CVs Paid</h4>
+                                <div class="number">3</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Avg CVs per Job</h4>
+                                <div class="number">3</div>
+                            </div>
+                        </div>
+
+                        <div class="job-list">
+                            <div class="job-card">
+                                <div class="job-header">
+                                    <div class="job-title">
+                                        <h3>Senior Software Engineer</h3>
+                                        <span class="badge green">Active</span>
+                                    </div>
+                                    <div class="job-actions">
+                                        <button>✏️</button>
+                                        <button>🗑️</button>
+                                    </div>
+                                </div>
+                                <div class="job-meta">
+                                    <span>📦 Engineering</span>
+                                    <span>📍 San Francisco, CA</span>
+                                    <span>💰 $120,000 - $180,000</span>
+                                </div>
+                                <div class="job-description">
+                                    We are looking for a Senior Software Engineer to join our dynamic team. You will be responsible for designing and developing scalable web applications, mentoring junior developers, and collaborating with cross-functional teams to deliver high-quality software.
+                                </div>
+                                <div class="job-footer">
+                                    <span>👁️ CVs Paid: 35</span>
+                                    <span>Created: 10/1/2024</span>
+                                </div>
+                            </div>
+
+                            <div class="job-card">
+                                <div class="job-header">
+                                    <div class="job-title">
+                                        <h3>Product Manager</h3>
+                                        <span class="badge green">Active</span>
+                                    </div>
+                                    <div class="job-actions">
+                                        <button>✏️</button>
+                                        <button>🗑️</button>
+                                    </div>
+                                </div>
+                                <div class="job-meta">
+                                    <span>📦 Product</span>
+                                    <span>📍 New York, NY</span>
+                                    <span>💰 $100,000 - $150,000</span>
+                                </div>
+                                <div class="job-description">
+                                    Join our product team as a Product Manager where you will drive product strategy, work closely with engineering and design teams, conduct market research, and define product roadmaps to deliver exceptional user experiences.
+                                </div>
+                                <div class="job-footer">
+                                    <span>👁️ CVs Paid: 18</span>
+                                    <span>Created: 10/5/2024</span>
+                                </div>
+                            </div>
+
+                            <div class="job-card" onclick="showJobDetails()">
+                                <div class="job-header">
+                                    <div class="job-title">
+                                        <h3>UI UX Designer</h3>
+                                        <span class="badge yellow">Pending</span>
+                                    </div>
+                                    <div class="job-actions">
+                                        <button>✏️</button>
+                                        <button>🗑️</button>
+                                    </div>
+                                </div>
+                                <div class="job-meta">
+                                    <span>📦 Design</span>
+                                    <span>📍 Remote</span>
+                                    <span>💰 $80,000 - $120,000</span>
+                                </div>
+                                <div class="job-description">
+                                    We are seeking a talented UI/UX Designer to create intuitive and engaging user experiences. You will craft user research, create wireframes and prototypes, and collaborate with product and engineering teams to bring designs to life.
+                                </div>
+                                <div class="job-footer">
+                                    <span>👁️ CVs Paid: 12</span>
+                                    <span>Created: 10/8/2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Details View -->
+            <div id="jobDetailsView" class="hidden">
+                <div class="header">
+                    <span class="hamburger">☰</span>
+                    <div class="search-box">
+                        <select class="dropdown">
+                            <option>All Categories</option>
+                        </select>
+                        <input type="text" class="search-input" placeholder="Search...">
+                    </div>
+                    <div class="icons">
+                        <div class="icon-btn">🔔</div>
+                        <div class="icon-btn">✏️</div>
+                        <div class="icon-btn">📧</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="quick-actions">
+                        <div class="action-card" onclick="window.location.href='Create_job.html'">Create new JD</div>
+                        <div class="action-card yellow" onclick="showJobList()">Job List</div>
+                        <div class="action-card blue" onclick="showNews()">News</div>
+                    </div>
+
+                    <div class="job-details">
+                        <button class="back-btn" onclick="showJobList()">Back</button>
+                        
+                        <h2>View Job Details</h2>
+                        <h3 style="text-align: center; margin-bottom: 10px; color: #666;">Job Role</h3>
+                        <h1>UI UX Designer</h1>
+
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <h4>Department</h4>
+                                <div class="value">Design & Marketing</div>
+                            </div>
+                            <div class="detail-item">
+                                <h4>Line Manager</h4>
+                                <div class="value">Mr Domino's Pizza</div>
+                            </div>
+                        </div>
+
+                        <div class="responsibilities">
+                            <h3>Job Description</h3>
+                            <p>Your responsibilities will include:</p>
+                            <ul>
+                                <li>Creating user-centered designs by understanding business requirements, and user feedback</li>
+                                <li>Creating user flows, wireframes, prototypes and mockups</li>
+                                <li>Translating requirements into style guides, design systems, design patterns and attractive user interfaces</li>
+                                <li>Designing UI elements such as input controls, navigational components and informational components</li>
+                                <li>Creating original graphic designs (e.g. images, sketches and tables)</li>
+                                <li>Identifying and troubleshooting UX problems (e.g. responsiveness)</li>
+                                <li>Collaborating effectively with product, engineering, and management teams</li>
+                                <li>Incorporating customer feedback, usage metrics, and usability findings into design in order to enhance user experience</li>
+                            </ul>
+                        </div>
+
+                        <button class="view-docs-btn">View Documents</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News View -->
+            <div id="newsView" class="hidden">
+                <div class="header">
+                    <span class="hamburger">☰</span>
+                    <div class="search-box">
+                        <select class="dropdown">
+                            <option>All Categories</option>
+                        </select>
+                        <input type="text" class="search-input" placeholder="Search...">
+                    </div>
+                    <div class="icons">
+                        <div class="icon-btn">🔔</div>
+                        <div class="icon-btn">✏️</div>
+                        <div class="icon-btn">📧</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="quick-actions">
+                        <div class="action-card" onclick="window.location.href='Create_job.html'">Create new JD</div>
+                        <div class="action-card yellow" onclick="showJobList()">Job List</div>
+                        <div class="action-card blue" onclick="showNews()">News</div>
+                    </div>
+
+                    <div class="news-section">
+                        <h2>Latest News & Updates</h2>
+                        
+                        <div class="news-grid">
+                            <div class="news-card">
+                                <div class="news-image blue">📰</div>
+                                <div class="news-content">
+                                    <div class="news-date">October 15, 2025</div>
+                                    <div class="news-title">New Feature Release: Advanced Analytics Dashboard</div>
+                                    <div class="news-description">
+                                        We're excited to announce our new analytics dashboard that provides deeper insights into your recruitment metrics and candidate pipeline.
+                                    </div>
+                                    <span class="news-tag">Product Update</span>
+                                </div>
+                            </div>
+
+                            <div class="news-card">
+                                <div class="news-image green">🎉</div>
+                                <div class="news-content">
+                                    <div class="news-date">October 12, 2025</div>
+                                    <div class="news-title">Company Milestone: 10,000+ Successful Hires</div>
+                                    <div class="news-description">
+                                        We've reached an incredible milestone - helping companies make over 10,000 successful hires through our platform!
+                                    </div>
+                                    <span class="news-tag">Company News</span>
+                                </div>
+                            </div>
+
+                            <div class="news-card">
+                                <div class="news-image orange">💡</div>
+                                <div class="news-content">
+                                    <div class="news-date">October 10, 2025</div>
+                                    <div class="news-title">Best Practices: How to Write Compelling Job Descriptions</div>
+                                    <div class="news-description">
+                                        Learn the art of crafting job descriptions that attract top talent. Our guide covers essential tips and examples.
+                                    </div>
+                                    <span class="news-tag">Tips & Guides</span>
+                                </div>
+                            </div>
+
+                            <div class="news-card">
+                                <div class="news-image red">🔒</div>
+                                <div class="news-content">
+                                    <div class="news-date">October 8, 2025</div>
+                                    <div class="news-title">Security Update: Enhanced Data Protection</div>
+                                    <div class="news-description">
+                                        We've implemented new security measures to ensure your candidate data is protected with industry-leading encryption.
+                                    </div>
+                                    <span class="news-tag">Security</span>
+                                </div>
+                            </div>
+
+                            <div class="news-card">
+                                <div class="news-image purple">🚀</div>
+                                <div class="news-content">
+                                    <div class="news-date">October 5, 2025</div>
+                                    <div class="news-title">Integration Launch: Connect with 50+ ATS Systems</div>
+                                    <div class="news-description">
+                                        Seamlessly integrate our platform with your existing ATS. We now support over 50 popular applicant tracking systems.
+                                    </div>
+                                    <span class="news-tag">Integration</span>
+                                </div>
+                            </div>
+
+                            <div class="news-card">
+                                <div class="news-image blue">📊</div>
+                                <div class="news-content">
+                                    <div class="news-date">October 1, 2025</div>
+                                    <div class="news-title">Industry Report: 2025 Hiring Trends</div>
+                                    <div class="news-description">
+                                        Download our comprehensive report on the latest hiring trends, salary benchmarks, and market insights for 2025.
+                                    </div>
+                                    <span class="news-tag">Research</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle action card active state
+        function initActionCards() {
+            const cards = document.querySelectorAll('.quick-actions .action-card');
+            const saved = localStorage.getItem('selectedAction');
+            
+            // restore saved active state
+            cards.forEach(card => {
+                card.classList.remove('yellow');
+            });
+            
+            if (saved) {
+                cards.forEach((card, idx) => {
+                    if (saved === idx.toString()) {
+                        card.classList.add('yellow');
+                    }
+                });
+            } else {
+                // default: Job List (second button) is active
+                if (cards[1]) cards[1].classList.add('yellow');
+            }
+
+            // add click handlers to all cards
+            cards.forEach((card, idx) => {
+                card.addEventListener('click', function() {
+                    cards.forEach(c => c.classList.remove('yellow'));
+                    card.classList.add('yellow');
+                    localStorage.setItem('selectedAction', idx.toString());
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initActionCards);
+
+        function showJobDetails() {
+            document.getElementById('jobListView').classList.add('hidden');
+            document.getElementById('jobDetailsView').classList.remove('hidden');
+            document.getElementById('newsView').classList.add('hidden');
+        }
+
+        function showJobList() {
+            document.getElementById('jobDetailsView').classList.add('hidden');
+            document.getElementById('jobListView').classList.remove('hidden');
+            document.getElementById('newsView').classList.add('hidden');
+            // ensure Job List button (index 1) stays yellow
+            localStorage.setItem('selectedAction', '1');
+            initActionCards();
+        }
+
+        function showNews() {
+            document.getElementById('jobListView').classList.add('hidden');
+            document.getElementById('jobDetailsView').classList.add('hidden');
+            document.getElementById('newsView').classList.remove('hidden');
+            // ensure News button (index 2) stays yellow
+            localStorage.setItem('selectedAction', '2');
+            initActionCards();
+        }
+    </script>
+</body>
+</html>
