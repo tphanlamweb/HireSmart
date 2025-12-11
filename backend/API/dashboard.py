@@ -1,10 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, APIRouter
-<<<<<<< HEAD
-import pymysql
-from sqlalchemy import create_engine, MetaData, Table, select
-=======
 from sqlalchemy import create_engine, MetaData, Table, select, update
->>>>>>> 8527fe4 (up date verify)
 from sqlalchemy.orm import sessionmaker, Session
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
@@ -12,6 +7,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from pathlib import Path
 from typing import List
 from pydantic import BaseModel
+from decimal import Decimal
 from backend.dataAndModels.config import DATABASE_URL
 
 from backend.API.Email_send_respon.create_token import (
@@ -54,21 +50,16 @@ class CandidateIds(BaseModel):
 @router.get("/tables/{table}")
 def read_users(table :str, db: Session = Depends(get_db)):
     try:
-<<<<<<< HEAD
-        users_table = metadata.tables["audit_logs"]  # ⚠️ Đổi tên bảng ở đây
-=======
+
         table_name = table
         users_table = metadata.tables[table_name]  # ⚠️ Đổi tên bảng ở đây
->>>>>>> 8527fe4 (up date verify)
+
     except KeyError:
         raise HTTPException(status_code=404, detail="Bảng 'candidates' không tồn tại trong DB!")
 
     result = db.execute(users_table.select()).fetchall()
     return [dict(row._mapping) for row in result]
 
-<<<<<<< HEAD
-
-=======
 @router.get("/table/{table_name}")
 def read_table(table_name: str, field: str = None, db: Session = Depends(get_db)):
     """
@@ -89,7 +80,7 @@ def read_table(table_name: str, field: str = None, db: Session = Depends(get_db)
     else:
         result = db.execute(table.select()).fetchall()
         return [dict(row._mapping) for row in result]
->>>>>>> 8527fe4 (up date verify)
+
 
 
 
@@ -100,29 +91,7 @@ def get_candidates_tables(request: Request):
         print("[DEBUG] Loading candidates from database...")
         
         with engine.connect() as conn:
-<<<<<<< HEAD
-            result = conn.execute(
-                select(
-                    datatable.c.id,
-                    datatable.c.full_name,
-                    datatable.c.overall_cv_score,
-                    datatable.c.phone,
-                    datatable.c.application_status,  # Lấy cột status từ database
-                )
-            ).fetchall()
 
-        data = []
-        for row in result:
-            data.append({
-                "id": row.id if hasattr(row, 'id') else row[0],
-                "full_name": row.full_name if hasattr(row, 'full_name') else row[1],
-                "overall_cv_score": row.overall_cv_score if hasattr(row, 'overall_cv_score') else row[2],
-                "phone": row.phone if hasattr(row, 'phone') else row[3],
-                "application_status": row[4] if len(row) > 4 else 'suitable',
-
-            })
-
-=======
             # Lấy các cột cần thiết, bao gồm application_status nếu có
             columns = [
                 datatable.c.id,
@@ -151,8 +120,6 @@ def get_candidates_tables(request: Request):
                 else:
                     row_dict["application_status"] = "suitable"  # Mặc định nếu không có cột
                 data.append(row_dict)
-        
->>>>>>> 8527fe4 (up date verify)
         print(f"[DEBUG] Loaded {len(data)} candidates")
         return templates.TemplateResponse("dashboard.html", {"request": request, "users": data})
 
@@ -290,16 +257,36 @@ def get_candidates_api():
         
         data = []
         for row in result:
-            row_dict = {
-                "id": row.id if hasattr(row, 'id') else row[0],
-                "full_name": row.full_name if hasattr(row, 'full_name') else row[1],
-                "overall_cv_score": row.overall_cv_score if hasattr(row, 'overall_cv_score') else row[2],
-                "phone": row.phone if hasattr(row, 'phone') else row[3],
-            }
-            if "application_status" in datatable.c:
-                row_dict["application_status"] = getattr(row, 'application_status', None) or "suitable"
+            # Lấy giá trị thô từ row
+            raw_id = row.id if hasattr(row, "id") else row[0]
+            raw_full_name = row.full_name if hasattr(row, "full_name") else row[1]
+            raw_overall_score = (
+                row.overall_cv_score
+                if hasattr(row, "overall_cv_score")
+                else row[2]
+            )
+            raw_phone = row.phone if hasattr(row, "phone") else row[3]
+
+            # Chuyển Decimal -> float để JSON serialize được
+            if isinstance(raw_overall_score, Decimal):
+                overall_score = float(raw_overall_score)
             else:
-                row_dict["application_status"] = "suitable"
+                overall_score = raw_overall_score
+
+            row_dict = {
+                "id": int(raw_id) if isinstance(raw_id, Decimal) else raw_id,
+                "full_name": raw_full_name,
+                "overall_cv_score": overall_score,
+                "phone": str(raw_phone) if raw_phone is not None else None,
+            }
+
+            if "application_status" in datatable.c:
+                status = getattr(row, "application_status", None) or "suitable"
+            else:
+                status = "suitable"
+
+            row_dict["application_status"] = status
+
             data.append(row_dict)
         
         return JSONResponse(content={"candidates": data})

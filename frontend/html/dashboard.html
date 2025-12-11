@@ -106,6 +106,13 @@
             margin-bottom: 30px;
         }
 
+        .logo-section .logo img {
+            width: 140px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
         .profile {
             display: flex;
             align-items: center;
@@ -765,19 +772,29 @@
 <body>
     <header class="header">
         <nav>
-            <div class="logo-container"><img src="../templates/logo-2.png" alt="Logo"><span>HireSmart</span></div>
+            <div class="logo-container">
+                <img src="../templates/logo-2.png" alt="Logo">
+                <span>HireSmart</span>
+            </div>
             <ul>
-                <li><a href="Home.html">Trang chủ</a></li>
-                <li><a href="Recruitment.html">Jobs</a></li>
-                <li><a href="Create_job.html" class="active">Dashboard HR</a></li>
+                <li>
+                    <a href="Home.html">Trang chủ</a>
+                </li>
+                <li>
+                    <a href="Recruitment.html">Jobs</a>
+                </li>
+                <li>
+                    <a href="Create_job.html" class="active">Dashboard HR</a>
+                </li>
             </ul>
         </nav>
     </header>
     <div class="main-container">
         <div class="sidebar" id="sidebar">
             <div class="logo-section">
-                <div class="logo"><img src="../templates/logo-2.png" alt="Logo"
-                        style="width:140px;height:auto;display:block;margin:0 auto;"></div>
+                <div class="logo">
+                    <img src="../templates/logo-2.png" alt="Logo">
+                </div>
                 <div class="profile">
                     <div class="profile-pic"></div>
                     <div class="profile-info">
@@ -797,20 +814,36 @@
         </div>
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <div class="main-content" id="mainContent">
-            <div class="top-bar"><button class="menu-toggle" id="menuToggle">☰</button>
+            <div class="top-bar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
                 <h2>Candidate Management</h2>
             </div>
             <div class="status-buttons">
-                <button class="btn-status all active" data-status="all"><span>📋</span><span>Tất cả</span><span
-                        class="status-badge" id="count-all">0</span></button>
-                <button class="btn-status suitable" data-status="suitable"><span>✅</span><span>Suitable</span><span
-                        class="status-badge" id="count-suitable">0</span></button>
-                <button class="btn-status inviting" data-status="sended_inviting"><span>📧</span><span>Sended
-                        Inviting</span><span class="status-badge" id="count-inviting">0</span></button>
-                <button class="btn-status accepted" data-status="accepted"><span>🎉</span><span>Accepted</span><span
-                        class="status-badge" id="count-accepted">0</span></button>
-                <button class="btn-status rejected" data-status="rejected"><span>❌</span><span>Rejected</span><span
-                        class="status-badge" id="count-rejected">0</span></button>
+                <button class="btn-status all active" data-status="all">
+                    <span>📋</span>
+                    <span>Tất cả</span>
+                    <span class="status-badge" id="count-all">0</span>
+                </button>
+                <button class="btn-status suitable" data-status="suitable">
+                    <span>✅</span>
+                    <span>Suitable</span>
+                    <span class="status-badge" id="count-suitable">0</span>
+                </button>
+                <button class="btn-status inviting" data-status="sended_inviting">
+                    <span>📧</span>
+                    <span>Sended Inviting</span>
+                    <span class="status-badge" id="count-inviting">0</span>
+                </button>
+                <button class="btn-status accepted" data-status="accepted">
+                    <span>🎉</span>
+                    <span>Accepted</span>
+                    <span class="status-badge" id="count-accepted">0</span>
+                </button>
+                <button class="btn-status rejected" data-status="rejected">
+                    <span>❌</span>
+                    <span>Rejected</span>
+                    <span class="status-badge" id="count-rejected">0</span>
+                </button>
             </div>
             <div class="stats-section">
                 <div class="stats-grid">
@@ -833,65 +866,70 @@
                 </div>
                 <div class="filter-section">
                     <div class="filter-header">
-                        <h3>🔍 Bộ lọc & Tìm kiếm</h3><button class="clear-filters" onclick="clearFilters()">Xóa bộ
-                            lọc</button>
+                        <h3>🔍 Bộ lọc & Tìm kiếm</h3>
+                        <button class="clear-filters" onclick="clearFilters()">
+                            Xóa bộ lọc
+                        </button>
                     </div>
                     <div class="filter-grid">
-                        <div class="filter-item"><label>Tìm kiếm theo tên</label><input type="text" id="searchName"
-                                placeholder="Nhập tên ứng viên..."></div>
-                        <div class="filter-item"><label>Điểm CV tối thiểu</label><input type="number" id="minPoints"
-                                placeholder="VD: 70" min="0" max="100"></div>
-                        <div class="filter-item"><label>Số điện thoại</label><input type="text" id="searchPhone"
-                                placeholder="VD: 0901..."></div>
-                        <div class="filter-item"><label>Sắp xếp theo</label><select id="sortBy">
+                        <div class="filter-item">
+                            <label>Tìm kiếm theo tên</label>
+                            <input type="text" id="searchName"
+                                   placeholder="Nhập tên ứng viên...">
+                        </div>
+                        <div class="filter-item">
+                            <label>Điểm CV tối thiểu</label>
+                            <input type="number" id="minPoints"
+                                   placeholder="VD: 70" min="0" max="100">
+                        </div>
+                        <div class="filter-item">
+                            <label>Số điện thoại</label>
+                            <input type="text" id="searchPhone"
+                                   placeholder="VD: 0901...">
+                        </div>
+                        <div class="filter-item">
+                            <label>Sắp xếp theo</label>
+                            <select id="sortBy">
                                 <option value="points-desc">Điểm CV (Cao → Thấp)</option>
                                 <option value="points-asc">Điểm CV (Thấp → Cao)</option>
                                 <option value="name-asc">Tên (A → Z)</option>
                                 <option value="name-desc">Tên (Z → A)</option>
-                            </select></div>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="table-section">
                     <div class="table-header">
                         <h2>Danh sách ứng viên</h2>
-<<<<<<< HEAD
-                        <div><span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span> | Đã chọn: <span
-                                id="selectedCount">0</span></div>
-=======
                         <div>
                             <span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span>
-                            <span>Đã chọn: <span id="selectedCount">0</span></span>
+                            |
+                            Đã chọn:
+                            <span id="selectedCount">0</span>
                         </div>
                     </div>
-                    <div>
-                        <button class="action-btn-bulk" onclick="reloadCandidatesData()" id="reloadBtn" title="Làm mới dữ liệu">
-                            🔄 Làm mới
-                        </button>
-                        <button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">
+                    <div style="padding: 15px 25px;">
+                        <button class="action-btn-bulk" onclick="toggleMultiSelect()"
+                                id="multiSelectBtn">
                             🔘 Chọn nhiều
                         </button>
-                        <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>
-                            📧 Gửi email hàng loạt
+                        <button class="action-btn-bulk"
+                                onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>
+                            📧 Gửi email
                         </button>
-                        <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>
-                            📥 Xuất dữ liệu đã chọn
-                         </button>
-                        <button class="action-btn-bulk" onclick="changeStatusBulk()" id="changeStatusBtn" disabled>
-                            🔄 Thay đổi trạng thái
+                        <button class="action-btn-bulk"
+                                onclick="exportSelectedData()" id="exportBtn" disabled>
+                            📥 Xuất dữ liệu
                         </button>
->>>>>>> 8527fe4 (up date verify)
                     </div>
-                    <div style="padding: 15px 25px;"><button class="action-btn-bulk" onclick="toggleMultiSelect()"
-                            id="multiSelectBtn">🔘 Chọn nhiều</button><button class="action-btn-bulk"
-                            onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>📧 Gửi email</button><button
-                            class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>📥 Xuất dữ
-                            liệu</button></div>
                     <div class="table-container">
                         <table id="candidatesTable">
                             <thead>
                                 <tr>
-                                    <th class="checkbox-cell"><input type="checkbox" id="selectAllCheckbox"
-                                            onclick="toggleSelectAllRows(this)"></th>
+                                    <th class="checkbox-cell">
+                                        <input type="checkbox" id="selectAllCheckbox"
+                                               onclick="toggleSelectAllRows(this)">
+                                    </th>
                                     <th>Tên ứng viên</th>
                                     <th>Điểm CV</th>
                                     <th>Số điện thoại</th>
@@ -899,40 +937,9 @@
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
-<<<<<<< HEAD
+
                             <tbody id="candidatesBody"></tbody>
-=======
-                            <tbody id="candidatesBody">
-                            {% for user in users %}
-                            <tr>
-                                <td>
-                                    <input type="checkbox" class="candidate-checkbox" data-candidate-id="{{ user.id }}" disabled onchange="updateSelectionState()">
-                                </td>
-                                <td class="candidate-name">{{ user.full_name }}</td>
-                                <td>
-                                    <span class="cv-points {% if user.overall_cv_score >= 85 %}high{% elif user.overall_cv_score >= 70 %}medium{% else %}low{% endif %}">
-                                        {{ user.overall_cv_score or 'N/A' }}
-                                    </span>
-                                </td>
-                                <td>{{ user.phone or 'N/A' }}</td>
-                                <td>
-                                    <!-- <select class="status-select" data-candidate-id="{{ user.id }}" onchange="updateStatus(this.dataset.candidateId, this.value)">
-                                        <option value="suitable" {% if user.application_status == 'suitable' %}selected{% endif %}>Phù hợp</option>
-                                        <option value="inviting" {% if user.application_status == 'inviting' %}selected{% endif %}>Đang mời</option>
-                                        <option value="accepted" {% if user.application_status == 'accepted' %}selected{% endif %}>Đã chấp nhận</option>
-                                        <option value="rejected" {% if user.application_status == 'rejected' %}selected{% endif %}>Từ chối</option>
-                                    </select> -->
-                                    {{ user.application_status or 'N/A' }}
-                                </td>
-                                <td>
-                                    <div class="action-buttons-cell">
-                                        <button class="table-icon-btn" data-candidate-id="{{ user.id }}" onclick="showDetail(this.dataset.candidateId)" title="Chi tiết">📋</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
->>>>>>> 8527fe4 (up date verify)
+
                         </table>
                     </div>
                     <div id="emptyState" class="empty-state" style="display:none;">
@@ -940,8 +947,11 @@
                         <h3>Không tìm thấy ứng viên</h3>
                         <p>Thử điều chỉnh bộ lọc</p>
                     </div>
-                    <div class="load-more-container"><button class="load-more-btn" id="loadMoreBtn"
-                            onclick="loadMore()">Xem thêm</button>
+                    <div class="load-more-container">
+                        <button class="load-more-btn" id="loadMoreBtn"
+                                onclick="loadMore()">
+                            Xem thêm
+                        </button>
                         <p id="loadMoreInfo" style="margin-top:10px;color:#6b7280;"></p>
                     </div>
                 </div>
@@ -951,8 +961,9 @@
     <div class="modal" id="detailModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>📋 Chi tiết ứng viên</h3><button class="close-modal"
-                    onclick="closeModal('detailModal')">&times;</button>
+                <h3>📋 Chi tiết ứng viên</h3>
+                <button class="close-modal"
+                        onclick="closeModal('detailModal')">&times;</button>
             </div>
             <div class="modal-body" id="detailModalBody"></div>
         </div>
@@ -967,51 +978,7 @@
 
         document.addEventListener('DOMContentLoaded', () => { setupEventListeners(); applyFiltersAndRender(); });
 
-<<<<<<< HEAD
-=======
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function () {
-            setupEventListeners();
-            updateStatusCounts();
-            updateStats();
-            // Auto refresh mỗi 30 giây để cập nhật trạng thái từ database
-            setInterval(reloadCandidatesData, 30000);
-        });
-        
-        // Reload dữ liệu từ API
-        async function reloadCandidatesData() {
-            try {
-                const response = await fetch("/candidates");
-                if (!response.ok) {
-                    console.error("Lỗi khi reload dữ liệu:", response.statusText);
-                    return;
-                }
-                
-                const data = await response.json();
-                const candidates = data.candidates || [];
-                
-                // Cập nhật status select boxes
-                candidates.forEach(candidate => {
-                    const statusSelect = document.querySelector(
-                        `.status-select[data-candidate-id="${candidate.id}"]`
-                    );
-                    if (statusSelect && statusSelect.value !== candidate.application_status) {
-                        statusSelect.value = candidate.application_status;
-                    }
-                });
-                
-                // Cập nhật thống kê
-                updateStatusCounts();
-                updateStats();
-                
-                console.log("[DEBUG] Đã reload dữ liệu từ database");
-            } catch (error) {
-                console.error("Lỗi khi reload dữ liệu:", error);
-            }
-        }
 
-        // Setup Event Listeners
->>>>>>> 8527fe4 (up date verify)
         function setupEventListeners() {
             const sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay'), mainContent = document.getElementById('mainContent');
             let sidebarOpen = false;
@@ -1026,7 +993,7 @@
             window.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); });
         }
 
-<<<<<<< HEAD
+
         // Chuẩn hóa status string dựa trên giá trị chính xác lưu trong DB
         function normalizeStatus(s) {
             if (s === null || s === undefined) return 'suitable';
@@ -1041,99 +1008,7 @@
                 default:
                     // Trường hợp không mong đợi: chuẩn hoá nhưng không ép về 'suitable'
                     return t.toLowerCase().replace(/\s+/g, '_');
-=======
-        // Filter and Sort Table Rows
-        function filterTable() {
-            const tbody = document.getElementById('candidatesBody');
-            if (!tbody) return;
-            
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            let visibleCount = 0;
 
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells.length < 3) return;
-
-                const nameCell = cells[1];
-                const scoreCell = cells[2];
-                const phoneCell = cells[3];
-
-                let show = true;
-
-                // Filter by status
-                if (currentFilter.status !== 'all') {
-                    const statusSelect = row.querySelector('.status-select');
-                    if (statusSelect) {
-                        const rowStatus = statusSelect.value;
-                        if (rowStatus !== currentFilter.status) {
-                            show = false;
-                        }
-                    } else {
-                        show = false;
-                    }
-                }
-
-                // Filter by name
-                if (currentFilter.searchName && nameCell) {
-                    const nameText = nameCell.textContent.toLowerCase();
-                    if (!nameText.includes(currentFilter.searchName)) {
-                        show = false;
-                    }
-                }
-
-                // Filter by min points
-                if (currentFilter.minPoints && scoreCell) {
-                    const scoreText = scoreCell.textContent.trim();
-                    const score = parseFloat(scoreText);
-                    if (isNaN(score) || score < parseFloat(currentFilter.minPoints)) {
-                        show = false;
-                    }
-                }
-
-                // Filter by experience/phone (if searching in phone)
-                if (currentFilter.searchExperience && phoneCell) {
-                    const phoneText = phoneCell.textContent.toLowerCase();
-                    if (!phoneText.includes(currentFilter.searchExperience)) {
-                        show = false;
-                    }
-                }
-
-                // Show/hide row
-                row.style.display = show ? '' : 'none';
-                if (show) visibleCount++;
-            });
-
-            document.getElementById('resultsCount').textContent = `Hiển thị ${visibleCount} kết quả`;
-            document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
-
-            // Sort visible rows
-            if (currentFilter.sortBy) {
-                const visibleRows = rows.filter(r => r.style.display !== 'none');
-                visibleRows.sort((a, b) => {
-                    const aCells = a.querySelectorAll('td');
-                    const bCells = b.querySelectorAll('td');
-                    
-                    switch (currentFilter.sortBy) {
-                        case 'points-desc':
-                            const aScore = parseFloat(aCells[2]?.textContent) || 0;
-                            const bScore = parseFloat(bCells[2]?.textContent) || 0;
-                            return bScore - aScore;
-                        case 'points-asc':
-                            const aScore2 = parseFloat(aCells[2]?.textContent) || 0;
-                            const bScore2 = parseFloat(bCells[2]?.textContent) || 0;
-                            return aScore2 - bScore2;
-                        case 'name-asc':
-                            return (aCells[1]?.textContent || '').localeCompare(bCells[1]?.textContent || '');
-                        case 'name-desc':
-                            return (bCells[1]?.textContent || '').localeCompare(aCells[1]?.textContent || '');
-                        default:
-                            return 0;
-                    }
-                });
-
-                // Reorder in DOM
-                visibleRows.forEach(row => tbody.appendChild(row));
->>>>>>> 8527fe4 (up date verify)
             }
         }
 
@@ -1152,7 +1027,7 @@
 
         function renderTable() {
             const tbody = document.getElementById('candidatesBody');
-<<<<<<< HEAD
+
             const displayCount = currentPage * PAGE_SIZE;
             const toShow = filteredCandidates.slice(0, displayCount);
 
@@ -1204,115 +1079,7 @@
             document.getElementById('acceptedCount').textContent = counts.accepted;
         }
 
-=======
-            if (!tbody) return;
-            
-            const rows = tbody.querySelectorAll('tr');
-            const totalRows = rows.length;
-            document.getElementById('totalCandidates').textContent = totalRows;
-            
-            // Đếm theo application_status từ select box
-            let suitableCount = 0;
-            let invitingCount = 0;
-            let acceptedCount = 0;
-            let rejectedCount = 0;
-            
-            rows.forEach(row => {
-                const statusSelect = row.querySelector('.status-select');
-                if (statusSelect) {
-                    const status = statusSelect.value;
-                    if (status === 'suitable') suitableCount++;
-                    else if (status === 'inviting') invitingCount++;
-                    else if (status === 'accepted') acceptedCount++;
-                    else if (status === 'rejected') rejectedCount++;
-                }
-            });
-            
-            document.getElementById('suitableCount').textContent = suitableCount;
-            document.getElementById('invitingCount').textContent = invitingCount;
-            document.getElementById('acceptedCount').textContent = acceptedCount;
-        }
 
-        // Update Status Counts
-        function updateStatusCounts() {
-            const tbody = document.getElementById('candidatesBody');
-            if (!tbody) return;
-            
-            const rows = tbody.querySelectorAll('tr');
-            const totalRows = rows.length;
-            document.getElementById('count-all').textContent = totalRows;
-            
-            // Đếm theo application_status từ select box
-            let suitableCount = 0;
-            let invitingCount = 0;
-            let acceptedCount = 0;
-            let rejectedCount = 0;
-            
-            rows.forEach(row => {
-                const statusSelect = row.querySelector('.status-select');
-                if (statusSelect) {
-                    const status = statusSelect.value;
-                    if (status === 'suitable') suitableCount++;
-                    else if (status === 'inviting') invitingCount++;
-                    else if (status === 'accepted') acceptedCount++;
-                    else if (status === 'rejected') rejectedCount++;
-                }
-            });
-            
-            document.getElementById('count-suitable').textContent = suitableCount;
-            document.getElementById('count-inviting').textContent = invitingCount;
-            document.getElementById('count-accepted').textContent = acceptedCount;
-            document.getElementById('count-rejected').textContent = rejectedCount;
-        }
-
-        // Update Candidate Status
-        async function updateStatus(id, newStatus) {
-            console.log(`Updating candidate ${id} to status: ${newStatus}`);
-            
-            try {
-                const response = await fetch("/update-status", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        candidate_id: parseInt(id),
-                        status: newStatus
-                    })
-                });
-
-                if (!response.ok) {
-                    const error = await response.json().catch(() => ({}));
-                    console.error("Lỗi cập nhật trạng thái:", error);
-                    alert(error.detail || "Cập nhật trạng thái thất bại.");
-                    // Khôi phục giá trị cũ
-                    const select = document.querySelector(`.status-select[data-candidate-id="${id}"]`);
-                    if (select) {
-                        // Tìm giá trị cũ từ data attribute hoặc từ trước khi thay đổi
-                        // Ở đây ta sẽ để người dùng tự chọn lại
-                    }
-                    return;
-                }
-
-                const result = await response.json();
-                console.log("Cập nhật thành công:", result);
-                
-                // Cập nhật UI
-                updateStatusCounts();
-                updateStats();
-                
-                // Cập nhật filter nếu đang filter theo status
-                if (currentFilter.status !== 'all') {
-                    filterTable();
-                }
-            } catch (error) {
-                console.error("Lỗi gọi API /update-status:", error);
-                alert("Có lỗi khi kết nối tới server.");
-            }
-        }
-
-        // Show Detail
->>>>>>> 8527fe4 (up date verify)
         function showDetail(id) {
             const c = allCandidates.find(x => x.id === id);
             if (!c) return;

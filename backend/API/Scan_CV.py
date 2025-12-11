@@ -6,7 +6,6 @@ import pytesseract
 import docx2txt
 from io import BytesIO
 from rapidfuzz import process
-import backend.API.getcandidate as g
 
 router = APIRouter()
 
@@ -241,7 +240,6 @@ async def upload_cv(
     
     filename = file.filename.lower()
     file_bytes = await file.read()
-    filebyte2 = file_bytes
     text_content = ""
     mime_type = file.content_type
 
@@ -275,14 +273,12 @@ async def upload_cv(
     clear_phone = normalize_phone_number(phone)
     clear_filename = filename.replace(" ", "")
 
-    
     # Gộp kết quả
     record = {
         
         "filename": clear_filename,
         "file_size": len(file_bytes),
         "mimetype": mime_type,
-        "filedata": base64.b64encode(filebyte2).decode("utf-8"),
         "cv_summary": "",
         **{k: "" for k in fallback_info.keys()},
         **{k: "" for k in parsed_info.keys()},
@@ -312,8 +308,6 @@ async def upload_cv(
     for key in ["objective", "cv_summary", "experience", "education"]:
         if record.get(key):
             record[key] = ensure_sentence_end(record[key])
-    
-    g.print_candidate(record)
 
     # Ghi CSV theo dạng key,value dễ đọc
     with open(CSV_FILE, "a", encoding="utf-8") as f:
