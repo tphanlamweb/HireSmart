@@ -6,6 +6,8 @@ from backend.API.candidates_CV_Scoring import score_candidate
 import re
 import os
 import base64
+import logging
+import traceback
 
 from typing import Dict
 
@@ -120,118 +122,119 @@ def extract_frameworks_and_libraries(cv_or_text):
 
     return sorted(found)
 
-def insert_candidates(candidate : dict ,db: Session = Depends(get_db)):
-    table = metadata.tables["candidates"]
-    cols = set(table.c.keys())
-    data = {}
-    if "email" in cols: data["email"] = candidate["email"] 
-    else: print("Email = null")
-    
-    if "full_name" in cols: data["full_name"] = candidate["full_name"]
-    else: print("Full name = null")
-    
-    if "phone" in cols: data["phone"] = candidate["phone"]
-    else: print("Phone = null")
-    
-    #DoB
-    #Gender
-    
-    if "address" in cols: data["address"] = candidate["address"]
-    else: print("Address = null")
-    
-    #linkedin
-    #porfolio url
-    
-    if "technical_skills" in cols: data["hard_skills"] = candidate["hard_skills"]
-    else: print("hard skills = null")
-    
-    if "soft_skills" in cols: data["soft_skills"] = candidate["soft_skills"]
-    else: print("soft skills = null")
-    
-    if "tools_and_technologies" in cols: data["tools"] = candidate["tools"]
-    else: print("tools = null")
-    
-    if "programming_languages" in cols: data["programming_languages"] = ', '.join(extract_programming_languages(candidate['hard_skills']))
-    else: print("programming languages = null")
-    
-    if 'frameworks_and_libraries' in cols: data['frameworks_and_libraries'] = ', '.join(extract_frameworks_and_libraries(candidate['experience']))
-    else: print("frameworks and libraries = null")
-    
-    if 'work_experience_summary' in cols: data['work_experience_summary'] = candidate['experience']
-    else: print("work experience summary = null")
-    
-    if 'education_summary' in cols: data['education_summary'] = candidate['education']
-    else: print("education summary = null")
-    
-    if 'certifications_summary' in cols: data['certifications_summary'] = candidate['certificates']
-    else: print('certification summary = null')
-    
-    #expired certifications
-    #languages summary
-    #notable projects
-    #awards and honors
-    #publications
-    #volunteers
-    #hobies and interests
-    
-    if 'filename' in cols: data['filename'] = candidate['filename']
-    else: print("filename = null")
-    
-    # filedata: accept raw bytes or base64 string coming from record
-    if 'filedata' in cols:
-        raw = candidate.get('filedata')
-        file_bytes = None
-        if raw is None:
-            file_bytes = None
-        elif isinstance(raw, (bytes, bytearray)):
-            file_bytes = bytes(raw)
-        elif isinstance(raw, str):
-            # try to detect if string is base64; decode, else leave None
-            try:
-                file_bytes = base64.b64decode(raw, validate=True)
-            except Exception:
-                # not a valid base64 string — try utf-8 decode then re-encode
-                try:
-                    file_bytes = raw.encode('utf-8')
-                except Exception:
-                    file_bytes = None
-        else:
-            file_bytes = None
 
-        if file_bytes is not None:
-            data['filedata'] = file_bytes
-        else:
-            print("filedata = null or unsupported type")
-    else:
-        print("filedata = null")
-    
-    if 'mimetype' in cols: data['mimetype'] = candidate['mimetype']
-    else: print("mimetype = null")
-    
-    if 'cv_summary' in cols: data['cv_summary'] = candidate['cv_summary']
-    else: print("cv_summary = null")
-    
-    overall_score = score_candidate(candidate)
-    if 'overall_cv_score' in cols: data['overall_cv_score'] = overall_score
-    else: print("overall cv score = null")
-    
-    if 'matching_percentage' in cols: data['matching_percentage'] = round(overall_score/1000*100, 1)
-    else: print("matching percentage = null")
-    
-    if 'file_size' in cols: data['file_size'] = candidate['file_size']
-    else: print("file size = null")
-    
-    if not data:
-        raise HTTPException(status_code=400, detail="data = null")
-    
+def insert_candidates(candidate: dict, db: Session | None = None):
+    """
+    Nếu db không phải Session thực (hoặc None), tạo Session cục bộ.
+    Hàm an toàn hơn: dùng candidate.get(...) để tránh KeyError,
+    xử lý filedata cả trường hợp base64 string hoặc bytes.
+    """
+    created_local_session = False
+    # nếu db không có phương thức execute thì tạo session cục bộ
+    if db is None or not hasattr(db, "execute"):
+        SessionLocal = sessionmaker(bind=engine)
+        db = SessionLocal()
+        created_local_session = True
+
     try:
-        res = db.execute(table.insert().values(**data))
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Lỗi khi insert: {e}")
-    
-    return {"status": "ok", "inserted": True, "rowcount": getattr(res, "rowcount", None)}
+        table = metadata.tables.get("candidates")
+        if table is None:
+            raise HTTPException(status_code=500, detail="Table 'candidates' not found")
+
+        cols = set(table.c.keys())
+        data: Dict[str, object] = {}
+
+        # an toàn: dùng .get để tránh KeyError
+        if "email" in cols and candidate.get("email"):
+            data["email"] = candidate.get("email")
+        if "full_name" in cols and candidate.get("full_name"):
+            data["full_name"] = candidate.get("full_name")
+        if "phone" in cols and candidate.get("phone"):
+            data["phone"] = candidate.get("phone")
+        if "address" in cols and candidate.get("address"):
+            data["address"] = candidate.get("address")
+
+        if "hard_skills" in cols and candidate.get("hard_skills"):
+            data["hard_skills"] = candidate.get("hard_skills")
+        if "soft_skills" in cols and candidate.get("soft_skills"):
+            data["soft_skills"] = candidate.get("soft_skills")
+        if "tools" in cols and candidate.get("tools"):
+            data["tools"] = candidate.get("tools")
+
+        if "programming_languages" in cols:
+            data["programming_languages"] = ', '.join(extract_programming_languages(candidate.get('hard_skills', '')))
+
+        if "frameworks_and_libraries" in cols:
+            data["frameworks_and_libraries"] = ', '.join(extract_frameworks_and_libraries(candidate.get('experience', '')))
+
+        if "work_experience_summary" in cols and candidate.get("experience"):
+            data["work_experience_summary"] = candidate.get("experience")
+        if "education_summary" in cols and candidate.get("education"):
+            data["education_summary"] = candidate.get("education")
+        if "certifications_summary" in cols and candidate.get("certificates"):
+            data["certifications_summary"] = candidate.get("certificates")
+
+        if "filename" in cols and candidate.get("filename"):
+            data["filename"] = candidate.get("filename")
+
+        # filedata: hỗ trợ base64 string hoặc bytes
+        if "filedata" in cols and candidate.get("filedata") is not None:
+            raw = candidate.get("filedata")
+            file_bytes = None
+            if isinstance(raw, (bytes, bytearray)):
+                file_bytes = bytes(raw)
+            elif isinstance(raw, str):
+                try:
+                    file_bytes = base64.b64decode(raw, validate=True)
+                except Exception:
+                    # không phải base64 -> lưu utf-8 bytes (fallback)
+                    file_bytes = raw.encode("utf-8", errors="ignore")
+            if file_bytes is not None:
+                data["filedata"] = file_bytes
+
+        if "mimetype" in cols and candidate.get("mimetype"):
+            data["mimetype"] = candidate.get("mimetype")
+        if "cv_summary" in cols and candidate.get("cv_summary"):
+            data["cv_summary"] = candidate.get("cv_summary")
+
+        # scoring (dùng các trường có sẵn, an toàn với .get)
+        candidate_for_scoring = {
+            'hard_skills': candidate.get('hard_skills', ''),
+            'experience': candidate.get('experience', ''),
+            'cv_summary': candidate.get('cv_summary', ''),
+            'education': candidate.get('education', ''),
+            'tools': candidate.get('tools', ''),
+            'certificates': candidate.get('certificates', ''),
+            'soft_skills': candidate.get('soft_skills', '')
+        }
+        overall_score = score_candidate(candidate_for_scoring)
+        if 'overall_cv_score' in cols:
+            data['overall_cv_score'] = overall_score
+        if 'matching_percentage' in cols:
+            data['matching_percentage'] = round(overall_score / 1000 * 100, 1)
+        if 'file_size' in cols and candidate.get('file_size') is not None:
+            data['file_size'] = candidate.get('file_size')
+
+        if not data:
+            raise HTTPException(status_code=400, detail="data = null")
+
+        try:
+            res = db.execute(table.insert().values(**data))
+            db.commit()
+        except Exception as e:
+            # rollback nếu supported, log đầy đủ lỗi
+            if hasattr(db, "rollback"):
+                db.rollback()
+            logging.error("DB insert failed: %s\n%s", e, traceback.format_exc())
+            raise HTTPException(status_code=500, detail=f"DB insert error: {e}")
+
+        return {"status": "ok", "inserted": True, "rowcount": getattr(res, "rowcount", None)}
+    finally:
+        if created_local_session:
+            try:
+                db.close()
+            except Exception:
+                pass
 
 
 

@@ -233,7 +233,6 @@ def score_candidate(candidate):
     
     
     #print(detect_language(json.dumps(candidate, ensure_ascii=False)))
-    print("ứng viên: ", candidate['full_name'])
     
     return int(scoring_summary(candidate ,jd_full))
     

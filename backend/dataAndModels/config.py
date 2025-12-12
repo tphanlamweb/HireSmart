@@ -17,12 +17,8 @@ DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB
 
 engine = create_engine(DATABASE_URL)
 metadata = MetaData()
-
-# Tạo SessionLocal dùng chung
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def get_db() -> Session:
+def get_db():
     """Dependency cung cấp session cho các route FastAPI"""
     db = SessionLocal()
     try:
