@@ -9,6 +9,7 @@ from io import BytesIO
 from rapidfuzz import process
 import backend.API.getcandidate as g
 from backend.dataAndModels.config import get_db
+from backend.API.getcandidate import print_candidate
 from backend.dataAndModels.candidates_table import insert_candidates as insert 
 
 router = APIRouter()
@@ -275,7 +276,16 @@ async def upload_cv(
     text_content = clean_text(text_content)
 
     # Gọi Gemini
-    parsed_info = await extract_cv_with_gemini(text_content, file_bytes, mime_type)
+    parsed_info = {}  # <-- ensure defined even if API call fails
+    try:
+        parsed_info = await extract_cv_with_gemini(text_content, file_bytes, mime_type)
+    except httpx.HTTPStatusError as e:
+        print("Gemini HTTP error:", e)
+        parsed_info = {}
+    except Exception as e:
+        # Bắt thêm các lỗi khác (mạng, timeout, parsing...)
+        print("Gemini unexpected error:", e)
+        parsed_info = {}
     fallback_info = extract_with_regex(text_content)
     clear_phone = normalize_phone_number(phone)
     clear_filename = filename.replace(" ", "")
@@ -318,6 +328,7 @@ async def upload_cv(
         if record.get(key):
             record[key] = ensure_sentence_end(record[key])
     
+    print_candidate(record)
     insert(record,db)  # Insert vào bảng candidates
     # Ghi CSV theo dạng key,value dễ đọc
     with open(CSV_FILE, "a", encoding="utf-8") as f:
