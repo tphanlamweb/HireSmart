@@ -8,12 +8,11 @@ import random, string, requests
 # ==============================
 # CONFIG
 # ==============================
-DATABASE_URL = "mysql+pymysql://root:@localhost/hiresmart"
+try:
+    from backend.dataAndModels.config import DATABASE_URL  # prefer shared config
+except Exception:
+    DATABASE_URL = "mysql+pymysql://root:@localhost/hiresmart"  # fallback, edit if needed
 
-GOOGLE_CLIENT_ID = "194527014663-6smkugkc8ci5s4f7algohiir2j1k3tsi.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = "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"
-
-GOOGLE_REDIRECT_URI = "http://127.0.0.1:8000/login/google-callback"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -28,7 +27,7 @@ users_table = Table(
     Column("id", Integer, primary_key=True),
     Column("username", String(255)),
     Column("email", String(255)),
-    Column("password_hash", String(255)),
+    Column("password_hash", String(255)),  # store hashed password
     Column("full_name", String(255)),
     Column("phone", String(20)),
     Column("role_id", Integer),
@@ -133,68 +132,3 @@ def reset_password(data: ResetPasswordModel, db=Depends(get_db)):
     del otps[data.email]
 
     return {"message": "Đổi mật khẩu thành công"}
-
-# ==============================
-# 4️⃣ TẠO URL LOGIN GOOGLE
-# ==============================
-@router.get("/google")
-def google_login():
-    google_auth_url = (
-        "https://accounts.google.com/o/oauth2/v2/auth"
-        f"?client_id={GOOGLE_CLIENT_ID}"
-        f"&redirect_uri={GOOGLE_REDIRECT_URI}"
-        "&response_type=code"
-        "&scope=openid%20email%20profile"
-        "&access_type=offline"
-    )
-    return {"url": google_auth_url}
-
-# ==============================
-# 5️⃣ GOOGLE CALLBACK
-# ==============================
-@router.get("/google-callback")
-def google_callback(code: str, db=Depends(get_db)):
-
-    token_url = "https://oauth2.googleapis.com/token"
-    data = {
-        "code": code,
-        "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
-        "redirect_uri": GOOGLE_REDIRECT_URI,
-        "grant_type": "authorization_code",
-    }
-
-    token_res = requests.post(token_url, data=data).json()
-    access_token = token_res.get("access_token")
-
-    if not access_token:
-        raise HTTPException(status_code=400, detail="Google login failed")
-
-    userinfo = requests.get(
-        "https://openidconnect.googleapis.com/v1/userinfo",
-        headers={"Authorization": f"Bearer {access_token}"}
-    ).json()
-
-    email = userinfo["email"]
-    name = userinfo.get("name", "Google User")
-
-    db_user = db.execute(
-        users_table.select().where(users_table.c.email == email)
-    ).fetchone()
-
-    if not db_user:
-        default_password = pwd_context.hash("google_default_pwd")
-
-        db.execute(
-            users_table.insert().values(
-                username=email.split("@")[0],
-                email=email,
-                password_hash=default_password,
-                full_name=name,
-                role_id=3,
-                is_active=1
-            )
-        )
-        db.commit()
-
-    return {"message": "Đăng nhập Google thành công", "email": email}

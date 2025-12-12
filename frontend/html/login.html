@@ -104,11 +104,13 @@
             const data = await res.json();
     
             if (res.ok) {
-                localStorage.setItem("token", data.token);
+                // Backend currently returns: message, id, email, full_name, role_id (no token)
+                localStorage.setItem("userId", data.id); // optional: keep user id for later use
+                localStorage.setItem("loggedInUser", data.full_name); // Lưu tên user để hiển thị trên Home
                 alert("Đăng nhập thành công!");
                 window.location.href = "../html/Home.html";
             } else {
-                alert(data.detail);
+                alert(data.detail || "Đăng nhập thất bại");
             }
         });
     
@@ -126,11 +128,6 @@
     
             const data = await res.json();
             alert(data.message);
-        });
-    
-        // =============== GOOGLE LOGIN ==================
-        document.querySelector('.google-btn').addEventListener('click', () => {
-            window.location.href = "http://localhost:8000/login/google";
         });
     </script>
     

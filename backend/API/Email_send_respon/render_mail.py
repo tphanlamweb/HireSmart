@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import MetaData, create_engine, select
-from backend.dataAndModels.config import DATABASE_URL
+from backend.dataAndModels.config import DATABASE_URL, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
 
 router = APIRouter()
 
@@ -16,14 +16,11 @@ router = APIRouter()
 # Config & constants
 # ==============================
 
-<<<<<<< HEAD
-VERIFICATION_BASE_URL = os.environ.get("VERIFY_EMAIL_URL", "https://yourdomain.com/verify?token=")
-=======
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# DATABASE_URL is imported from config.py
 # URL base cho link xác nhận email. Trong production, set biến môi trường VERIFY_EMAIL_URL
 # Ví dụ: export VERIFY_EMAIL_URL="https://yourdomain.com/verify?token="
 VERIFICATION_BASE_URL = os.environ.get("VERIFY_EMAIL_URL", "http://127.0.0.1:8000/verify?token=")
->>>>>>> 8527fe4 (up date verify)
+
 
 TOKEN_FILE = Path(__file__).resolve().parents[2] / "results" / "candidate_with_token.csv"
 

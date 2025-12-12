@@ -37,7 +37,9 @@ app.include_router(dashboard)
 app.include_router(email_renderer, prefix="/email", tags=["email"])
 app.include_router(email_sender, prefix="/email", tags=["email"])
 app.include_router(email_verifier, tags=["email"])
-app.include_router(login_router, prefix="/login", tags=["login"])
+# Expose login routes at /login, /forgot-password, /reset-password, /login/google...
+# (no extra prefix to avoid /login/login)
+app.include_router(login_router, prefix="", tags=["login"])
 
 # Home
 @app.get("/", response_class=HTMLResponse)

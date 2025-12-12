@@ -12,7 +12,7 @@ router = APIRouter()
 # Config & constants
 # ==============================
 DB_USER = "root"
-DB_PASSWORD = "123456"
+DB_PASSWORD = "trunghieu0134"
 DB_HOST = "localhost"
 DB_PORT = "3306"
 DB_NAME = "HireSmart"
