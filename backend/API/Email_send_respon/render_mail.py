@@ -286,13 +286,14 @@ def format_email_body(body: str, template_type: str) -> str:
             
             # Join các dòng với <br> và wrap trong <p>
             if formatted_lines:
-                formatted_para = '<p style="margin: 0 0 18px; color: #333; line-height: 1.75;">' + '<br>'.join(formatted_lines) + '</p>'
+                # CHANGED: màu chữ mặc định cho email gửi đi -> đen
+                formatted_para = '<p style="margin: 0 0 18px; color: #000; line-height: 1.75;">' + '<br>'.join(formatted_lines) + '</p>'
                 formatted_paragraphs.append(formatted_para)
         else:
             # HTML: giữ nguyên nhưng đảm bảo formatting đúng
             # Nếu chưa có <p> tag, wrap trong <p>
             if not re.search(r'<p[^>]*>', para, re.IGNORECASE):
-                formatted_para = '<p style="margin: 0 0 18px; color: #333; line-height: 1.75;">' + para + '</p>'
+                formatted_para = '<p style="margin: 0 0 18px; color: #000; line-height: 1.75;">' + para + '</p>'
             else:
                 formatted_para = para
             formatted_paragraphs.append(formatted_para)
@@ -408,7 +409,7 @@ def add_verify_button_to_email(body: str, verify_link: str) -> str:
             ✅ Xác nhận ứng tuyển
         </a>
     </div>
-    <p style="text-align: center; color: #666; font-size: 12px; margin-top: 10px;">
+    <p style="text-align: center; color: #000; font-size: 12px; margin-top: 10px;">
         Hoặc copy link sau vào trình duyệt: <br>
         <a href="{verify_link}" style="color: #2563eb; word-break: break-all;">{verify_link}</a>
     </p>
@@ -539,8 +540,9 @@ def _format_interview_invitation_para(para: str, is_html: bool, context: Dict[st
             interview_location = context.get("interview_location", "").strip()
             
             # Format Interview Details thành HTML box đẹp
-            details_html = '<div style="background: rgba(255, 255, 255, 0.05); border-left: 3px solid #60a5fa; padding: 16px 20px; margin: 20px 0; border-radius: 4px; color: #e2e8f0;">'
-            details_html += '<strong style="color: #ffffff; font-size: 15px;">Interview Details:</strong><br>'
+            # CHANGED: dùng màu chữ đen (#000) cho email gửi đi
+            details_html = '<div style="background: rgba(255, 255, 255, 0.05); border-left: 3px solid #60a5fa; padding: 16px 20px; margin: 20px 0; border-radius: 4px; color: #000;">'
+            details_html += '<strong style="color: #000; font-size: 15px;">Interview Details:</strong><br>'
             
             if interview_date:
                 details_html += f'<span style="display: block; margin-top: 8px;">📅 <strong>Date:</strong> {interview_date}</span>'
@@ -611,12 +613,12 @@ def _format_default_para(para: str, is_html: bool) -> str:
         # Kiểm tra xem có <p> tag chưa
         if not re.search(r'<p[^>]*>', para, re.IGNORECASE):
             # Wrap trong <p> nếu chưa có, nhưng giữ nguyên line breaks
-            para = '<p style="margin: 0 0 18px; color: #333; line-height: 1.75;">' + para + '</p>'
+            para = '<p style="margin: 0 0 18px; color: #000; line-height: 1.75;">' + para + '</p>'
         else:
             # Đảm bảo <p> tags có styling đúng
             para = re.sub(
                 r'<p([^>]*)(?<!\bstyle=)([^>]*)>',
-                r'<p\1\2 style="margin: 0 0 18px; color: #333; line-height: 1.75;">',
+                r'<p\1\2 style="margin: 0 0 18px; color: #000; line-height: 1.75;">',
                 para,
                 flags=re.IGNORECASE
             )
@@ -635,7 +637,7 @@ def _format_default_para(para: str, is_html: bool) -> str:
         
         if formatted_lines:
             # Join các dòng với <br> để giữ xuống dòng
-            formatted_para = '<p style="margin: 0 0 18px; color: #333; line-height: 1.75;">' + '<br>'.join(formatted_lines) + '</p>'
+            formatted_para = '<p style="margin: 0 0 18px; color: #000; line-height: 1.75;">' + '<br>'.join(formatted_lines) + '</p>'
             return formatted_para
     
     return para
