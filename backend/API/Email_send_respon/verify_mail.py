@@ -5,6 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from sqlalchemy import MetaData, create_engine, select, update
+from backend.dataAndModels.config import DATABASE_URL
 
 router = APIRouter()
 
@@ -17,7 +18,6 @@ DB_HOST = "localhost"
 DB_PORT = "3306"
 DB_NAME = "HireSmart"
 
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 TOKEN_FILE = Path(__file__).resolve().parents[2] / "results" / "candidate_with_token.csv"
 
 # ==============================

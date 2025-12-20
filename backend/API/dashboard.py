@@ -1,7 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException, APIRouter
+from fastapi import FastAPI, Depends, HTTPException, APIRouter, Request
 from sqlalchemy import create_engine, MetaData, Table, select, update
 from sqlalchemy.orm import sessionmaker, Session
-from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, JSONResponse
 from pathlib import Path
@@ -16,9 +15,6 @@ from backend.API.Email_send_respon.create_token import (
     OUTPUT_FILE,
 )
 
-
-
-
 # Tạo engine kết nối đến MySQL
 engine = create_engine(DATABASE_URL, echo=True)
 
@@ -26,7 +22,7 @@ metadata = MetaData()
 metadata.reflect(bind=engine)  # 🔍 Tự động tải cấu trúc tất cả bảng có sẵn
 
 # Sửa đường dẫn template — tính từ file dashboard.py hiện tại
-BASE_DIR = Path(__file__).resolve().parent.parent.parent  # d:\Cap 1\HireSmart
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 TEMPLATES_DIR = BASE_DIR / "frontend" / "html"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
@@ -42,23 +38,21 @@ def get_db():
 
 router = APIRouter()
 
-
 class CandidateIds(BaseModel):
     candidate_ids: List[int]
 
 
 @router.get("/tables/{table}")
-def read_users(table :str, db: Session = Depends(get_db)):
+def read_users(table: str, db: Session = Depends(get_db)):
     try:
-
         table_name = table
-        users_table = metadata.tables[table_name]  # ⚠️ Đổi tên bảng ở đây
-
+        users_table = metadata.tables[table_name]
     except KeyError:
-        raise HTTPException(status_code=404, detail="Bảng 'candidates' không tồn tại trong DB!")
+        raise HTTPException(status_code=404, detail=f"Bảng '{table}' không tồn tại trong DB!")
 
     result = db.execute(users_table.select()).fetchall()
     return [dict(row._mapping) for row in result]
+
 
 @router.get("/table/{table_name}")
 def read_table(table_name: str, field: str = None, db: Session = Depends(get_db)):
@@ -82,8 +76,6 @@ def read_table(table_name: str, field: str = None, db: Session = Depends(get_db)
         return [dict(row._mapping) for row in result]
 
 
-
-
 @router.get("/dashboard", response_class=HTMLResponse)
 def get_candidates_tables(request: Request):
     try:
@@ -91,7 +83,6 @@ def get_candidates_tables(request: Request):
         print("[DEBUG] Loading candidates from database...")
         
         with engine.connect() as conn:
-
             # Lấy các cột cần thiết, bao gồm application_status nếu có
             columns = [
                 datatable.c.id,
@@ -111,8 +102,8 @@ def get_candidates_tables(request: Request):
                 row_dict = {
                     "id": row.id if hasattr(row, 'id') else row[0],
                     "full_name": row.full_name if hasattr(row, 'full_name') else row[1],
-                    "overall_cv_score": row.overall_cv_score if hasattr(row, 'overall_cv_score') else row[2],
-                    "phone": row.phone if hasattr(row, 'phone') else row[3],
+                    "overall_cv_score": row.overall_cv_score if hasattr(row, 'overall_cv_score') else (row[2] if len(row) > 2 else 0),
+                    "phone": row.phone if hasattr(row, 'phone') else (row[3] if len(row) > 3 else "N/A"),
                 }
                 # Thêm application_status nếu có
                 if "application_status" in datatable.c:
@@ -120,6 +111,7 @@ def get_candidates_tables(request: Request):
                 else:
                     row_dict["application_status"] = "suitable"  # Mặc định nếu không có cột
                 data.append(row_dict)
+        
         print(f"[DEBUG] Loaded {len(data)} candidates")
         return templates.TemplateResponse("dashboard.html", {"request": request, "users": data})
 
@@ -137,9 +129,6 @@ def get_candidates_tables(request: Request):
 
 @router.get("/bulk-email", response_class=HTMLResponse)
 def bulk_email_page(request: Request, ids: str = ""):
-    """
-    Trang chọn template email cho danh sách ứng viên đã chọn.
-    """
     id_list = []
     if ids:
         for raw in ids.split(","):
@@ -205,10 +194,6 @@ def bulk_email_page(request: Request, ids: str = ""):
 
 @router.post("/create_tokens")
 def create_tokens_endpoint(body: CandidateIds):
-    """
-    Nhận danh sách ID ứng viên từ front-end và tạo token cho CHỈ các ứng viên đó.
-    Đồng thời lưu file candidate_with_token.csv để dùng cho gửi email hàng loạt.
-    """
     try:
         rows = create_tokens_for_ids(body.candidate_ids)
         if not rows:
@@ -217,9 +202,7 @@ def create_tokens_endpoint(body: CandidateIds):
                 detail="Không tìm thấy ứng viên hợp lệ với danh sách ID đã gửi.",
             )
 
-        # Lưu file CSV để dùng cho bước gửi email hàng loạt
         save_to_csv(rows, OUTPUT_FILE)
-
         return JSONResponse(content=rows)
     except HTTPException:
         raise
@@ -235,9 +218,6 @@ class UpdateStatusRequest(BaseModel):
 
 @router.get("/candidates")
 def get_candidates_api():
-    """
-    API endpoint trả về danh sách ứng viên dạng JSON để dashboard có thể reload.
-    """
     try:
         datatable = metadata.tables.get("candidates")
         if datatable is None:
@@ -274,10 +254,10 @@ def get_candidates_api():
                 overall_score = raw_overall_score
 
             row_dict = {
-                "id": int(raw_id) if isinstance(raw_id, Decimal) else raw_id,
-                "full_name": raw_full_name,
-                "overall_cv_score": overall_score,
-                "phone": str(raw_phone) if raw_phone is not None else None,
+                "id": row.id if hasattr(row, 'id') else row[0],
+                "full_name": row.full_name if hasattr(row, 'full_name') else row[1],
+                "overall_cv_score": row.overall_cv_score if hasattr(row, 'overall_cv_score') else (row[2] if len(row) > 2 else 0),
+                "phone": row.phone if hasattr(row, 'phone') else (row[3] if len(row) > 3 else "N/A"),
             }
 
             if "application_status" in datatable.c:
@@ -297,9 +277,6 @@ def get_candidates_api():
 
 @router.post("/update-status")
 def update_candidate_status(body: UpdateStatusRequest, db: Session = Depends(get_db)):
-    """
-    Cập nhật application_status của ứng viên trong database.
-    """
     try:
         datatable = metadata.tables.get("candidates")
         if datatable is None:
@@ -311,7 +288,6 @@ def update_candidate_status(body: UpdateStatusRequest, db: Session = Depends(get
                 detail="Cột 'application_status' không tồn tại trong bảng 'candidates'."
             )
 
-        # Kiểm tra ứng viên có tồn tại không
         stmt_check = select(datatable.c.id).where(datatable.c.id == body.candidate_id)
         with engine.connect() as conn:
             result = conn.execute(stmt_check).fetchone()
@@ -321,7 +297,6 @@ def update_candidate_status(body: UpdateStatusRequest, db: Session = Depends(get
                     detail=f"Không tìm thấy ứng viên với ID {body.candidate_id}."
                 )
 
-        # Cập nhật status
         stmt_update = (
             update(datatable)
             .where(datatable.c.id == body.candidate_id)

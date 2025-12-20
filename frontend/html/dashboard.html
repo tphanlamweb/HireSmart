@@ -908,20 +908,15 @@
                             <span id="selectedCount">0</span>
                         </div>
                     </div>
+
                     <div style="padding: 15px 25px;">
-                        <button class="action-btn-bulk" onclick="toggleMultiSelect()"
-                                id="multiSelectBtn">
-                            🔘 Chọn nhiều
-                        </button>
-                        <button class="action-btn-bulk"
-                                onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>
-                            📧 Gửi email
-                        </button>
-                        <button class="action-btn-bulk"
-                                onclick="exportSelectedData()" id="exportBtn" disabled>
-                            📥 Xuất dữ liệu
-                        </button>
+                        <button class="action-btn-bulk" onclick="reloadCandidatesData()" id="reloadBtn" title="Làm mới dữ liệu">🔄 Làm mới</button>
+                        <button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">🔘 Chọn nhiều</button>
+                        <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>📧 Gửi email</button>
+                        <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>📥 Xuất dữ liệu</button>
+                        <button class="action-btn-bulk" onclick="changeStatusBulk()" id="changeStatusBtn" disabled>🔄 Thay đổi trạng thái</button>
                     </div>
+
                     <div class="table-container">
                         <table id="candidatesTable">
                             <thead>
@@ -937,11 +932,30 @@
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
-
-                            <tbody id="candidatesBody"></tbody>
-
+                            <tbody id="candidatesBody">
+                            {% for user in users %}
+                            <tr>
+                                <td class="checkbox-cell"><input type="checkbox" class="candidate-checkbox" data-candidate-id="{{ user.id }}" onchange="updateSelectionState()"></td>
+                                <td class="candidate-name">{{ user.full_name }}</td>
+                                <td>
+                                    <span class="cv-points {% if user.overall_cv_score >= 85 %}high{% elif user.overall_cv_score >= 70 %}medium{% else %}low{% endif %}">
+                                        {{ user.overall_cv_score or 'N/A' }}
+                                    </span>
+                                </td>
+                                <td>{{ user.phone or 'N/A' }}</td>
+                                <td>{{ user.application_status or 'suitable' }}</td>
+                                <td>
+                                    <div class="action-buttons-cell">
+                                        <button class="table-icon-btn" data-candidate-id="{{ user.id }}" onclick="showDetail({{ user.id }})" title="Chi tiết">📋</button>
+                                        <button class="table-icon-btn" data-candidate-id="{{ user.id }}" onclick="previewCV({{ user.id }})" title="Xem CV">👁️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
                         </table>
                     </div>
+
                     <div id="emptyState" class="empty-state" style="display:none;">
                         <div class="empty-state-icon">🔍</div>
                         <h3>Không tìm thấy ứng viên</h3>
@@ -958,6 +972,7 @@
             </div>
         </div>
     </div>
+
     <div class="modal" id="detailModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -976,8 +991,46 @@
         let currentFilter = { status: 'all', searchName: '', minPoints: '', searchPhone: '', sortBy: 'points-desc' };
         const statusText = { suitable: 'Suitable', unsuitable: 'Unsuitable', sended_inviting: 'Sended Inviting', accepted: 'Accepted', hired: 'Hired', rejected: 'Rejected' };
 
-        document.addEventListener('DOMContentLoaded', () => { setupEventListeners(); applyFiltersAndRender(); });
+        document.addEventListener('DOMContentLoaded', function () {
+            setupEventListeners();
+            applyFiltersAndRender();
+            updateStatusCounts();
+            updateAllCounts();
+            // Auto refresh mỗi 30 giây để cập nhật trạng thái từ database
+            setInterval(reloadCandidatesData, 30000);
+        });
 
+        // Reload dữ liệu từ API
+        async function reloadCandidatesData() {
+            try {
+                const response = await fetch("/candidates");
+                if (!response.ok) {
+                    console.error("Lỗi khi reload dữ liệu:", response.statusText);
+                    return;
+                }
+                
+                const data = await response.json();
+                const candidates = data.candidates || [];
+
+                // Update allCandidates in-memory and re-render
+                // keep same shape as initial
+                allCandidates.length = 0;
+                candidates.forEach(c => allCandidates.push({
+                    id: c.id,
+                    full_name: c.full_name,
+                    overall_cv_score: c.overall_cv_score || 0,
+                    phone: c.phone || 'N/A',
+                    status: c.application_status || 'suitable'
+                }));
+
+                applyFiltersAndRender();
+                updateStatusCounts();
+                updateAllCounts();
+                console.log("[DEBUG] Đã reload dữ liệu từ database");
+            } catch (error) {
+                console.error("Lỗi khi reload dữ liệu:", error);
+            }
+        }
 
         function setupEventListeners() {
             const sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay'), mainContent = document.getElementById('mainContent');
@@ -993,22 +1046,20 @@
             window.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); });
         }
 
-
-        // Chuẩn hóa status string dựa trên giá trị chính xác lưu trong DB
         function normalizeStatus(s) {
             if (s === null || s === undefined) return 'suitable';
             const t = String(s).trim();
-            switch (t) {
-                case 'Suitable': return 'suitable';
-                case 'Unsuitable': return 'unsuitable';
-                case 'Sended_Inviting': return 'sended_inviting';
-                case 'Accepted': return 'accepted';
+            switch (t.toLowerCase()) {
+                case 'suitable': return 'suitable';
+                case 'unsuitable': return 'unsuitable';
+                case 'sended_inviting':
+                case 'sended inviting':
+                case 'sended_inviting': return 'sended_inviting';
+                case 'accepted': return 'accepted';
                 case 'hired': return 'hired';
                 case 'rejected': return 'rejected';
                 default:
-                    // Trường hợp không mong đợi: chuẩn hoá nhưng không ép về 'suitable'
                     return t.toLowerCase().replace(/\s+/g, '_');
-
             }
         }
 
@@ -1021,17 +1072,24 @@
                 if (currentFilter.searchPhone && !c.phone.toLowerCase().includes(currentFilter.searchPhone)) return false;
                 return true;
             });
-            filteredCandidates.sort((a, b) => { switch (currentFilter.sortBy) { case 'points-desc': return b.overall_cv_score - a.overall_cv_score; case 'points-asc': return a.overall_cv_score - b.overall_cv_score; case 'name-asc': return a.full_name.localeCompare(b.full_name); case 'name-desc': return b.full_name.localeCompare(a.full_name); default: return 0; } });
-            renderTable(); updateAllCounts();
+            filteredCandidates.sort((a, b) => {
+                switch (currentFilter.sortBy) {
+                    case 'points-desc': return b.overall_cv_score - a.overall_cv_score;
+                    case 'points-asc': return a.overall_cv_score - b.overall_cv_score;
+                    case 'name-asc': return a.full_name.localeCompare(b.full_name);
+                    case 'name-desc': return b.full_name.localeCompare(a.full_name);
+                    default: return 0;
+                }
+            });
+            renderTable();
+            updateAllCounts();
         }
 
         function renderTable() {
             const tbody = document.getElementById('candidatesBody');
-
+            if (!tbody) return;
             const displayCount = currentPage * PAGE_SIZE;
             const toShow = filteredCandidates.slice(0, displayCount);
-
-            console.log('Rendering table with', toShow.length, 'candidates');
 
             tbody.innerHTML = toShow.map(c => {
                 const normalizedStatus = normalizeStatus(c.status);
@@ -1071,7 +1129,6 @@
             document.getElementById('count-suitable').textContent = counts.suitable;
             document.getElementById('count-inviting').textContent = counts.sended_inviting;
             document.getElementById('count-accepted').textContent = counts.accepted;
-            // Hiển thị chỉ số "rejected" = số thực của rejected (không cộng unsuitable)
             document.getElementById('count-rejected').textContent = counts.rejected;
             document.getElementById('totalCandidates').textContent = counts.all;
             document.getElementById('suitableCount').textContent = counts.suitable;
@@ -1079,6 +1136,52 @@
             document.getElementById('acceptedCount').textContent = counts.accepted;
         }
 
+        function updateStatusCounts() {
+            const tbody = document.getElementById('candidatesBody');
+            if (!tbody) return;
+            const rows = tbody.querySelectorAll('tr');
+            const totalRows = rows.length;
+            document.getElementById('count-all').textContent = totalRows;
+            let suitableCount = 0, invitingCount = 0, acceptedCount = 0, rejectedCount = 0;
+            rows.forEach(row => {
+                const statusLabel = row.querySelector('.status-label');
+                const status = statusLabel ? statusLabel.className.split(' ').slice(-1)[0] : null;
+                if (status === 'suitable') suitableCount++;
+                else if (status === 'sended_inviting') invitingCount++;
+                else if (status === 'accepted') acceptedCount++;
+                else if (status === 'rejected') rejectedCount++;
+            });
+            document.getElementById('count-suitable').textContent = suitableCount;
+            document.getElementById('count-inviting').textContent = invitingCount;
+            document.getElementById('count-accepted').textContent = acceptedCount;
+            document.getElementById('count-rejected').textContent = rejectedCount;
+        }
+
+        async function updateStatus(id, newStatus) {
+            try {
+                const response = await fetch("/update-status", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ candidate_id: parseInt(id), status: newStatus })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    console.error("Lỗi cập nhật trạng thái:", error);
+                    alert(error.detail || "Cập nhật trạng thái thất bại.");
+                    return;
+                }
+
+                const result = await response.json();
+                console.log("Cập nhật thành công:", result);
+                updateStatusCounts();
+                updateAllCounts();
+                if (currentFilter.status !== 'all') { applyFiltersAndRender(); }
+            } catch (error) {
+                console.error("Lỗi gọi API /update-status:", error);
+                alert("Có lỗi khi kết nối tới server.");
+            }
+        }
 
         function showDetail(id) {
             const c = allCandidates.find(x => x.id === id);
@@ -1124,7 +1227,7 @@
         function updateSelectionState() {
             const selected = Array.from(document.querySelectorAll('.candidate-checkbox:checked'));
             document.getElementById('selectedCount').textContent = selected.length;
-            ['sendEmailBtn', 'exportBtn'].forEach(id => { const btn = document.getElementById(id); if (btn) btn.disabled = selected.length === 0; });
+            ['sendEmailBtn', 'exportBtn', 'changeStatusBtn'].forEach(id => { const b = document.getElementById(id); if (b) b.disabled = selected.length === 0; });
         }
 
         function getSelectedCandidateIds() { return Array.from(document.querySelectorAll('.candidate-checkbox:checked')).map(cb => parseInt(cb.dataset.candidateId, 10)).filter(id => !isNaN(id)); }
@@ -1154,11 +1257,7 @@
             const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'candidates_export.csv'; link.click();
         }
 
-        // Hàm preview CV - nhúng code vào đây
         function previewCV(id) {
-            const c = allCandidates.find(x => x.id === id);
-            if (!c) return;
-            // TODO: Nhúng code preview CV vào đây
             console.log("Preview CV for candidate ID:", id);
             alert("Chức năng xem CV - ID: " + id);
         }
