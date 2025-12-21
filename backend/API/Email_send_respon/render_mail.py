@@ -135,7 +135,6 @@ def get_template_specific_fields(template_type: str) -> Dict[str, Dict[str, any]
             "company_name": {"required": False, "default": "HireSmart", "description": "Tên công ty / Company Name"},
             "start_date": {"required": False, "default": "", "description": "Ngày bắt đầu / Start Date"},
             "onboarding_info": {"required": False, "default": "", "description": "Thông tin onboarding / Onboarding Information"},
-            "contact_person": {"required": False, "default": "", "description": "Người liên hệ / Contact Person"},
             "custom_message": {"required": False, "default": "", "description": "Ghi chú thêm / Additional Notes"},
         },
         "welcome": {
@@ -521,7 +520,7 @@ def _enhance_welcome_details_html(body: str, context: Dict[str, str]) -> str:
         if not re.search(r'<div[^>]*(Start Date|Work Location)', body, re.IGNORECASE):
             body = re.sub(
                 r'((Start Date|Ngày bắt đầu|Work Location|Địa điểm làm việc).*?)(?=<p|<div|</body|$)',
-                r'<div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px 20px; margin: 20px 0; border-radius: 6px;">\1</div>',
+                r'<div style="background: rgba(37, 99, 235, 0.1); border-left: 4px solid #1d4ed8; padding: 16px 20px; margin: 20px 0; border-radius: 6px;">\1</div>',
                 body,
                 flags=re.IGNORECASE | re.DOTALL
             )
@@ -602,7 +601,7 @@ def _format_welcome_para(para: str, is_html: bool, context: Dict[str, str]) -> s
     # Format welcome information nếu có
     if re.search(r'(Start Date|Ngày bắt đầu|Work Location|Địa điểm làm việc)', para, re.IGNORECASE):
         if not is_html:
-            para = '<div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px 20px; margin: 20px 0; border-radius: 6px;">' + para + '</div>'
+            para = '<div style="background: rgba(37, 99, 235, 0.1); border-left: 4px solid #1d4ed8; padding: 16px 20px; margin: 20px 0; border-radius: 6px;">' + para + '</div>'
     return _format_default_para(para, is_html)
 
 

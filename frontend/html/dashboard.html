@@ -766,6 +766,18 @@
                 grid-template-columns: 1fr;
             }
         }
+        tbody tr {
+            border-bottom : 1px solid rgb(60, 59, 59);
+        }
+        /* Màu nền cho hàng dựa trên điểm số CV */
+        tbody tr.row-high { background-color: #f0fdf4; }    /* Xanh lá nhạt */
+        tbody tr.row-medium { background-color: #fffbeb; }  /* Vàng nhạt */
+        tbody tr.row-low { background-color: #fef2f2; }     /* Đỏ nhạt */
+
+        /* Giữ màu nền khi di chuột qua */
+        tbody tr.row-high:hover { background-color: #dcfce7; }
+        tbody tr.row-medium:hover { background-color: #fef3c7; }
+        tbody tr.row-low:hover { background-color: #fee2e2; }
     </style>
 </head>
 
@@ -773,7 +785,7 @@
     <header class="header">
         <nav>
             <div class="logo-container">
-                <img src="../templates/logo-2.png" alt="Logo">
+                <img src="../templates/logo-2.png" alt="Logo" onerror="this.onerror=null;this.src='/frontend/templates/logo-2.png'">
                 <span>HireSmart</span>
             </div>
             <ul>
@@ -793,7 +805,7 @@
         <div class="sidebar" id="sidebar">
             <div class="logo-section">
                 <div class="logo">
-                    <img src="../templates/logo-2.png" alt="Logo">
+                    <img src="../templates/logo-2.png" alt="Logo" onerror="this.onerror=null;this.src='/frontend/templates/logo-2.png'">
                 </div>
                 <div class="profile">
                     <div class="profile-pic"></div>
@@ -910,11 +922,9 @@
                     </div>
 
                     <div style="padding: 15px 25px;">
-                        <button class="action-btn-bulk" onclick="reloadCandidatesData()" id="reloadBtn" title="Làm mới dữ liệu">🔄 Làm mới</button>
                         <button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">🔘 Chọn nhiều</button>
                         <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>📧 Gửi email</button>
                         <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>📥 Xuất dữ liệu</button>
-                        <button class="action-btn-bulk" onclick="changeStatusBulk()" id="changeStatusBtn" disabled>🔄 Thay đổi trạng thái</button>
                     </div>
 
                     <div class="table-container">
@@ -1091,20 +1101,30 @@
             const displayCount = currentPage * PAGE_SIZE;
             const toShow = filteredCandidates.slice(0, displayCount);
 
-            tbody.innerHTML = toShow.map(c => {
-                const normalizedStatus = normalizeStatus(c.status);
-                return `<tr data-id="${c.id}" data-status="${normalizedStatus}">
-            <td class="checkbox-cell"><input type="checkbox" class="candidate-checkbox" data-candidate-id="${c.id}" onchange="updateSelectionState()"></td>
-            <td class="candidate-name">${c.full_name}</td>
-            <td><span class="cv-points ${c.overall_cv_score >= 85 ? 'high' : c.overall_cv_score >= 70 ? 'medium' : 'low'}">${c.overall_cv_score}</span></td>
-            <td>${c.phone}</td>
-            <td><span class="status-label ${normalizedStatus}">${statusText[normalizedStatus] || c.status}</span></td>
-            <td><div class="action-buttons-cell">
-                <button class="table-icon-btn" onclick="showDetail(${c.id})" title="Chi tiết">📋</button>
-                <button class="table-icon-btn" onclick="previewCV(${c.id})" title="Xem CV">👁️</button>
-            </div></td>
-        </tr>`;
-            }).join('');
+            // Tìm dòng này trong hàm renderTable:
+        tbody.innerHTML = toShow.map(c => {
+            const normalizedStatus = normalizeStatus(c.status);
+            
+            // --- THÊM LOGIC NÀY VÀO ---
+            let rowColorClass = '';
+            if (c.overall_cv_score >= 85) rowColorClass = 'row-high';
+            else if (c.overall_cv_score >= 70) rowColorClass = 'row-medium';
+            else rowColorClass = 'row-low';
+            // -------------------------
+
+            // Sửa thẻ <tr> bên dưới để nhận class mới:
+            return `<tr data-id="${c.id}" data-status="${normalizedStatus}" class="${rowColorClass}">
+                <td class="checkbox-cell"><input type="checkbox" class="candidate-checkbox" data-candidate-id="${c.id}" onchange="updateSelectionState()"></td>
+                <td class="candidate-name">${c.full_name}</td>
+                <td><span class="cv-points ${c.overall_cv_score >= 85 ? 'high' : c.overall_cv_score >= 70 ? 'medium' : 'low'}">${c.overall_cv_score}</span></td>
+                <td>${c.phone}</td>
+                <td><span class="status-label ${normalizedStatus}">${statusText[normalizedStatus] || c.status}</span></td>
+                <td><div class="action-buttons-cell">
+                    <button class="table-icon-btn" onclick="showDetail(${c.id})" title="Chi tiết">📋</button>
+                    <button class="table-icon-btn" onclick="previewCV(${c.id})" title="Xem CV">👁️</button>
+                </div></td>
+            </tr>`;
+        }).join('');
 
             document.getElementById('emptyState').style.display = toShow.length === 0 ? 'block' : 'none';
             document.getElementById('resultsCount').textContent = `Hiển thị ${toShow.length} / ${filteredCandidates.length} kết quả`;
@@ -1260,6 +1280,37 @@
         function previewCV(id) {
             console.log("Preview CV for candidate ID:", id);
             alert("Chức năng xem CV - ID: " + id);
+        }
+
+        // Bulk status change for selected candidates
+        async function changeStatusBulk() {
+            const ids = getSelectedCandidateIds();
+            if (ids.length === 0) { alert('Vui lòng chọn ít nhất 1 ứng viên.'); return; }
+
+            const choice = prompt('Nhập trạng thái mới cho các ứng viên đã chọn (suitable, sended_inviting, accepted, rejected, hired, unsuitable):', 'sended_inviting');
+            if (!choice) return;
+            const normalized = normalizeStatus(choice);
+
+            if (!['suitable','sended_inviting','accepted','rejected','hired','unsuitable'].includes(normalized)) {
+                alert('Trạng thái không hợp lệ: ' + normalized);
+                return;
+            }
+
+            const confirmMsg = `Bạn có chắc muốn đổi trạng thái ${ids.length} ứng viên sang "${normalized}" không?`;
+            if (!confirm(confirmMsg)) return;
+
+            // Call updateStatus for each selected id (sequential to avoid overwhelming server)
+            for (const id of ids) {
+                try {
+                    await updateStatus(id, normalized);
+                } catch (e) {
+                    console.error('Lỗi khi cập nhật id', id, e);
+                }
+            }
+
+            // Refresh list after updates
+            await reloadCandidatesData();
+            alert('Hoàn thành thay đổi trạng thái.');
         }
     </script>
 </body>
