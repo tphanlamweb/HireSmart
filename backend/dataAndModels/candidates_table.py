@@ -301,7 +301,7 @@ def insert_candidates(candidate: dict, db: Session | None = None):
                 db.close()
             except Exception:
                 pass
-
-
-
-
+            
+            
+            
+            

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends
+from matplotlib.pylab import record
 from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 import httpx, json, re, pdfplumber, base64, os
@@ -11,6 +12,8 @@ import backend.API.getcandidate as g
 from backend.dataAndModels.config import get_db
 from backend.API.getcandidate import print_candidate
 from backend.dataAndModels.candidates_table import insert_candidates as insert 
+import logging
+
 
 router = APIRouter()
 
@@ -329,6 +332,9 @@ async def upload_cv(
             record[key] = ensure_sentence_end(record[key])
     
     print_candidate(record)
+    
+    logging.debug("upload_cv: incoming candidate record keys: %s", list(record.keys()))
+    logging.debug("upload_cv: sample fields: full_name=%r, email=%r, phone=%r, job_id=%r", record.get("full_name"), record.get("email"), record.get("phone"), record.get("job_id"))
     insert(record,db)  # Insert vào bảng candidates
     # Ghi CSV theo dạng key,value dễ đọc
     with open(CSV_FILE, "a", encoding="utf-8") as f:

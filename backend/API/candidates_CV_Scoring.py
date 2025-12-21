@@ -4,6 +4,7 @@ import os
 from langdetect import detect
 import json
 import concurrent.futures
+import logging
 
 from backend.dataAndModels.config import DATABASE_URL
 
@@ -145,11 +146,24 @@ def tools_and_certificates_score(cv ,jd, max_score):
     }
 
 def sim_score(cv ,jd, max_score):
-    similarity = sim_scoring.relevance_scoring(cv, jd, max_score)
-    return {
-        "total_score": similarity["total_score"],
-        "max_score": similarity["max_score"]
-    }
+    try:
+        similarity = sim_scoring.relevance_scoring(cv, jd, max_score)
+        # Handle cases where relevance_scoring fails and returns None or unexpected type
+        if not similarity or not isinstance(similarity, dict):
+            logging.error("sim_score: invalid similarity result: %r", similarity)
+            return {"total_score": 0, "max_score": max_score}
+
+        total = similarity.get("total_score")
+        maxs = similarity.get("max_score", max_score)
+
+        if total is None:
+            logging.error("sim_score: similarity missing 'total_score': %r", similarity)
+            total = 0
+
+        return {"total_score": total, "max_score": maxs}
+    except Exception:
+        logging.exception("sim_score: exception while computing similarity")
+        return {"total_score": 0, "max_score": max_score}
     
 def scoring_summary(candidate, jd_full):
 
@@ -178,7 +192,7 @@ def scoring_summary(candidate, jd_full):
         print("Tổng điểm kỹ năng mềm: ", json.dumps(soft, ensure_ascii=False, indent=4), "/ 150đ")
 
         tools = f_tools.result()["total_score"]
-        print("Tổng điểm Công cụu và chứng chỉ: ", json.dumps(tools, ensure_ascii=False, indent=4), "/ 150đ")
+        print("Tổng điểm Công cụ và chứng chỉ: ", json.dumps(tools, ensure_ascii=False, indent=4), "/ 150đ")
 
         sim = f_sim.result()["total_score"]
         print("Tổng điểm Tương đồng AI: ", json.dumps(sim, ensure_ascii=False, indent=4), "/ 150đ")

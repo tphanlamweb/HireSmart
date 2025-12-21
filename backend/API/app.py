@@ -10,6 +10,7 @@ from backend.API.dashboard import router as dashboard
 from backend.API.Email_send_respon.render_mail import router as email_renderer
 from backend.API.Email_send_respon.send_mail import router as email_sender
 from backend.API.Email_send_respon.verify_mail import router as email_verifier
+from backend.dataAndModels.test_dtb import router as test
 # Import router từ file Scan_CV (giả sử scan router khai báo: router = APIRouter() trong Scan_CV.py)
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # d:\Cap 1\HireSmart

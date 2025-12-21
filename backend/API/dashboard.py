@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, MetaData, Table, select, update
 from sqlalchemy.orm import sessionmaker, Session
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.encoders import jsonable_encoder
 from pathlib import Path
 from typing import List
 from pydantic import BaseModel
@@ -248,7 +249,8 @@ def get_candidates_api():
                 row_dict["application_status"] = "suitable"
             data.append(row_dict)
         
-        return JSONResponse(content={"candidates": data})
+        # Ensure DB-native types (Decimal, UUID, etc.) are converted to JSON-serializable types
+        return JSONResponse(content=jsonable_encoder({"candidates": data}))
     except Exception as e:
         print(f"[ERROR] get_candidates_api: {e}")
         raise HTTPException(status_code=500, detail=str(e))

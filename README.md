@@ -61,3 +61,74 @@ end note
 
 
 @enduml
+```
+HireSmart
+├─ README.md
+├─ backend
+│  ├─ API
+│  │  ├─ Email_send_respon
+│  │  │  ├─ __init__.py
+│  │  │  ├─ create_token.py
+│  │  │  ├─ render_mail.py
+│  │  │  ├─ send_mail.py
+│  │  │  └─ verify_mail.py
+│  │  ├─ Scan_CV.py
+│  │  ├─ __init__.py
+│  │  ├─ app.py
+│  │  ├─ candidates_CV_Scoring.py
+│  │  ├─ dashboard.py
+│  │  ├─ getcandidate.py
+│  │  ├─ scoring
+│  │  │  ├─ __init__.py
+│  │  │  ├─ education_scoring.py
+│  │  │  ├─ experience_scoring.py
+│  │  │  ├─ similarity_scoring.py
+│  │  │  ├─ soft_skills_scoring.py
+│  │  │  ├─ technical_skill_scoring.py
+│  │  │  └─ tools_and_certificates_scoring.py
+│  │  └─ test_parallel_scoring.py
+│  ├─ __init__.py
+│  ├─ dataAndModels
+│  │  ├─ __init__.py
+│  │  ├─ candidates_table.py
+│  │  ├─ config.py
+│  │  ├─ database_controler.py
+│  │  ├─ model.py
+│  │  └─ test_dtb.py
+│  └─ results
+│     ├─ candidate_with_token.csv
+│     └─ demo_data.csv
+├─ command.txt
+├─ demo.html
+├─ frontend
+│  ├─ .DS_Store
+│  ├─ Styles
+│  │  ├─ Create_job.css
+│  │  ├─ Create_job.js
+│  │  ├─ hr_cv.css
+│  │  ├─ hrjob.js
+│  │  ├─ login.css
+│  │  ├─ profile.css
+│  │  ├─ recruitment.css
+│  │  ├─ recruitment.js
+│  │  ├─ style copy.css
+│  │  └─ style.css
+│  ├─ html
+│  │  ├─ Create_job.html
+│  │  ├─ Home.html
+│  │  ├─ Job_list.html
+│  │  ├─ Login.html
+│  │  ├─ Recruitment.html
+│  │  ├─ bulk_email.html
+│  │  ├─ dashboard.html
+│  │  ├─ profile copy.html
+│  │  └─ profile.html
+│  ├─ templates
+│  │  ├─ image.png
+│  │  ├─ logo-2.png
+│  │  ├─ logo_Google.png
+│  │  ├─ mail.png
+│  │  ├─ password.png
+│  │  └─ picture.png
+
+```
