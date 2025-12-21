@@ -32,22 +32,46 @@
         }
 
         header h1 {
-            font-size: 24px;
+            font-size: 28px;
             margin: 0;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .section {
             background: white;
             border-radius: 16px;
-            padding: 20px 24px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            padding: 24px 28px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 30px rgba(15, 23, 42, 0.08);
             margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08), 0 15px 40px rgba(15, 23, 42, 0.12);
         }
 
         .section h2 {
             margin-top: 0;
-            font-size: 18px;
-            margin-bottom: 12px;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 2px;
         }
 
         .chip-list {
@@ -67,19 +91,29 @@
         label {
             display: block;
             font-weight: 600;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            color: #334155;
+            font-size: 14px;
         }
 
         select,
         input,
         textarea {
-            width: 100%;
-            border: 1px solid #d7dce5;
+            width: 95%;
+            border: 2px solid #e2e8f0;
             border-radius: 10px;
-            padding: 12px 14px;
+            padding: 12px 16px;
             font-size: 15px;
             font-family: inherit;
-            transition: border 0.2s, box-shadow 0.2s;
+            transition: all 0.2s ease;
+            background: #ffffff;
+            color: #1e293b;
+        }
+
+        select:hover,
+        input:hover,
+        textarea:hover {
+            border-color: #cbd5e1;
         }
 
         select:focus,
@@ -87,7 +121,8 @@
         textarea:focus {
             outline: none;
             border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            background: #f8fafc;
         }
 
         textarea {
@@ -120,7 +155,17 @@
         button.primary {
             background: linear-gradient(135deg, #2563eb, #3b82f6);
             color: white;
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            border: none;
+        }
+
+        button.primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        button.primary:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         button.secondary {
@@ -136,13 +181,92 @@
         .preview-card {
             border: 1px solid #e2e8f0;
             border-radius: 16px;
-            padding: 16px 20px;
+            padding: 0;
             background: #fff;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
         }
 
-        .preview-card h4 {
-            margin: 0 0 6px;
+        .preview-card-inner {
+            padding: 0;
+        }
+
+        .preview-header {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 18px 24px;
+            border-bottom: 2px solid #e2e8f0;
+            gap: 12px;
+        }
+
+        .preview-sender,
+        .preview-recipient {
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-sender:last-child,
+        .preview-recipient:last-child {
+            margin-bottom: 0;
+        }
+
+        .preview-sender strong,
+        .preview-recipient strong {
+            color: #64748b;
+            font-weight: 600;
+            min-width: 45px;
+        }
+
+        .preview-sender span,
+        .preview-recipient span {
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .preview-subject {
+            padding: 16px 20px;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 15px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .preview-subject strong {
+            color: #64748b;
+            margin-right: 8px;
+        }
+
+        .email-body-wrapper {
+            background: #0f172a;
+            padding: 32px;
+            min-height: 200px;
+            position: relative;
+        }
+
+        .email-body-container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .preview-footer {
+            background: #f8fafc;
+            padding: 12px 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         .preview-card pre {
@@ -152,6 +276,7 @@
             padding: 12px;
             border-radius: 10px;
             font-size: 14px;
+            margin: 0;
         }
 
         .hidden {
@@ -165,14 +290,233 @@
             border-radius: 10px;
             font-size: 14px;
         }
+
+        .field-group {
+            transition: opacity 0.3s ease;
+        }
+
+        .field-group.hidden {
+            display: none;
+        }
+
+        .email-body-wrapper {
+            background: #0f172a;
+        }
+
+        .email-preview-html,
+        .email-preview-text {
+            color: #ffffff !important; /* bắt buộc trắng */
+            font-size: 15px;
+            line-height: 1.75;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            letter-spacing: 0.01em;
+        }
+
+        /* Ghi đè mọi màu nội bộ (kể cả inline) trong preview email */
+        .email-preview-html *,
+        .email-preview-text * {
+            color: #ffffff !important;
+        }
+
+        /* Đảm bảo paragraph trắng mặc cho inline style */
+        .email-preview-html p,
+        .email-preview-text p {
+            margin: 0 0 18px;
+            color: #ffffff !important;
+            text-align: left;
+        }
+
+        /* Nếu muốn link cũng trắng — giữ comment nếu muốn link màu khác */
+        .email-preview-html a,
+        .email-preview-text a {
+            color: #ffffff !important;
+            text-decoration: none;
+            border-bottom: none !important;
+        }
+        
+        /* Giữ strong/heading đậm và trắng */
+        .email-preview-html strong,
+        .email-preview-text strong,
+        .email-preview-html h1,
+        .email-preview-html h2,
+        .email-preview-html h3 {
+            color: #ffffff !important;
+            font-weight: 800;
+        }
+
+        .email-preview-html ul,
+        .email-preview-html ol {
+            margin: 16px 0;
+            padding-left: 28px;
+            color: #e2e8f0;
+        }
+
+        .email-preview-html li {
+            margin: 10px 0;
+            color: #e2e8f0;
+            line-height: 1.75;
+        }
+
+        .email-preview-html a,
+        .email-preview-text a {
+            color: #60a5fa;
+            text-decoration: none;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.4);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .email-preview-html a:hover,
+        .email-preview-text a:hover {
+            color: #93c5fd;
+            border-bottom-color: #93c5fd;
+        }
+
+        .email-preview-html img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: block;
+        }
+
+        .email-preview-html pre,
+        .email-preview-html code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 14px 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Styling cho button trong email */
+        .email-preview-html a[style*="button"],
+        .email-preview-html .button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 20px 0;
+            border: none;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .email-preview-html a[style*="button"]:hover,
+        .email-preview-html .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.5);
+            background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
+        }
+
+        /* Styling cho Interview Details */
+        .email-preview-html .interview-details,
+        .email-preview-text .interview-details {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #60a5fa;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        /* Styling cho custom message (Ghi chú thêm) */
+        .email-preview-html p strong:contains("Ghi chú thêm"),
+        .email-preview-html p:has(strong:contains("Ghi chú thêm")) {
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 3px solid #fbbf24;
+            padding: 12px 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+            display: block;
+        }
+
+        .interview-details {
+            background: rgba(59, 130, 246, 0.08) !important;
+            border-left: 4px solid #60a5fa !important;
+            padding: 16px 20px !important;
+            margin: 20px 0 !important;
+            border-radius: 6px !important;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .interview-details:hover {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        /* Thêm styling cho custom message section */
+        .email-preview-html .custom-note,
+        .email-preview-text .custom-note {
+            background: rgba(251, 191, 36, 0.12) !important;
+            border-left: 4px solid #fbbf24 !important;
+            padding: 14px 18px !important;
+            margin: 24px 0 !important;
+            border-radius: 6px !important;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.1);
+        }
+
+        .email-preview-html .custom-note strong,
+        .email-preview-text .custom-note strong {
+            color: #fcd34d !important;
+            font-weight: 600;
+        }
+
+        /* Áp dụng cho các icon và text */
+        .interview-details span,
+        .interview-details p {
+            color: #000000 !important;
+        }
+
+        @media (max-width: 768px) {
+            .page {
+                padding: 16px 12px 40px;
+            }
+
+            .section {
+                padding: 16px 16px;
+                border-radius: 12px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            .actions {
+                flex-direction: column-reverse;
+            }
+
+            .actions button {
+                width: 100%;
+            }
+
+            .email-body-wrapper {
+                padding: 16px;
+                min-height: auto;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="page">
         <header>
-            <h1>📧 Gửi email hàng loạt</h1>
-            <button class="secondary" onclick="window.close()">Đóng</button>
+            <h1> Gửi email hàng loạt</h1>
+            <!-- <button class="secondary" onclick="window.close()">Đóng</button> -->
         </header>
 
         <section class="section">
@@ -196,7 +540,7 @@
             <select id="templateSelect">
                 <option value="">-- Chọn mẫu email --</option>
                 {% for tpl in email_templates %}
-                <option value="{{ tpl.id }}">
+                <option value="{{ tpl.id }}" data-template-type="{{ tpl.template_type }}">
                     {{ tpl.template_name }} ({{ tpl.template_type }})
                 </option>
                 {% endfor %}
@@ -208,31 +552,141 @@
 
         <section class="section">
             <h2>Thông tin bổ sung</h2>
-            <div class="grid">
-                <div>
-                    <label for="jobTitle">Vị trí / Chức danh</label>
-                    <input id="jobTitle" placeholder="VD: Backend Engineer">
-                </div>
-                <div>
-                    <label for="companyName">Tên công ty</label>
-                    <input id="companyName" placeholder="VD: HireSmart">
-                </div>
-                <div>
-                    <label for="interviewDate">Ngày phỏng vấn</label>
-                    <input id="interviewDate" type="date">
-                </div>
-                <div>
-                    <label for="interviewTime">Giờ phỏng vấn</label>
-                    <input id="interviewTime" type="time">
-                </div>
-                <div>
-                    <label for="interviewLocation">Địa điểm</label>
-                    <input id="interviewLocation" placeholder="Trụ sở chính / Google Meet...">
+            <p id="fieldDescription" style="color: #64748b; font-size: 14px; margin-bottom: 16px;">
+                Vui lòng chọn mẫu email để hiển thị các trường phù hợp.
+            </p>
+            
+            <!-- Trường chung cho tất cả các loại template -->
+            <div class="field-group" data-field-group="common">
+                <div class="grid">
+                    <div>
+                        <label for="jobTitle">Vị trí / Chức danh</label>
+                        <input id="jobTitle" placeholder="VD: Backend Engineer">
+                    </div>
+                    <!-- <div>
+                        <label for="companyName">Tên công ty</label>
+                        <input id="companyName" placeholder="VD: HireSmart">
+                    </div> -->
                 </div>
             </div>
-            <div style="margin-top:16px;">
-                <label for="customMessage">Ghi chú thêm</label>
-                <textarea id="customMessage" rows="3" placeholder="Thông tin dành riêng cho template này..."></textarea>
+
+            <!-- Trường cho interview_invitation -->
+            <div class="field-group hidden" data-field-group="interview_invitation">
+                <div class="grid" style="margin-top: 20px;">
+                    <div>
+                        <label for="interviewDate">
+                            <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                📅 Ngày phỏng vấn
+                                <span style="color: #ef4444; font-weight: normal;">*</span>
+                            </span>
+                        </label>
+                        <input id="interviewDate" type="date" required>
+                    </div>
+                    <div>
+                        <label for="interviewTime">
+                            <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                🕐 Giờ phỏng vấn
+                                <span style="color: #ef4444; font-weight: normal;">*</span>
+                            </span>
+                        </label>
+                        <input id="interviewTime" type="time" required>
+                    </div>
+                    <div>
+                        <label for="interviewLocation">
+                            <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                📍 Địa điểm
+                                <span style="color: #ef4444; font-weight: normal;">*</span>
+                            </span>
+                        </label>
+                        <input id="interviewLocation" placeholder="VD: Trụ sở chính / Google Meet / Zoom..." required>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 14px 16px; background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 10px; border: 1px solid #bfdbfe;">
+                    <p style="margin: 0; font-size: 13px; color: #1e40af; line-height: 1.6;">
+                        <strong>💡 Lưu ý:</strong> Phần "Ghi chú thêm" sẽ được tự động thêm vào email. Các trường "Format" và "Interviewer" đã được loại bỏ khỏi template.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Trường cho rejection -->
+            <div class="field-group hidden" data-field-group="rejection">
+                <div style="margin-top: 16px;">
+                    <label for="rejectionReason">Lý do từ chối</label>
+                    <textarea id="rejectionReason" rows="2" placeholder="VD: Không phù hợp với yêu cầu vị trí..."></textarea>
+                </div>
+                <div style="margin-top: 16px;">
+                    <label for="feedback">Phản hồi cho ứng viên</label>
+                    <textarea id="feedback" rows="3" placeholder="Nhận xét hoặc gợi ý cho ứng viên..."></textarea>
+                </div>
+            </div>
+
+            <!-- Trường cho offer -->
+            <div class="field-group hidden" data-field-group="offer">
+                <div class="grid" style="margin-top: 16px;">
+                    <div>
+                        <label for="startDate">Ngày bắt đầu làm việc</label>
+                        <input id="startDate" type="date">
+                    </div>
+                    <div>
+                        <label for="salary">Mức lương</label>
+                        <input id="salary" placeholder="VD: 15,000,000 VNĐ">
+                    </div>
+                    <div>
+                        <label for="responseDeadline">Hạn chấp nhận</label>
+                        <input id="responseDeadline" type="date">
+                    </div>
+                </div>
+                <div style="margin-top: 16px;">
+                    <label for="offerDetails">Chi tiết đề nghị</label>
+                    <textarea id="offerDetails" rows="3" placeholder="Mô tả chi tiết về đề nghị công việc..."></textarea>
+                </div>
+            </div>
+
+            <!-- Trường cho acceptance -->
+            <div class="field-group hidden" data-field-group="acceptance">
+                <div class="grid" style="margin-top: 16px;">
+                    <div>
+                        <label for="acceptanceStartDate">Ngày bắt đầu</label>
+                        <input id="acceptanceStartDate" type="date">
+                    </div>
+                    <div>
+                        <label for="contactPerson">Người liên hệ</label>
+                        <input id="contactPerson" placeholder="VD: Nguyễn Văn A - HR Manager">
+                    </div>
+                </div>
+                <div style="margin-top: 16px;">
+                    <label for="onboardingInfo">Thông tin onboarding</label>
+                    <textarea id="onboardingInfo" rows="3" placeholder="Hướng dẫn về quy trình onboarding..."></textarea>
+                </div>
+            </div>
+
+            <!-- Trường cho welcome -->
+            <div class="field-group hidden" data-field-group="welcome">
+                <div class="grid" style="margin-top: 16px;">
+                    <div>
+                        <label for="welcomeStartDate">Ngày bắt đầu làm việc</label>
+                        <input id="welcomeStartDate" type="date">
+                    </div>
+                    <div>
+                        <label for="workLocation">Địa điểm làm việc</label>
+                        <input id="workLocation" placeholder="VD: Tầng 5, 123 Nguyễn Huệ, Q1, HCM">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trường chung: Ghi chú thêm -->
+            <div class="field-group" data-field-group="common">
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                    <label for="customMessage">
+                        <span style="display: inline-flex; align-items: center; gap: 4px;">
+                            📝 Ghi chú thêm
+                        </span>
+                    </label>
+                    <textarea id="customMessage" rows="4" placeholder="VD: Ứng viên cần mang theo laptop, CV bản cứng, giấy tờ tùy thân...&#10;&#10;Hoặc bất kỳ thông tin bổ sung nào khác cần truyền đạt đến ứng viên."></textarea>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #64748b;">
+                        Ghi chú này sẽ được tự động thêm vào email để ứng viên có thêm thông tin cần thiết.
+                    </p>
+                </div>
             </div>
         </section>
 
@@ -244,7 +698,10 @@
         </div>
 
         <section class="section hidden" id="previewSection">
-            <h2>Kết quả render</h2>
+            <h2> Kết quả render email</h2>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
+                Xem trước nội dung email trước khi gửi. Email sẽ được hiển thị chính xác như khi ứng viên nhận được.
+            </p>
             <div id="previewList"></div>
             <p id="skipInfo" class="warning hidden"></p>
         </section>
@@ -267,6 +724,156 @@
         // Lưu payload/preview để dùng khi gửi
         let lastPayload = null;
         let lastRendered = null;
+        let currentTemplateType = '';
+
+        // Mapping template type với các trường tương ứng
+        const templateFieldsMap = {
+            'interview_invitation': ['job_title', 'company_name', 'interview_date', 'interview_time', 'interview_location', 'custom_message'],
+            'rejection': ['job_title', 'company_name', 'rejection_reason', 'feedback', 'custom_message'],
+            'offer': ['job_title', 'company_name', 'start_date', 'salary', 'offer_details', 'response_deadline', 'custom_message'],
+            'acceptance': ['job_title', 'company_name', 'start_date', 'onboarding_info', 'contact_person', 'custom_message'],
+            'welcome': ['job_title', 'company_name', 'start_date', 'work_location', 'custom_message'],
+        };
+
+        // Mapping field IDs với context keys (theo template type)
+        const fieldMapping = {
+            'interview_invitation': {
+                'interviewDate': 'interview_date',
+                'interviewTime': 'interview_time',
+                'interviewLocation': 'interview_location',
+            },
+            'rejection': {
+                'rejectionReason': 'rejection_reason',
+                'feedback': 'feedback',
+            },
+            'offer': {
+                'startDate': 'start_date',
+                'salary': 'salary',
+                'offerDetails': 'offer_details',
+                'responseDeadline': 'response_deadline',
+            },
+            'acceptance': {
+                'acceptanceStartDate': 'start_date',
+                'onboardingInfo': 'onboarding_info',
+                'contactPerson': 'contact_person',
+            },
+            'welcome': {
+                'welcomeStartDate': 'start_date',
+                'workLocation': 'work_location',
+            },
+        };
+
+        // Hiển thị/ẩn các trường dựa trên template type
+        function updateFieldsForTemplate(templateType) {
+            currentTemplateType = templateType || '';
+            
+            // Ẩn tất cả các field groups
+            document.querySelectorAll('.field-group[data-field-group]').forEach(group => {
+                if (group.dataset.fieldGroup === 'common') {
+                    group.classList.remove('hidden');
+                } else {
+                    group.classList.add('hidden');
+                }
+            });
+
+            // Hiển thị field group tương ứng
+            if (templateType) {
+                const targetGroup = document.querySelector(`.field-group[data-field-group="${templateType}"]`);
+                if (targetGroup) {
+                    targetGroup.classList.remove('hidden');
+                }
+            }
+
+            // Cập nhật mô tả
+            const descEl = document.getElementById('fieldDescription');
+            if (templateType && templateFieldsMap[templateType]) {
+                const fieldNames = {
+                    'interview_invitation': 'Thư mời phỏng vấn',
+                    'rejection': 'Thư từ chối',
+                    'offer': 'Thư đề nghị công việc',
+                    'acceptance': 'Thư chấp nhận',
+                    'welcome': 'Thư chào mừng',
+                };
+                descEl.textContent = `Đang sử dụng template: ${fieldNames[templateType] || templateType}. Vui lòng điền thông tin phù hợp.`;
+                descEl.style.color = '#2563eb';
+            } else if (templateType) {
+                descEl.textContent = `Template type: ${templateType}. Sử dụng các trường chung.`;
+                descEl.style.color = '#64748b';
+            } else {
+                descEl.textContent = 'Vui lòng chọn mẫu email để hiển thị các trường phù hợp.';
+                descEl.style.color = '#64748b';
+            }
+        }
+
+        // Thu thập dữ liệu từ phần "Thông tin bổ sung" (chỉ lấy các trường phù hợp)
+        const collectExtraContext = () => {
+            const read = (id) => {
+                const el = document.getElementById(id);
+                return el ? (el.value || '').trim() : '';
+            };
+
+            const context = {};
+
+            // Luôn có các trường chung - luôn gửi kể cả rỗng để backend xử lý default
+            context.job_title = read('jobTitle') || '';
+            context.company_name = read('companyName') || '';
+            context.custom_message = read('customMessage') || '';
+
+            // Lấy các trường theo template type - gửi tất cả kể cả rỗng
+            if (currentTemplateType && fieldMapping[currentTemplateType]) {
+                const mapping = fieldMapping[currentTemplateType];
+                
+                // Xử lý từng field theo mapping - gửi cả giá trị rỗng
+                for (const [fieldId, contextKey] of Object.entries(mapping)) {
+                    const value = read(fieldId);
+                    context[contextKey] = value || '';
+                }
+            } else if (currentTemplateType) {
+                // Template type không có mapping riêng, thử đọc tất cả các field có thể có
+                const allPossibleFields = {
+                    'interviewDate': 'interview_date',
+                    'interviewTime': 'interview_time',
+                    'interviewLocation': 'interview_location',
+                    'rejectionReason': 'rejection_reason',
+                    'feedback': 'feedback',
+                    'startDate': 'start_date',
+                    'acceptanceStartDate': 'start_date',
+                    'welcomeStartDate': 'start_date',
+                    'salary': 'salary',
+                    'offerDetails': 'offer_details',
+                    'responseDeadline': 'response_deadline',
+                    'onboardingInfo': 'onboarding_info',
+                    'contactPerson': 'contact_person',
+                    'workLocation': 'work_location',
+                };
+                
+                for (const [fieldId, contextKey] of Object.entries(allPossibleFields)) {
+                    const value = read(fieldId);
+                    if (value) {
+                        context[contextKey] = value;
+                    }
+                }
+            }
+
+            // KHÔNG loại bỏ các key có giá trị rỗng - backend sẽ xử lý default values
+            // Chỉ loại bỏ các trường không thuộc về template type hiện tại
+            return context;
+        };
+
+        // Hàm escape HTML để tránh XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Lắng nghe sự kiện thay đổi template
+        document.getElementById('templateSelect').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const templateType = selectedOption ? selectedOption.dataset.templateType || '' : '';
+            updateFieldsForTemplate(templateType);
+        });
 
         async function renderEmails() {
             const templateId = document.getElementById('templateSelect').value;
@@ -283,17 +890,11 @@
             previewBtn.textContent = 'Đang tạo nội dung...';
             sendBtn.disabled = true;
 
+            const extraContext = collectExtraContext();
             const payload = {
                 template_id: parseInt(templateId, 10),
                 candidate_ids: candidateIds,
-                extra_context: {
-                    job_title: document.getElementById('jobTitle').value,
-                    company_name: document.getElementById('companyName').value,
-                    interview_date: document.getElementById('interviewDate').value,
-                    interview_time: document.getElementById('interviewTime').value,
-                    interview_location: document.getElementById('interviewLocation').value,
-                    custom_message: document.getElementById('customMessage').value,
-                }
+                extra_context: extraContext
             };
 
             try {
@@ -322,11 +923,118 @@
                         const card = document.createElement('div');
                         card.className = 'preview-card';
                         card.dataset.candidateId = item.candidate_id || '';
+                        
+                        // Kiểm tra xem body có phải HTML không
+                        const isHTML = item.body && /<[a-z][\s\S]*>/i.test(item.body);
+                        
+                        // Xử lý body để hiển thị giống email thực tế và chuyên nghiệp
+                        let bodyContent;
+                        if (isHTML) {
+                            // Nếu là HTML, cải thiện styling và format
+                            let processedBody = item.body;
+                            
+                            // Đảm bảo tất cả text có màu phù hợp với dark background
+                            processedBody = processedBody.replace(/<p([^>]*)>/g, '<p$1 style="margin: 0 0 18px; color: #e2e8f0; line-height: 1.75;">');
+                            processedBody = processedBody.replace(/<strong([^>]*)>/g, '<strong$1 style="color: #ffffff; font-weight: 600;">');
+                            processedBody = processedBody.replace(/<b([^>]*)>/g, '<b$1 style="color: #ffffff; font-weight: 600;">');
+                            
+                            // ❌ XÓA phần highlight Interview Details
+                            // processedBody = processedBody.replace(
+                            //     /(Interview Details:)([^<]*)/gi,
+                            //     '<div class="interview-details"...
+                            // );
+                            
+                            // ✅ Format "Ghi chú thêm" nếu có (vẫn giữ lại)
+                            processedBody = processedBody.replace(
+                                /(Ghi chú thêm|Additional notes):\s*([^<]+)/gi,
+                                '<div style="background: rgba(251, 191, 36, 0.15); border-left: 3px solid #fbbf24; padding: 14px 18px; margin: 24px 0; border-radius: 4px;"><strong style="color: #fbbf24; font-size: 15px;">$1:</strong> <span style="color: #e2e8f0; display: inline-block; margin-top: 4px;">$2</span></div>'
+                            );
+                            
+                            // Đảm bảo links có màu đúng
+                            processedBody = processedBody.replace(/<a([^>]*)>/g, function(match, attrs) {
+                                if (!attrs.includes('style')) {
+                                    return '<a' + attrs + ' style="color: #60a5fa; text-decoration: none; border-bottom: 1px solid rgba(96, 165, 250, 0.3);">';
+                                }
+                                return match;
+                            });
+                            
+                            bodyContent = `<div class="email-body-container"><div class="email-preview-html">${processedBody}</div></div>`;
+                        } else {
+                            // Nếu là plain text, format đẹp với paragraphs
+                            let formattedBody = escapeHtml(item.body || '(trống)');
+                            
+                            // Format Interview Details section - tìm và format phần này
+                            formattedBody = formattedBody.replace(
+                                /(Interview Details:)\s*\n?\s*(.+?)(?=Please confirm|Best regards|Xác nhận|$)/gis,
+                                function(match, title, details) {
+                                    // Format các dòng trong Interview Details
+                                    const formattedDetails = details
+                                        .split('\n')
+                                        .filter(line => line.trim())
+                                        .map(line => {
+                                            line = line.trim();
+                                            if (line.startsWith('- ')) {
+                                                return '<div style="margin: 8px 0; padding-left: 8px;">' + line.replace(/^-\s*/, '') + '</div>';
+                                            }
+                                            return '<div style="margin: 8px 0;">' + line + '</div>';
+                                        })
+                                        .join('');
+                                    
+                                    return `<div class="interview-details" style="background: rgba(255, 255, 255, 0.05); border-left: 3px solid #60a5fa; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><strong style="color: #ffffff; display: block; margin-bottom: 12px; font-size: 16px;">${title}</strong>${formattedDetails}</div>`;
+                                }
+                            );
+                            
+                            // Format "Ghi chú thêm" section - tìm và highlight
+                            formattedBody = formattedBody.replace(
+                                /(Ghi chú thêm|Additional notes):\s*([^\n<]+)/gi,
+                                '<div style="background: rgba(251, 191, 36, 0.15); border-left: 3px solid #fbbf24; padding: 14px 18px; margin: 24px 0; border-radius: 4px;"><strong style="color: #fbbf24; font-size: 15px;">$1:</strong> <span style="color: #e2e8f0; display: inline-block; margin-top: 4px;">$2</span></div>'
+                            );
+                            
+                            // Format các phần còn lại với paragraphs
+                            // Tách thành các đoạn dựa trên double line breaks
+                            let paragraphs = formattedBody.split(/\n\n+/);
+                            paragraphs = paragraphs.map(para => {
+                                para = para.trim();
+                                if (!para) return '';
+                                // Nếu đã có HTML tags, giữ nguyên
+                                if (para.includes('<div') || para.includes('<strong')) {
+                                    return para;
+                                }
+                                // Convert single line breaks thành <br>
+                                para = para.replace(/\n/g, '<br>');
+                                return '<p style="margin: 0 0 18px; color: #e2e8f0; line-height: 1.75;">' + para + '</p>';
+                            }).filter(p => p);
+                            
+                            formattedBody = paragraphs.join('');
+                            
+                            bodyContent = `<div class="email-body-container"><div class="email-preview-text">${formattedBody}</div></div>`;
+                        }
+                        
                         card.innerHTML = `
-                            <h4>${item.candidate_name || '(No name)'} ${item.email ? `(${item.email})` : ''}</h4>
-                            <p><strong>Subject:</strong> ${item.subject || '(trống)'}</p>
-                            <pre>${item.body || '(trống)'}</pre>
-                            <p class="send-status" style="color:#6b7280">Trạng thái: chưa gửi</p>
+                            <div class="preview-card-inner">
+                                <div class="preview-header">
+                                    <div class="preview-sender">
+                                        <strong>From:</strong> <span>HireSmart HR Department</span>
+                                    </div>
+                                    <div class="preview-recipient">
+                                        <strong>To:</strong> <span>${escapeHtml(item.candidate_name || '(No name)')} &lt;${escapeHtml(item.email || 'N/A')}&gt;</span>
+                                    </div>
+                                </div>
+                                <div class="preview-subject">
+                                    <strong>Subject:</strong> ${escapeHtml(item.subject || '(trống)')}
+                                </div>
+                                <div class="email-body-wrapper">
+                                    ${bodyContent}
+                                </div>
+                                <div class="preview-footer">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <p class="send-status" style="margin: 0;">
+                                            <span class="status-badge">Chưa gửi</span>
+                                        </p>
+                                        <span style="font-size: 12px; color: #64748b;">ID: ${item.candidate_id || 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </div>
                         `;
                         previewList.appendChild(card);
                     });

@@ -5,6 +5,7 @@ Script khởi động FastAPI server với uvicorn.
 """
 import sys
 from pathlib import Path
+import asyncio
 
 # Đảm bảo thư mục gốc của project nằm trong PYTHONPATH
 BASE_DIR = Path(__file__).resolve().parent
@@ -13,15 +14,25 @@ if str(BASE_DIR) not in sys.path:
 
 if __name__ == "__main__":
     import uvicorn
-    
-    # Chạy server
-    uvicorn.run(
-        "backend.API.app:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True,
-        reload_dirs=["backend", "frontend"] if Path("backend").exists() else ["backend"]
-    )
+
+    try:
+        # Chạy server
+        uvicorn.run(
+            "backend.API.app:app",
+            host="127.0.0.1",
+            port=8000,
+            reload=True,
+            reload_dirs=["backend", "frontend"] if Path("backend").exists() else ["backend"]
+        )
+    except KeyboardInterrupt:
+        print("Server stopped by user (KeyboardInterrupt).")
+        sys.exit(0)
+    except asyncio.CancelledError:
+        print("Server shutdown (CancelledError).")
+        sys.exit(0)
+    except Exception as e:
+        print("Server error:", repr(e))
+        raise
 
 
 

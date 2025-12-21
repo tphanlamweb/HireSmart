@@ -1,6 +1,6 @@
 # app.py
 from pathlib import Path
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -28,12 +28,26 @@ app.add_middleware(
 )
 
 # Mount thư mục frontend để truy cập file tĩnh (ví dụ: /frontend/index.html hoặc /frontend/Styles/style.css)
-
-
-# Nếu bạn có thư mục static bên trong frontend (ví dụ frontend/static), có thể mount thêm:
 STATIC_DIR = FRONTEND_DIR / "static"
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+# Serve frontend/html hoặc frontend/static tùy có thư mục nào
+if FRONTEND_DIR.exists():
+    # ưu tiên frontend/static nếu tồn tại, nếu không dùng frontend/html
+    static_dir = FRONTEND_DIR / "static" if (FRONTEND_DIR / "static").exists() else FRONTEND_DIR / "html" if (FRONTEND_DIR / "html").exists() else FRONTEND_DIR
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+    # mount templates nếu có thư mục templates bên trong html
+    templates_dir = FRONTEND_DIR / "html" / "templates"
+    if templates_dir.exists():
+        app.mount("/templates", StaticFiles(directory=str(templates_dir)), name="templates")
+
+# favicon route (tránh 404)
+favicon_path = static_dir / "favicon.ico"
+@app.get("/favicon.ico")
+async def favicon():
+    if favicon_path.exists():
+        return FileResponse(str(favicon_path))
+    raise HTTPException(status_code=404, detail="favicon not found")
 
 # Include router chứa /upload_cv và các route khác
 app.include_router(scan_cv)

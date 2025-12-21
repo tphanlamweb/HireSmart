@@ -7,6 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from pathlib import Path
 from typing import List
 from pydantic import BaseModel
+from decimal import Decimal
 from backend.dataAndModels.config import DATABASE_URL
 
 from backend.API.Email_send_respon.create_token import (
@@ -237,16 +238,36 @@ def get_candidates_api():
         
         data = []
         for row in result:
+            # Lấy giá trị thô từ row
+            raw_id = row.id if hasattr(row, "id") else row[0]
+            raw_full_name = row.full_name if hasattr(row, "full_name") else row[1]
+            raw_overall_score = (
+                row.overall_cv_score
+                if hasattr(row, "overall_cv_score")
+                else row[2]
+            )
+            raw_phone = row.phone if hasattr(row, "phone") else row[3]
+
+            # Chuyển Decimal -> float để JSON serialize được
+            if isinstance(raw_overall_score, Decimal):
+                overall_score = float(raw_overall_score)
+            else:
+                overall_score = raw_overall_score
+
             row_dict = {
                 "id": row.id if hasattr(row, 'id') else row[0],
                 "full_name": row.full_name if hasattr(row, 'full_name') else row[1],
                 "overall_cv_score": row.overall_cv_score if hasattr(row, 'overall_cv_score') else (row[2] if len(row) > 2 else 0),
                 "phone": row.phone if hasattr(row, 'phone') else (row[3] if len(row) > 3 else "N/A"),
             }
+
             if "application_status" in datatable.c:
-                row_dict["application_status"] = getattr(row, 'application_status', None) or "suitable"
+                status = getattr(row, "application_status", None) or "suitable"
             else:
-                row_dict["application_status"] = "suitable"
+                status = "suitable"
+
+            row_dict["application_status"] = status
+
             data.append(row_dict)
         
         # Ensure DB-native types (Decimal, UUID, etc.) are converted to JSON-serializable types

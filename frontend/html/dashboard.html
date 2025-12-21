@@ -106,6 +106,13 @@
             margin-bottom: 30px;
         }
 
+        .logo-section .logo img {
+            width: 140px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
         .profile {
             display: flex;
             align-items: center;
@@ -759,25 +766,47 @@
                 grid-template-columns: 1fr;
             }
         }
+        tbody tr {
+            border-bottom : 1px solid rgb(60, 59, 59);
+        }
+        /* Màu nền cho hàng dựa trên điểm số CV */
+        tbody tr.row-high { background-color: #f0fdf4; }    /* Xanh lá nhạt */
+        tbody tr.row-medium { background-color: #fffbeb; }  /* Vàng nhạt */
+        tbody tr.row-low { background-color: #fef2f2; }     /* Đỏ nhạt */
+
+        /* Giữ màu nền khi di chuột qua */
+        tbody tr.row-high:hover { background-color: #dcfce7; }
+        tbody tr.row-medium:hover { background-color: #fef3c7; }
+        tbody tr.row-low:hover { background-color: #fee2e2; }
     </style>
 </head>
 
 <body>
     <header class="header">
         <nav>
-            <div class="logo-container"><img src="../templates/logo-2.png" alt="Logo"><span>HireSmart</span></div>
+            <div class="logo-container">
+                <img src="../templates/logo-2.png" alt="Logo" onerror="this.onerror=null;this.src='/frontend/templates/logo-2.png'">
+                <span>HireSmart</span>
+            </div>
             <ul>
-                <li><a href="Home.html">Trang chủ</a></li>
-                <li><a href="Recruitment.html">Jobs</a></li>
-                <li><a href="Create_job.html" class="active">Dashboard HR</a></li>
+                <li>
+                    <a href="Home.html">Trang chủ</a>
+                </li>
+                <li>
+                    <a href="Recruitment.html">Jobs</a>
+                </li>
+                <li>
+                    <a href="Create_job.html" class="active">Dashboard HR</a>
+                </li>
             </ul>
         </nav>
     </header>
     <div class="main-container">
         <div class="sidebar" id="sidebar">
             <div class="logo-section">
-                <div class="logo"><img src="../templates/logo-2.png" alt="Logo"
-                        style="width:140px;height:auto;display:block;margin:0 auto;"></div>
+                <div class="logo">
+                    <img src="../templates/logo-2.png" alt="Logo" onerror="this.onerror=null;this.src='/frontend/templates/logo-2.png'">
+                </div>
                 <div class="profile">
                     <div class="profile-pic"></div>
                     <div class="profile-info">
@@ -797,20 +826,36 @@
         </div>
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <div class="main-content" id="mainContent">
-            <div class="top-bar"><button class="menu-toggle" id="menuToggle">☰</button>
+            <div class="top-bar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
                 <h2>Candidate Management</h2>
             </div>
             <div class="status-buttons">
-                <button class="btn-status all active" data-status="all"><span>📋</span><span>Tất cả</span><span
-                        class="status-badge" id="count-all">0</span></button>
-                <button class="btn-status suitable" data-status="suitable"><span>✅</span><span>Suitable</span><span
-                        class="status-badge" id="count-suitable">0</span></button>
-                <button class="btn-status inviting" data-status="sended_inviting"><span>📧</span><span>Sended
-                        Inviting</span><span class="status-badge" id="count-inviting">0</span></button>
-                <button class="btn-status accepted" data-status="accepted"><span>🎉</span><span>Accepted</span><span
-                        class="status-badge" id="count-accepted">0</span></button>
-                <button class="btn-status rejected" data-status="rejected"><span>❌</span><span>Rejected</span><span
-                        class="status-badge" id="count-rejected">0</span></button>
+                <button class="btn-status all active" data-status="all">
+                    <span>📋</span>
+                    <span>Tất cả</span>
+                    <span class="status-badge" id="count-all">0</span>
+                </button>
+                <button class="btn-status suitable" data-status="suitable">
+                    <span>✅</span>
+                    <span>Suitable</span>
+                    <span class="status-badge" id="count-suitable">0</span>
+                </button>
+                <button class="btn-status inviting" data-status="sended_inviting">
+                    <span>📧</span>
+                    <span>Sended Inviting</span>
+                    <span class="status-badge" id="count-inviting">0</span>
+                </button>
+                <button class="btn-status accepted" data-status="accepted">
+                    <span>🎉</span>
+                    <span>Accepted</span>
+                    <span class="status-badge" id="count-accepted">0</span>
+                </button>
+                <button class="btn-status rejected" data-status="rejected">
+                    <span>❌</span>
+                    <span>Rejected</span>
+                    <span class="status-badge" id="count-rejected">0</span>
+                </button>
             </div>
             <div class="stats-section">
                 <div class="stats-grid">
@@ -833,22 +878,36 @@
                 </div>
                 <div class="filter-section">
                     <div class="filter-header">
-                        <h3>🔍 Bộ lọc & Tìm kiếm</h3><button class="clear-filters" onclick="clearFilters()">Xóa bộ
-                            lọc</button>
+                        <h3>🔍 Bộ lọc & Tìm kiếm</h3>
+                        <button class="clear-filters" onclick="clearFilters()">
+                            Xóa bộ lọc
+                        </button>
                     </div>
                     <div class="filter-grid">
-                        <div class="filter-item"><label>Tìm kiếm theo tên</label><input type="text" id="searchName"
-                                placeholder="Nhập tên ứng viên..."></div>
-                        <div class="filter-item"><label>Điểm CV tối thiểu</label><input type="number" id="minPoints"
-                                placeholder="VD: 70" min="0" max="100"></div>
-                        <div class="filter-item"><label>Số điện thoại</label><input type="text" id="searchPhone"
-                                placeholder="VD: 0901..."></div>
-                        <div class="filter-item"><label>Sắp xếp theo</label><select id="sortBy">
+                        <div class="filter-item">
+                            <label>Tìm kiếm theo tên</label>
+                            <input type="text" id="searchName"
+                                   placeholder="Nhập tên ứng viên...">
+                        </div>
+                        <div class="filter-item">
+                            <label>Điểm CV tối thiểu</label>
+                            <input type="number" id="minPoints"
+                                   placeholder="VD: 70" min="0" max="100">
+                        </div>
+                        <div class="filter-item">
+                            <label>Số điện thoại</label>
+                            <input type="text" id="searchPhone"
+                                   placeholder="VD: 0901...">
+                        </div>
+                        <div class="filter-item">
+                            <label>Sắp xếp theo</label>
+                            <select id="sortBy">
                                 <option value="points-desc">Điểm CV (Cao → Thấp)</option>
                                 <option value="points-asc">Điểm CV (Thấp → Cao)</option>
                                 <option value="name-asc">Tên (A → Z)</option>
                                 <option value="name-desc">Tên (Z → A)</option>
-                            </select></div>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="table-section">
@@ -856,24 +915,26 @@
                         <h2>Danh sách ứng viên</h2>
                         <div>
                             <span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span>
-                            <span>Đã chọn: <span id="selectedCount">0</span></span>
+                            |
+                            Đã chọn:
+                            <span id="selectedCount">0</span>
                         </div>
                     </div>
 
                     <div style="padding: 15px 25px;">
-                        <button class="action-btn-bulk" onclick="reloadCandidatesData()" id="reloadBtn" title="Làm mới dữ liệu">🔄 Làm mới</button>
                         <button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">🔘 Chọn nhiều</button>
                         <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>📧 Gửi email</button>
                         <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>📥 Xuất dữ liệu</button>
-                        <button class="action-btn-bulk" onclick="changeStatusBulk()" id="changeStatusBtn" disabled>🔄 Thay đổi trạng thái</button>
                     </div>
 
                     <div class="table-container">
                         <table id="candidatesTable">
                             <thead>
                                 <tr>
-                                    <th class="checkbox-cell"><input type="checkbox" id="selectAllCheckbox"
-                                            onclick="toggleSelectAllRows(this)"></th>
+                                    <th class="checkbox-cell">
+                                        <input type="checkbox" id="selectAllCheckbox"
+                                               onclick="toggleSelectAllRows(this)">
+                                    </th>
                                     <th>Tên ứng viên</th>
                                     <th>Điểm CV</th>
                                     <th>Số điện thoại</th>
@@ -910,8 +971,11 @@
                         <h3>Không tìm thấy ứng viên</h3>
                         <p>Thử điều chỉnh bộ lọc</p>
                     </div>
-                    <div class="load-more-container"><button class="load-more-btn" id="loadMoreBtn"
-                            onclick="loadMore()">Xem thêm</button>
+                    <div class="load-more-container">
+                        <button class="load-more-btn" id="loadMoreBtn"
+                                onclick="loadMore()">
+                            Xem thêm
+                        </button>
                         <p id="loadMoreInfo" style="margin-top:10px;color:#6b7280;"></p>
                     </div>
                 </div>
@@ -922,8 +986,9 @@
     <div class="modal" id="detailModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>📋 Chi tiết ứng viên</h3><button class="close-modal"
-                    onclick="closeModal('detailModal')">&times;</button>
+                <h3>📋 Chi tiết ứng viên</h3>
+                <button class="close-modal"
+                        onclick="closeModal('detailModal')">&times;</button>
             </div>
             <div class="modal-body" id="detailModalBody"></div>
         </div>
@@ -1036,20 +1101,30 @@
             const displayCount = currentPage * PAGE_SIZE;
             const toShow = filteredCandidates.slice(0, displayCount);
 
-            tbody.innerHTML = toShow.map(c => {
-                const normalizedStatus = normalizeStatus(c.status);
-                return `<tr data-id="${c.id}" data-status="${normalizedStatus}">
-            <td class="checkbox-cell"><input type="checkbox" class="candidate-checkbox" data-candidate-id="${c.id}" onchange="updateSelectionState()"></td>
-            <td class="candidate-name">${c.full_name}</td>
-            <td><span class="cv-points ${c.overall_cv_score >= 85 ? 'high' : c.overall_cv_score >= 70 ? 'medium' : 'low'}">${c.overall_cv_score}</span></td>
-            <td>${c.phone}</td>
-            <td><span class="status-label ${normalizedStatus}">${statusText[normalizedStatus] || c.status}</span></td>
-            <td><div class="action-buttons-cell">
-                <button class="table-icon-btn" onclick="showDetail(${c.id})" title="Chi tiết">📋</button>
-                <button class="table-icon-btn" onclick="previewCV(${c.id})" title="Xem CV">👁️</button>
-            </div></td>
-        </tr>`;
-            }).join('');
+            // Tìm dòng này trong hàm renderTable:
+        tbody.innerHTML = toShow.map(c => {
+            const normalizedStatus = normalizeStatus(c.status);
+            
+            // --- THÊM LOGIC NÀY VÀO ---
+            let rowColorClass = '';
+            if (c.overall_cv_score >= 85) rowColorClass = 'row-high';
+            else if (c.overall_cv_score >= 70) rowColorClass = 'row-medium';
+            else rowColorClass = 'row-low';
+            // -------------------------
+
+            // Sửa thẻ <tr> bên dưới để nhận class mới:
+            return `<tr data-id="${c.id}" data-status="${normalizedStatus}" class="${rowColorClass}">
+                <td class="checkbox-cell"><input type="checkbox" class="candidate-checkbox" data-candidate-id="${c.id}" onchange="updateSelectionState()"></td>
+                <td class="candidate-name">${c.full_name}</td>
+                <td><span class="cv-points ${c.overall_cv_score >= 85 ? 'high' : c.overall_cv_score >= 70 ? 'medium' : 'low'}">${c.overall_cv_score}</span></td>
+                <td>${c.phone}</td>
+                <td><span class="status-label ${normalizedStatus}">${statusText[normalizedStatus] || c.status}</span></td>
+                <td><div class="action-buttons-cell">
+                    <button class="table-icon-btn" onclick="showDetail(${c.id})" title="Chi tiết">📋</button>
+                    <button class="table-icon-btn" onclick="previewCV(${c.id})" title="Xem CV">👁️</button>
+                </div></td>
+            </tr>`;
+        }).join('');
 
             document.getElementById('emptyState').style.display = toShow.length === 0 ? 'block' : 'none';
             document.getElementById('resultsCount').textContent = `Hiển thị ${toShow.length} / ${filteredCandidates.length} kết quả`;
@@ -1205,6 +1280,37 @@
         function previewCV(id) {
             console.log("Preview CV for candidate ID:", id);
             alert("Chức năng xem CV - ID: " + id);
+        }
+
+        // Bulk status change for selected candidates
+        async function changeStatusBulk() {
+            const ids = getSelectedCandidateIds();
+            if (ids.length === 0) { alert('Vui lòng chọn ít nhất 1 ứng viên.'); return; }
+
+            const choice = prompt('Nhập trạng thái mới cho các ứng viên đã chọn (suitable, sended_inviting, accepted, rejected, hired, unsuitable):', 'sended_inviting');
+            if (!choice) return;
+            const normalized = normalizeStatus(choice);
+
+            if (!['suitable','sended_inviting','accepted','rejected','hired','unsuitable'].includes(normalized)) {
+                alert('Trạng thái không hợp lệ: ' + normalized);
+                return;
+            }
+
+            const confirmMsg = `Bạn có chắc muốn đổi trạng thái ${ids.length} ứng viên sang "${normalized}" không?`;
+            if (!confirm(confirmMsg)) return;
+
+            // Call updateStatus for each selected id (sequential to avoid overwhelming server)
+            for (const id of ids) {
+                try {
+                    await updateStatus(id, normalized);
+                } catch (e) {
+                    console.error('Lỗi khi cập nhật id', id, e);
+                }
+            }
+
+            // Refresh list after updates
+            await reloadCandidatesData();
+            alert('Hoàn thành thay đổi trạng thái.');
         }
     </script>
 </body>
