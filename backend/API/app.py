@@ -9,6 +9,7 @@ from backend.API.Scan_CV import router as scan_cv
 from backend.API.dashboard import router as dashboard
 from backend.API.Email_send_respon.render_mail import router as email_renderer
 from backend.API.Email_send_respon.send_mail import router as email_sender
+from backend.API.job_routes import router as job_router
 # Import router từ file Scan_CV (giả sử scan router khai báo: router = APIRouter() trong Scan_CV.py)
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # d:\Cap 1\HireSmart
@@ -25,8 +26,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount thư mục frontend để truy cập file tĩnh (ví dụ: /frontend/index.html hoặc /frontend/Styles/style.css)
+# Mount thư mục HTML
+HTML_DIR = FRONTEND_DIR / "html"
+if HTML_DIR.exists():
+    app.mount("/html", StaticFiles(directory=str(HTML_DIR)), name="html")
 
+# Mount thư mục CSS/JS
+STYLES_DIR = FRONTEND_DIR / "Styles"
+if STYLES_DIR.exists():
+    app.mount("/Styles", StaticFiles(directory=str(STYLES_DIR)), name="Styles")
+
+# Mount thư mục templates
+TEMPLATES_DIR = FRONTEND_DIR / "templates"
+if TEMPLATES_DIR.exists():
+    app.mount("/templates", StaticFiles(directory=str(TEMPLATES_DIR)), name="templates")
 
 # Nếu bạn có thư mục static bên trong frontend (ví dụ frontend/static), có thể mount thêm:
 STATIC_DIR = FRONTEND_DIR / "static"
@@ -38,12 +51,14 @@ app.include_router(scan_cv)
 app.include_router(dashboard)
 app.include_router(email_renderer, prefix="/email", tags=["email"])
 app.include_router(email_sender, prefix="/email", tags=["email"])
+app.include_router(job_router)
 
 
-# Route gốc trả về index.html nếu tồn tại, else trả thông báo
+# Route gốc trả về Recruitment.html
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    index_path = FRONTEND_DIR / "Recruitment.html"
+    index_path = FRONTEND_DIR / "html" / "Recruitment.html"
     if index_path.exists():
-        return FileResponse(str(index_path))
-    return HTMLResponse("<pre>API is running. Use /upload_cv to submit PDF CV.</pre>")
+        with open(index_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    return HTMLResponse("<pre>API is running. Visit /Recruitment.html to start.</pre>")

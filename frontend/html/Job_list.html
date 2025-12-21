@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Management Dashboard</title>
+    <title>Bảng Điều Khiển Quản Lý Công Việc</title>
     <style>
         * {
             margin: 0;
@@ -13,23 +13,235 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            overflow-x: hidden;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        .container {
+        /* Header - Fixed */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1001;
+        }
+
+        .header nav {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
-            min-height: 100vh;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            min-height: 80px;
+        }
+
+        /* Logo Section */
+        .header .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header .logo-container img {
+            width: 100px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .header .logo-container span {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        /* Navigation Menu */
+        .header ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header ul li {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .header ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .header ul li a:hover,
+        .header ul li a.active {
+            color: #2563eb;
+        }
+
+        /* Language Selector */
+        .language-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .language-selector {
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .language-selector:hover {
+            background-color: #f5f5f5;
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            min-width: 150px;
+            z-index: 1002;
+            display: none;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .language-selector:hover .language-dropdown {
+            display: block;
+        }
+
+        .lang-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .lang-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* User Menu */
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .login-btn {
+            background: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .user-menu .dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            min-width: 200px;
+            z-index: 1002;
+            display: none;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .user-menu:hover .dropdown {
+            display: block;
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #333;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown a:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            margin-top: 80px;
+            flex: 1;
+            position: relative;
+            z-index: 1;
         }
 
         /* Sidebar */
         .sidebar {
-            width: 220px;
-            background: linear-gradient(180deg, #1e5088 0%, #153a5f 100%);
+            width: 280px;
+            background: linear-gradient(180deg, #1e5a8e 0%, #134168 100%);
             color: white;
-            padding: 20px;
             display: flex;
             flex-direction: column;
+            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 80px;
+            bottom: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            transform: translateX(-100%);
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 80px);
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
         .logo {
@@ -114,12 +326,14 @@
             align-items: center;
             justify-content: center;
             font-size: 11px;
+            font-weight: bold;
+            line-height: 1;
         }
 
         .logout-btn {
             background: #ef4444;
             color: white;
-            padding: 12px;
+            padding: 12px 20px;
             border-radius: 8px;
             border: none;
             cursor: pointer;
@@ -135,19 +349,35 @@
         .main-content {
             flex: 1;
             padding: 30px;
+            padding-top: 20px;
+            transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1;
         }
 
-        .header {
+        .main-content.with-sidebar {
+            margin-left: 280px;
+        }
+
+        .top-bar {
             display: flex;
-            justify-content: space-between;
+            gap: 20px;
+            justify-content: flex-start;
             align-items: center;
+            flex-wrap: wrap;
             margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+            background: transparent;
         }
 
-        .hamburger {
+        .menu-toggle {
             font-size: 28px;
             cursor: pointer;
             color: #333;
+            background: none;
+            border: none;
+            padding: 5px;
         }
 
         .search-box {
@@ -172,35 +402,58 @@
             width: 300px;
         }
 
-        .icons {
+        .icon-buttons {
             display: flex;
-            gap: 15px;
+            gap: 10px;
         }
 
         .icon-btn {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             font-size: 20px;
+            position: relative;
+            border: none;
+            transition: transform 0.2s;
         }
 
-        .icon-btn:nth-child(1) {
-            background: #3b82f6;
+        .icon-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .icon-btn.notification {
+            background: #2d4a8c;
             color: white;
         }
 
-        .icon-btn:nth-child(2) {
-            background: #fbbf24;
+        .icon-btn.settings {
+            background: #ffc107;
             color: white;
         }
 
-        .icon-btn:nth-child(3) {
-            background: #ef4444;
+        .icon-btn.messages {
+            background: #4caf50;
             color: white;
+        }
+
+        .icon-btn .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         /* Dashboard Grid */
@@ -241,15 +494,45 @@
             background: #fbbf24;
             color: #1e5088;
             font-weight: 600;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+            border: 2px solid #f59e0b;
         }
 
         .action-card.blue {
             background: #fbbf24;
             color: #1e5088;
             font-weight: 600;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+            border: 2px solid #f59e0b;
         }
 
         @media (max-width: 768px) {
+            .header nav {
+                padding: 0.8rem 1rem;
+            }
+
+            .header .logo-container img {
+                width: 60px;
+            }
+
+            .header .logo-container span {
+                font-size: 1.2rem;
+            }
+
+            .header ul {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0 !important; /* Đảm bảo reset margin */
+                padding: 20px;
+                padding-top: 20px;
+            }
+
+            .main-content.with-sidebar {
+                margin-left: 0;
+            }
+
             .quick-actions {
                 gap: 10px;
             }
@@ -603,11 +886,41 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="logo">
-                <img src="../templates/logo-2.png" alt="HireSmart Logo" style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
+    <header class="header">
+        <nav>
+            <div class="logo-container">
+                <img src="/templates/logo-2.png" alt="Logo">
+                <span>HireSmart</span>
+            </div>
+            <ul>
+                <li><a href="Home.html">Trang chủ</a></li>
+                <li><a href="Recruitment.html" class="active">Công Việc</a></li>
+                <li><a href="Create_job.html">Tạo Job</a></li>
+                <li class="language-menu">
+                    <div class="language-selector">
+                        <span id="currentLang">🇻🇳</span>
+                        <div class="language-dropdown">
+                            <div class="lang-option" data-lang="vi" data-flag="🇻🇳">Tiếng Việt</div>
+                            <div class="lang-option" data-lang="en" data-flag="🇺🇸">English</div>
+                        </div>
+                    </div>
+                </li>
+                <li class="user-menu">
+                    <a href="#" class="login-btn" onclick="handleHRLogin(event)" data-i18n="nav.hr_login">Đăng nhập HR</a>
+                    <div class="dropdown" id="dropdownMenu">
+                        <a href="#">Tài Khoản Của Tôi</a>
+                        <a href="Create_job.html" id="dashboardBtn">Tạo Job</a>
+                        <a href="#" id="logoutBtn">Đăng Xuất</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="sidebar" id="sidebar">
+                <div class="logo">
+                <img src="/templates/logo-2.png" alt="HireSmart Logo" style="width: 140px; height: auto; object-fit: contain; display:block; margin: 0 auto;">
             </div>
             <div class="profile">
                 <div class="profile-pic"></div>
@@ -620,78 +933,74 @@
             <div class="menu">
                 <div class="menu-item" onclick="window.location.href='dashboard.html'">
                     <span class="icon">📊</span>
-                    <span>Dashboard</span>
+                    <span>Bảng Điều Khiển</span>
                 </div>
                 <div class="menu-item">
                     <span class="icon">✉️</span>
-                    <span>Messages</span>
+                    <span>Tin Nhắn</span>
                     <span class="badge">3</span>
                 </div>
                 <div class="menu-item active" onclick="window.location.href='Job_list.html'">
                     <span class="icon">💼</span>
-                    <span>Jobs</span>
+                    <span>Công Việc</span>
                 </div>
                 <div class="menu-item">
                     <span class="icon">👥</span>
-                    <span>Candidates</span>
+                    <span>Ứng Viên</span>
                 </div>
                 <div class="menu-item">
                     <span class="icon">📄</span>
-                    <span>Resumes</span>
+                    <span>Hồ Sơ</span>
                 </div>
                 <div class="menu-item">
                     <span class="icon">📈</span>
-                    <span>Report</span>
+                    <span>Báo Cáo</span>
                 </div>
             </div>
-            <button class="logout-btn">⏻ Log Out</button>
+            <button class="logout-btn">🔓 Đăng Xuất</button>
         </div>
 
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
         <!-- Main Content -->
-        <div class="main-content">
+        <div class="main-content" id="mainContent">
             <!-- Job List View -->
             <div id="jobListView">
-                <div class="header">
-                    <span class="hamburger">☰</span>
-                    <div class="search-box">
-                        <select class="dropdown">
-                            <option>All Categories</option>
-                        </select>
-                        <input type="text" class="search-input" placeholder="Search...">
-                    </div>
-                    <div class="icons">
-                        <div class="icon-btn">🔔</div>
-                        <div class="icon-btn">✏️</div>
-                        <div class="icon-btn">📧</div>
+                <div class="top-bar">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div class="icon-buttons">
+                        <button class="icon-btn notification">🔔<span class="badge">3</span></button>
+                        <button class="icon-btn settings">✏️</button>
+                        <button class="icon-btn messages">✉️<span class="badge">3</span></button>
                     </div>
                 </div>
 
                 <div class="dashboard-grid">
                     <div class="quick-actions">
-                        <div class="action-card" onclick="window.location.href='Create_job.html'">Create new JD</div>
-                        <div class="action-card yellow" onclick="showJobList()">Job List</div>
-                        <div class="action-card blue" onclick="showNews()">News</div>
+                        <div class="action-card" onclick="window.location.href='Create_job.html'" data-i18n="createNewJD">Tạo JD Mới</div>
+                        <div class="action-card yellow" onclick="showJobList()" data-i18n="jobList">Danh Sách Công Việc</div>
+                        <div class="action-card blue" onclick="showNews()" data-i18n="news">Tin Tức</div>
                     </div>
 
                     <div class="job-section">
-                        <h2>Job Management</h2>
-                        <p>Create, manage, and track your job postings and CV applications.</p>
+                        <h2 data-i18n="jobManagement">Quản Lý Công Việc</h2>
+                        <p data-i18n="jobManagementDesc">Tạo, quản lý và theo dõi các bài đăng tuyển dụng và hồ sơ ứng viên của bạn.</p>
 
                         <div class="stats-grid">
                             <div class="stat-card">
-                                <h4>Total Jobs</h4>
+                                <h4 data-i18n="totalJobs">Tổng Số Công Việc</h4>
                                 <div class="number">3</div>
                             </div>
                             <div class="stat-card">
-                                <h4>Active Jobs</h4>
+                                <h4 data-i18n="activeJobs">Công Việc Đang Hoạt Động</h4>
                                 <div class="number">3</div>
                             </div>
                             <div class="stat-card">
-                                <h4>Total CVs Paid</h4>
-                                <div class="number">3</div>
+                                <h4 data-i18n="totalCVsPaid">Tổng CV Đã Trả</h4>
+                                <div class="number">10</div>
                             </div>
                             <div class="stat-card">
-                                <h4>Avg CVs per Job</h4>
+                                <h4 data-i18n="avgCVsPerJob">Trung Bình CV/Công Việc</h4>
                                 <div class="number">3</div>
                             </div>
                         </div>
@@ -778,18 +1087,12 @@
 
             <!-- Job Details View -->
             <div id="jobDetailsView" class="hidden">
-                <div class="header">
-                    <span class="hamburger">☰</span>
-                    <div class="search-box">
-                        <select class="dropdown">
-                            <option>All Categories</option>
-                        </select>
-                        <input type="text" class="search-input" placeholder="Search...">
-                    </div>
-                    <div class="icons">
-                        <div class="icon-btn">🔔</div>
-                        <div class="icon-btn">✏️</div>
-                        <div class="icon-btn">📧</div>
+                <div class="top-bar">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div class="icon-buttons">
+                        <button class="icon-btn notification">🔔<span class="badge">3</span></button>
+                        <button class="icon-btn settings">✏️</button>
+                        <button class="icon-btn messages">✉️<span class="badge">3</span></button>
                     </div>
                 </div>
 
@@ -840,18 +1143,12 @@
 
             <!-- News View -->
             <div id="newsView" class="hidden">
-                <div class="header">
-                    <span class="hamburger">☰</span>
-                    <div class="search-box">
-                        <select class="dropdown">
-                            <option>All Categories</option>
-                        </select>
-                        <input type="text" class="search-input" placeholder="Search...">
-                    </div>
-                    <div class="icons">
-                        <div class="icon-btn">🔔</div>
-                        <div class="icon-btn">✏️</div>
-                        <div class="icon-btn">📧</div>
+                <div class="top-bar">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div class="icon-buttons">
+                        <button class="icon-btn notification">🔔<span class="badge">3</span></button>
+                        <button class="icon-btn settings">✏️</button>
+                        <button class="icon-btn messages">✉️<span class="badge">3</span></button>
                     </div>
                 </div>
 
@@ -863,7 +1160,7 @@
                     </div>
 
                     <div class="news-section">
-                        <h2>Latest News & Updates</h2>
+                        <h2 data-i18n="latestNews">Tin Tức & Cập Nhật Mới Nhất</h2>
                         
                         <div class="news-grid">
                             <div class="news-card">
@@ -946,37 +1243,205 @@
 
     <script>
         // Handle action card active state
-        function initActionCards() {
+        function initActionCards(viewName) {
             const cards = document.querySelectorAll('.quick-actions .action-card');
-            const saved = localStorage.getItem('selectedAction');
             
-            // restore saved active state
+            // Remove all active states first
             cards.forEach(card => {
                 card.classList.remove('yellow');
             });
             
-            if (saved) {
-                cards.forEach((card, idx) => {
-                    if (saved === idx.toString()) {
-                        card.classList.add('yellow');
-                    }
-                });
+            // Set active based on current view
+            if (viewName === 'news') {
+                // News view - activate News button (index 2)
+                if (cards[2]) {
+                    cards[2].classList.add('yellow');
+                    localStorage.setItem('selectedAction', '2');
+                }
+            } else if (viewName === 'jobList') {
+                // Job List view - activate Job List button (index 1)
+                if (cards[1]) {
+                    cards[1].classList.add('yellow');
+                    localStorage.setItem('selectedAction', '1');
+                }
             } else {
-                // default: Job List (second button) is active
-                if (cards[1]) cards[1].classList.add('yellow');
+                // Default: Job List (second button) is active
+                if (cards[1]) {
+                    cards[1].classList.add('yellow');
+                    localStorage.setItem('selectedAction', '1');
+                }
             }
 
             // add click handlers to all cards
             cards.forEach((card, idx) => {
-                card.addEventListener('click', function() {
+                // Remove existing listeners by cloning
+                const newCard = card.cloneNode(true);
+                card.parentNode.replaceChild(newCard, card);
+                
+                newCard.addEventListener('click', function() {
                     cards.forEach(c => c.classList.remove('yellow'));
-                    card.classList.add('yellow');
+                    newCard.classList.add('yellow');
                     localStorage.setItem('selectedAction', idx.toString());
                 });
             });
         }
 
-        document.addEventListener('DOMContentLoaded', initActionCards);
+        // Language management
+        const translations = {
+            vi: {
+                createNewJD: 'Tạo JD Mới',
+                jobList: 'Danh Sách Công Việc',
+                news: 'Tin Tức',
+                jobManagement: 'Quản Lý Công Việc',
+                jobManagementDesc: 'Tạo, quản lý và theo dõi các bài đăng tuyển dụng và hồ sơ ứng viên của bạn.',
+                totalJobs: 'Tổng Số Công Việc',
+                activeJobs: 'Công Việc Đang Hoạt Động',
+                totalCVsPaid: 'Tổng CV Đã Trả',
+                avgCVsPerJob: 'Trung Bình CV/Công Việc',
+                latestNews: 'Tin Tức & Cập Nhật Mới Nhất',
+                navHrLogin: 'Đăng nhập HR'
+            },
+            en: {
+                createNewJD: 'Create new JD',
+                jobList: 'Job List',
+                news: 'News',
+                jobManagement: 'Job Management',
+                jobManagementDesc: 'Create, manage, and track your job postings and CV applications.',
+                totalJobs: 'Total Jobs',
+                activeJobs: 'Active Jobs',
+                totalCVsPaid: 'Total CVs Paid',
+                avgCVsPerJob: 'Avg CVs per Job',
+                latestNews: 'Latest News & Updates',
+                navHrLogin: 'HR Login'
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('language') || 'vi';
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            updateLanguageUI();
+            translatePage();
+        }
+
+        function updateLanguageUI() {
+            const currentLangSpan = document.getElementById('currentLang');
+            if (currentLangSpan) {
+                currentLangSpan.textContent = currentLanguage === 'vi' ? '🇻🇳' : '🇺🇸';
+            }
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    setLanguage(this.getAttribute('data-lang'));
+                });
+            });
+        }
+
+        function translatePage() {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
+                        element.placeholder = translations[currentLanguage][key];
+                    } else {
+                        element.textContent = translations[currentLanguage][key];
+                    }
+                }
+            });
+            // Update login button text
+            checkLoginStatus();
+        }
+
+        // Check login status and update UI
+        function checkLoginStatus() {
+            const user = localStorage.getItem('loggedInUser');
+            const loginBtn = document.querySelector('.login-btn');
+            
+            if (user && loginBtn) {
+                loginBtn.textContent = user;
+                loginBtn.href = '#';
+                loginBtn.onclick = null;
+                loginBtn.removeAttribute('onclick');
+                
+                const userMenu = document.querySelector('.user-menu');
+                if (userMenu) {
+                    // Remove old listeners if any
+                    const newUserMenu = userMenu.cloneNode(true);
+                    userMenu.parentNode.replaceChild(newUserMenu, userMenu);
+                    
+                    newUserMenu.addEventListener('mouseenter', function() {
+                        const dropdown = this.querySelector('.dropdown');
+                        if (dropdown) dropdown.style.display = 'block';
+                    });
+                    
+                    newUserMenu.addEventListener('mouseleave', function() {
+                        const dropdown = this.querySelector('.dropdown');
+                        if (dropdown) dropdown.style.display = 'none';
+                    });
+                }
+            } else if (loginBtn) {
+                loginBtn.textContent = currentLanguage === 'vi' ? 'Đăng nhập HR' : 'HR Login';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize language
+            updateLanguageUI();
+            translatePage();
+            checkLoginStatus();
+            
+            // Check URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const view = urlParams.get('view');
+            if (view === 'news') {
+                showNews();
+            } else {
+                // Default to Job List view
+                initActionCards('jobList');
+            }
+        });
+
+        // Sidebar toggle functionality - handle all menu toggles
+        function initSidebarToggle() {
+            const menuToggles = document.querySelectorAll('.menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            let sidebarOpen = false;
+
+            function toggleSidebar() {
+                sidebarOpen = !sidebarOpen;
+                if (sidebarOpen) {
+                    sidebar.classList.add('active');
+                    sidebarOverlay.classList.add('active');
+                    // Only shift content on desktop
+                    if (window.innerWidth > 768) {
+                        mainContent.classList.add('with-sidebar');
+                    }
+                } else {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    mainContent.classList.remove('with-sidebar');
+                }
+            }
+
+            menuToggles.forEach(toggle => {
+                toggle.addEventListener('click', toggleSidebar);
+            });
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function () {
+                    sidebarOpen = false;
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    mainContent.classList.remove('with-sidebar');
+                });
+            }
+        }
+
+        // Initialize sidebar toggle on page load
+        initSidebarToggle();
 
         function showJobDetails() {
             document.getElementById('jobListView').classList.add('hidden');
@@ -988,18 +1453,26 @@
             document.getElementById('jobDetailsView').classList.add('hidden');
             document.getElementById('jobListView').classList.remove('hidden');
             document.getElementById('newsView').classList.add('hidden');
-            // ensure Job List button (index 1) stays yellow
-            localStorage.setItem('selectedAction', '1');
-            initActionCards();
+            // Update action cards in all views
+            initActionCards('jobList');
+            // Also update the action cards in Job List view specifically
+            const jobListCards = document.querySelectorAll('#jobListView .quick-actions .action-card');
+            jobListCards.forEach(c => c.classList.remove('yellow'));
+            if (jobListCards[1]) jobListCards[1].classList.add('yellow');
         }
 
         function showNews() {
             document.getElementById('jobListView').classList.add('hidden');
             document.getElementById('jobDetailsView').classList.add('hidden');
             document.getElementById('newsView').classList.remove('hidden');
-            // ensure News button (index 2) stays yellow
-            localStorage.setItem('selectedAction', '2');
-            initActionCards();
+            // Update action cards in all views
+            initActionCards('news');
+            // Also update the action cards in News view specifically
+            const newsCards = document.querySelectorAll('#newsView .quick-actions .action-card');
+            newsCards.forEach(c => c.classList.remove('yellow'));
+            if (newsCards[2]) newsCards[2].classList.add('yellow');
+            // Re-initialize sidebar toggle for News view
+            initSidebarToggle();
         }
     </script>
 </body>

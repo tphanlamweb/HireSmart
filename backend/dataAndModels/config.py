@@ -1,24 +1,36 @@
-from sqlalchemy import create_engine, MetaData, Table, select
-from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, Session
+from contextlib import contextmanager
+from urllib.parse import quote_plus
 
-
-
-#   mysql+pymysql://<username>:<password>@<host>:<port>/<database_name>
+# Cấu hình kết nối database
 DB_USER = "root"                # 🧑‍💻 Tên user MySQL
-DB_PASSWORD = "tPhan186%40"          # 🔑 Mật khẩu MySQL
+DB_PASSWORD = "Lovecode@05"     # 🔑 Mật khẩu MySQL
 DB_HOST = "localhost"           # 🖥️  Địa chỉ server (hoặc IP)
 DB_PORT = "3306"                # 🌐 Cổng mặc định của MySQL
-DB_NAME = "HireSmart"  # 📂 Tên cơ sở dữ liệu bạn đã có
+DB_NAME = "HireSmart"           # 📂 Tên cơ sở dữ liệu
 
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# Tạo URL kết nối với các tham số tối ưu (URL encode password để tránh ký tự đặc biệt)
+DATABASE_URL = f"mysql+pymysql://{DB_USER}:{quote_plus(DB_PASSWORD)}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
 
-engine = create_engine(DATABASE_URL)
+# Khởi tạo engine với cấu hình tối ưu
+engine = create_engine(
+    DATABASE_URL,
+    pool_recycle=3600,  # Tự động tạo lại kết nối sau 1 giờ
+    pool_pre_ping=True,  # Kiểm tra kết nối trước khi sử dụng
+    echo=True  # Bật log SQL để debug (có thể tắt sau khi ổn định)
+)
+
+# Khởi tạo metadata
 metadata = MetaData()
 
+# Tạo session factory
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+@contextmanager
 def get_db():
     """Dependency cung cấp session cho các route FastAPI"""
-    db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db = SessionLocal()
     try:
         yield db
     finally:

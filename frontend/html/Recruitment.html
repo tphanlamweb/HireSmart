@@ -5,11 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tuyển dụng - Ứng tuyển ngay</title>
-<!--
-        <link rel="stylesheet" href="../Styles/recruitment.css">
-    <script src="../Styles/recruitment.js" defer></script>
--->
-
 </head>
 
 
@@ -46,6 +41,7 @@ nav {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
+    min-height: 80px;
 }
 
 .logo-icon {
@@ -58,6 +54,8 @@ nav {
     display: flex;
     list-style: none;
     gap: 2rem;
+    flex: 1;
+    justify-content: center;
 }
 
 .nav-menu a {
@@ -581,10 +579,7 @@ nav {
                 <div class="form-group">
                     <label>Vị trí ứng tuyển <span class="required">*</span></label>
                     <select id="position" required>
-                        <option value="">-- Chọn vị trí --</option>
-                        <option value="backend">Senior Backend Developer</option>
-                        <option value="designer">UI/UX Designer</option>
-                        <option value="mobile">Mobile Developer (React Native)</option>
+                        <option value="">-- Đang tải vị trí --</option>
                     </select>
                 </div>
 
@@ -657,6 +652,176 @@ nav {
 </body>
 
 <script>
+
+    // ============================================================================
+    // LOAD JOBS FROM API
+    // ============================================================================
+    
+    async function loadJobsFromAPI() {
+        try {
+            const response = await fetch('/api/jobs?active_only=true');
+            const data = await response.json();
+
+            if (!data.data || !Array.isArray(data.data)) return;
+
+            const container = document.getElementById('jobListContainer');
+            if (!container) return;
+
+            // Clear existing items except first h2
+            const h2 = container.querySelector('h2');
+            container.innerHTML = '';
+            container.appendChild(h2);
+
+            // Add jobs from API
+            data.data.forEach(job => {
+                const div = document.createElement('div');
+                div.className = 'job-item';
+                const salaryText = job.salary_min && job.salary_max 
+                    ? `${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()} ${job.currency || 'VND'}` 
+                    : 'Thỏa thuận';
+                
+                div.innerHTML = `
+                    <h3>💼 ${job.job_title}</h3>
+                    <p>📍 ${job.location} | 💰 Lương: ${salaryText} | ⏰ ${job.employment_type}</p>
+                    <button class="view-jd-btn" onclick="showJobDetail(${job.id})">Xem mô tả công việc</button>
+                `;
+                container.appendChild(div);
+            });
+
+            // Add a note if no jobs
+            if (data.data.length === 0) {
+                const note = document.createElement('p');
+                note.textContent = 'Hiện tại không có vị trí tuyển dụng. Vui lòng kiểm tra lại sau.';
+                note.style.textAlign = 'center';
+                note.style.color = '#999';
+                container.appendChild(note);
+            }
+
+        } catch (error) {
+            console.error('Failed to load jobs from API:', error);
+            // Fall back to default rendering
+        }
+    }
+
+    // Show job detail in modal
+    async function showJobDetail(jobId) {
+        try {
+            const response = await fetch(`/api/jobs/${jobId}`);
+            const data = await response.json();
+
+            if (!data.data) return;
+
+            const job = data.data;
+            const salaryText = job.salary_min && job.salary_max 
+                ? `${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()} ${job.currency || 'VND'}` 
+                : 'Thỏa thuận';
+
+            let jobInfoHTML = '';
+            if (job.job_info) {
+                const sectionTitles = {
+                    'description': 'Mô tả công việc',
+                    'requirements': 'Yêu cầu công việc',
+                    'benefits': 'Quyền lợi',
+                    'location': 'Địa điểm làm việc',
+                    'working_hours': 'Thời gian làm việc',
+                    'technical': 'Tech Stack',
+                    'environment': 'Môi trường làm việc',
+                    'career': 'Cơ hội phát triển'
+                };
+                
+                for (const [section, items] of Object.entries(job.job_info)) {
+                    if (section === 'requirements') continue; // Skip requirements as it's handled separately
+                    
+                    // Group items by section
+                    const sectionTitle = sectionTitles[section] || items[0]?.title || section;
+                    jobInfoHTML += `<h3>${sectionTitle}:</h3>`;
+                    
+                    if (items.length === 1) {
+                        jobInfoHTML += `<p>${items[0].description}</p>`;
+                    } else {
+                        jobInfoHTML += '<ul>';
+                        items.forEach(item => {
+                            jobInfoHTML += `<li>${item.description}</li>`;
+                        });
+                        jobInfoHTML += '</ul>';
+                    }
+                }
+            }
+
+            let requirementsHTML = '';
+            if (job.requirements && job.requirements.length > 0) {
+                requirementsHTML = '<h3>Yêu cầu:</h3><ul>';
+                job.requirements.forEach(req => {
+                    requirementsHTML += `<li>${req.title}</li>`;
+                });
+                requirementsHTML += '</ul>';
+            }
+
+            document.getElementById('jdTitle').textContent = job.job_title;
+            document.getElementById('jdContent').innerHTML = `
+                <h3>Thông tin chung:</h3>
+                <ul>
+                    <li><strong>Vị trí:</strong> ${job.job_title}</li>
+                    <li><strong>Địa điểm:</strong> ${job.location}</li>
+                    <li><strong>Mức lương:</strong> ${salaryText}</li>
+                    <li><strong>Loại hình:</strong> ${job.employment_type}</li>
+                    <li><strong>Số lượng cần tuyển:</strong> ${job.positions_open}</li>
+                    ${job.application_deadline ? `<li><strong>Hạn nộp hồ sơ:</strong> ${new Date(job.application_deadline).toLocaleDateString('vi-VN')}</li>` : ''}
+                </ul>
+                ${jobInfoHTML}
+                ${requirementsHTML}
+            `;
+            document.getElementById('jdModal').style.display = 'block';
+        } catch (error) {
+            console.error('Failed to load job details:', error);
+            alert('Không thể tải chi tiết công việc');
+        }
+    }
+
+    // Load jobs when page loads
+    window.addEventListener('load', function() {
+        loadJobsFromAPI();
+        loadPositionsDropdown(); // Load positions for form
+    });
+
+    // ============================================================================
+    // LOAD POSITIONS FROM API
+    // ============================================================================
+    
+    async function loadPositionsDropdown() {
+        try {
+            const response = await fetch('/api/jobs?active_only=true');
+            const data = await response.json();
+
+            if (!data.data || !Array.isArray(data.data)) return;
+
+            const select = document.getElementById('position');
+            if (!select) return;
+
+            // Clear default option
+            select.innerHTML = '<option value="">-- Chọn vị trí --</option>';
+
+            // Add jobs as options
+            data.data.forEach(job => {
+                const option = document.createElement('option');
+                option.value = job.id; // Store job_id as value
+                option.textContent = job.job_title; // Show job_title
+                select.appendChild(option);
+            });
+
+            // Show message if no jobs
+            if (data.data.length === 0) {
+                select.innerHTML = '<option value="">Hiện tại không có vị trí tuyển dụng</option>';
+            }
+
+        } catch (error) {
+            console.error('Failed to load positions:', error);
+            const select = document.getElementById('position');
+            if (select) {
+                select.innerHTML = '<option value="">Lỗi tải vị trí</option>';
+            }
+        }
+    }
 
 
     const jobDescriptions = {

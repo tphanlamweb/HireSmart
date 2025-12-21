@@ -22,7 +22,7 @@
         position: fixed;
         width: 100%;
         top: 0;
-        z-index: 1000;
+        z-index: 1001;
     }
 
     .header nav {
@@ -32,6 +32,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 1rem 2rem;
+        min-height: 80px;
     }
 
     /* Logo Section */
@@ -58,6 +59,17 @@
         display: flex;
         list-style: none;
         gap: 2rem;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header ul li {
+        display: flex;
+        align-items: center;
+        height: 100%;
     }
 
     .header ul li a {
@@ -77,6 +89,8 @@
         display: flex;
         margin-top: 80px;
         flex: 1;
+        position: relative;
+        z-index: 1;
     }
 
     /* Sidebar */
@@ -93,7 +107,7 @@
         bottom: 0;
         overflow-y: auto;
         transition: transform 0.3s ease;
-        z-index: 999;
+        z-index: 1000;
         transform: translateX(-100%);
     }
 
@@ -178,6 +192,8 @@
         align-items: center;
         justify-content: center;
         font-size: 12px;
+        font-weight: bold;
+        line-height: 1;
     }
 
     /* Sidebar - Logout Button */
@@ -186,7 +202,7 @@
         background: #ff4444;
         border: none;
         color: white;
-        padding: 15px;
+        padding: 15px 20px;
         border-radius: 8px;
         cursor: pointer;
         display: flex;
@@ -206,8 +222,11 @@
         flex: 1;
         margin-left: 0;
         padding: 30px;
+        padding-top: 20px;
         overflow-y: auto;
         transition: margin-left 0.3s ease;
+        position: relative;
+        z-index: 1;
     }
 
     /* Top Bar */
@@ -217,6 +236,10 @@
         margin-bottom: 30px;
         align-items: center;
         flex-wrap: wrap;
+        justify-content: flex-start;
+        position: relative;
+        z-index: 10;
+        background: transparent;
     }
 
     /* Menu Toggle Button */
@@ -502,6 +525,8 @@
         border-radius: 8px;
         font-size: 16px;
         background: #e8e8e8;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .form-group textarea {
@@ -546,6 +571,9 @@
     .user-menu {
         position: relative;
         list-style: none;
+        display: flex;
+        align-items: center;
+        height: 100%;
     }
 
     .user-info {
@@ -566,13 +594,14 @@
         /* Overrides the previous .dropdown style */
         display: none;
         position: absolute;
-        top: 35px;
+        top: 100%;
         right: 0;
         background: white;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         border-radius: 6px;
         width: 160px;
-        z-index: 100;
+        z-index: 1002;
+        margin-top: 5px;
     }
 
     .user-menu .dropdown a {
@@ -593,6 +622,9 @@
     /* Language Selector */
     .language-menu {
         position: relative;
+        display: flex;
+        align-items: center;
+        height: 100%;
     }
 
     .language-selector {
@@ -617,9 +649,10 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         border-radius: 6px;
         min-width: 150px;
-        z-index: 1000;
+        z-index: 1002;
         display: none;
         overflow: hidden;
+        margin-top: 5px;
     }
 
     .language-selector:hover .language-dropdown {
@@ -663,21 +696,23 @@
     }
 
     .add-custom-btn {
-        background: #10b981;
+        background: #2563eb;
         color: white;
         border: none;
-        padding: 10px 15px;
+        padding: 10px 20px;
         border-radius: 8px;
         cursor: pointer;
         font-size: 14px;
+        font-weight: 500;
         display: flex;
         align-items: center;
         gap: 8px;
         transition: all 0.3s;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .add-custom-btn:hover {
-        background: #059669;
+        background: #1d4ed8;
     }
 
     .jd-stats {
@@ -1025,6 +1060,7 @@
         .main-content {
             margin-left: 0 !important; /* Đảm bảo reset margin */
             padding: 20px;
+            padding-top: 20px;
         }
 
         .main-content.with-sidebar {
