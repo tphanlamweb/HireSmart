@@ -448,19 +448,14 @@
             // Update UI
             emptyState.style.display = 'none';
             droppedItems.style.display = 'flex';
-            selectedRequirements.push(text);
+            refreshSelectedRequirementsFromDOM();            
             updateSelectedCount();
             updateJobDescription();
         });
 
         // Reordering within droppedItems
         let draggedDroppedEl = null;
-        droppedItems.addEventListener('dragstart', function (e) {
-            const target = e.target.closest('.dropped-item');
-            if (!target) return;
-            draggedDroppedEl = target;
-            e.dataTransfer.effectAllowed = 'move';
-        });
+
 
         droppedItems.addEventListener('dragover', function (e) {
             e.preventDefault();
@@ -470,8 +465,11 @@
             const offset = e.clientY - bounding.top;
             if (offset > bounding.height / 2) {
                 target.parentNode.insertBefore(draggedDroppedEl, target.nextSibling);
+                refreshSelectedRequirementsFromDOM();
+
             } else {
                 target.parentNode.insertBefore(draggedDroppedEl, target);
+                refreshSelectedRequirementsFromDOM();
             }
         });
 
@@ -507,6 +505,7 @@
             console.log('Drag ended'); // Debug log
             item.classList.remove('dragging');
         });
+        refreshSelectedRequirementsFromDOM()
     }
 
     function createDroppedItemElement(text) {
@@ -536,6 +535,10 @@
                 droppedItems.style.display = 'none';
                 emptyState.style.display = 'flex';
             }
+            el.addEventListener('dragstart', function (e) {
+            draggedDroppedEl = el;
+            e.dataTransfer.effectAllowed = 'move';
+            });
         });
 
         return el;
