@@ -4,20 +4,34 @@ from fastapi import Depends
 import os
 
 
-# Ưu tiên đọc cấu hình DB từ biến môi trường nếu có,
-# nếu không thì fallback về giá trị mặc định bên dưới.
+
+# Cấu hình kết nối database
 DB_USER = "root"                # 🧑‍💻 Tên user MySQL
-DB_PASSWORD = "tPhan186%40"          # 🔑 Mật khẩu MySQL
+DB_PASSWORD = "tPhan186%40"     # 🔑 Mật khẩu MySQL
 DB_HOST = "localhost"           # 🖥️  Địa chỉ server (hoặc IP)
 DB_PORT = "3306"                # 🌐 Cổng mặc định của MySQL
-DB_NAME = "HireSmart"  # 📂 Tên cơ sở dữ liệu bạn đã có
+DB_NAME = "HireSmart"           # 📂 Tên cơ sở dữ liệu
 
-#   mysql+pymysql://<username>:<password>@<host>:<port>/<database_name>
+
+# Tạo URL kết nối với các tham số tối ưu (URL encode password để tránh ký tự đặc biệt)
 DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-engine = create_engine(DATABASE_URL)
+# Khởi tạo engine với cấu hình tối ưu
+engine = create_engine(
+    DATABASE_URL,
+    pool_recycle=3600,  # Tự động tạo lại kết nối sau 1 giờ
+    pool_pre_ping=True,  # Kiểm tra kết nối trước khi sử dụng
+    echo=True  # Bật log SQL để debug (có thể tắt sau khi ổn định)
+)
+
+# Khởi tạo metadata
 metadata = MetaData()
+
+
+# Tạo session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
 def get_db():
     """Dependency cung cấp session cho các route FastAPI"""
     db = SessionLocal()

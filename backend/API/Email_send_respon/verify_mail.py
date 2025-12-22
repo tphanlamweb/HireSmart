@@ -12,11 +12,7 @@ router = APIRouter()
 # ==============================
 # Config & constants
 # ==============================
-DB_USER = "root"
-DB_PASSWORD = "123456"
-DB_HOST = "localhost"
-DB_PORT = "3306"
-DB_NAME = "HireSmart"
+
 
 TOKEN_FILE = Path(__file__).resolve().parents[2] / "results" / "candidate_with_token.csv"
 

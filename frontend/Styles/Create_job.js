@@ -1,5 +1,6 @@
 
-    window.addEventListener('load', function () {
+    // Run immediately when DOM is ready
+    function initPage() {
         const user = localStorage.getItem('loggedInUser');
         if (!user) {
             alert('Bạn cần đăng nhập HR để truy cập Dashboard!');
@@ -7,11 +8,46 @@
             return;
         }
         console.log('HR Dashboard accessed by:', user);
+        
+        // Initialize in correct order
+        checkLoginStatus(); // Check and update login status FIRST
+        updateLanguageUI(); // Setup language selector
+        translatePage(); // Translate page on load (but skip login button)
         updateStats(); // Initial stats update
-        updateLanguageUI(); // Initial language setup
         initActionButtons();
         initDragAndDrop();
         initModalHandlers();
+        loadCategories(); // Load job categories into dropdown
+    }
+
+    // Check login status IMMEDIATELY when script loads
+    function checkLoginStatusImmediate() {
+        const user = localStorage.getItem('loggedInUser');
+        const loginBtn = document.querySelector('.login-btn') || document.getElementById('loginBtnHeader');
+        if (user && loginBtn) {
+            loginBtn.textContent = user;
+            loginBtn.href = '#';
+            loginBtn.removeAttribute('onclick');
+            console.log('Immediate checkLoginStatus: Updated to', user);
+        }
+    }
+
+    // Run immediately if DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatusImmediate();
+            initPage();
+        });
+    } else {
+        checkLoginStatusImmediate();
+        initPage();
+    }
+    
+    // Also run on window load as backup
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            checkLoginStatus();
+        }, 100);
     });
 
     // --- DOM ELEMENTS ---
@@ -29,6 +65,86 @@
         { id: 2, title: 'Marketing Manager', status: 'active', cvs: 3 },
         { id: 3, title: 'HR Specialist', status: 'active', cvs: 2 }
     ];
+
+    // --- LOAD CATEGORIES ---
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/jobs/categories/list');
+            const data = await response.json();
+
+            if (!data.data) return;
+
+            const select = document.getElementById('department');
+            data.data.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                select.appendChild(option);
+            });
+
+            // Add event listener for category change
+            select.addEventListener('change', function() {
+                const categoryId = this.value;
+                if (categoryId) {
+                    loadRequirementsByCategory(categoryId);
+                } else {
+                    clearRequirementsPool();
+                }
+            });
+        } catch (error) {
+            console.error('Failed to load categories:', error);
+        }
+    }
+
+    // --- LOAD REQUIREMENTS BY CATEGORY ---
+    async function loadRequirementsByCategory(categoryId) {
+        try {
+            const response = await fetch(`/api/jobs/requirements/by-category/${categoryId}`);
+            const data = await response.json();
+
+            if (!data.data) return;
+
+            const pool = document.getElementById('requirementsPool');
+            // Clear existing requirements except the title
+            const titleElements = pool.querySelectorAll('.category-title');
+            titleElements.forEach(title => title.remove());
+            const itemElements = pool.querySelectorAll('.requirement-item');
+            itemElements.forEach(item => item.remove());
+
+            // Group requirements by some logic or just list them
+            // For now, put all in one section
+            const section = document.createElement('div');
+            section.className = 'category-section';
+            section.innerHTML = '<div class="category-title">📋 Yêu Cầu Có Sẵn</div>';
+
+            data.data.forEach(req => {
+                const item = document.createElement('div');
+                item.className = 'requirement-item';
+                item.setAttribute('draggable', 'true');
+                item.innerHTML = `
+                    <span class="requirement-icon">📝</span>
+                    <span class="requirement-text">${req.title}</span>
+                `;
+                section.appendChild(item);
+            });
+
+            pool.appendChild(section);
+
+            // Re-attach drag listeners
+            initDragAndDrop();
+
+        } catch (error) {
+            console.error('Failed to load requirements:', error);
+        }
+    }
+
+    function clearRequirementsPool() {
+        const pool = document.getElementById('requirementsPool');
+        const titleElements = pool.querySelectorAll('.category-title');
+        titleElements.forEach(title => title.remove());
+        const itemElements = pool.querySelectorAll('.requirement-item');
+        itemElements.forEach(item => item.remove());
+    }
 
     // --- SIDEBAR TOGGLE & NAVIGATION ---
 
@@ -107,7 +223,7 @@
     }
 
     // Handle form submission
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
 
         if (selectedRequirements.length === 0) {
@@ -115,67 +231,111 @@
             return;
         }
 
-        updateJobDescription();
+        // Collect form data
+        const jobTitle = document.getElementById('jobTitle').value;
+        const department = document.getElementById('department').value;
+        const location = document.getElementById('location').value;
+        const salary = document.getElementById('salary').value;
+        const status = document.getElementById('status').value;
 
-        const newJob = {
-            id: jobs.length + 1,
-            title: document.getElementById('jobTitle').value,
-            department: document.getElementById('department').value,
-            location: document.getElementById('location').value,
-            salary: document.getElementById('salary').value,
-            status: document.getElementById('status').value,
-            cvs: parseInt(document.getElementById('cvsPaid').value),
-            requirements: selectedRequirements,
-            description: document.getElementById('jobDescription').value
-        };
-
-        jobs.push(newJob);
-        
-        // Persist to localStorage
-        try {
-            const storageKey = 'createdJobs';
-            const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
-            existing.push({
-                title: newJob.title,
-                department: newJob.department,
-                location: newJob.location,
-                salary: newJob.salary,
-                status: newJob.status,
-                requirements: newJob.requirements,
-                description: newJob.description
-            });
-            localStorage.setItem(storageKey, JSON.stringify(existing));
-            alert('Job posting created successfully!\n\nJob Title: ' + newJob.title + '\nRequirements: ' + newJob.requirements.length);
-        } catch (e) {
-            console.error('Failed to save job to localStorage', e);
-            alert('Error saving job');
+        // Validate
+        if (!jobTitle || !department || !location || !salary) {
+            alert('Please fill in all required fields');
+            return;
         }
 
-        // Reset form and UI states
-        event.target.reset();
-        selectedRequirements = [];
-        document.getElementById('droppedItems').innerHTML = '';
-        document.getElementById('emptyState').style.display = 'flex';
-        document.getElementById('droppedItems').style.display = 'none';
-        
-        updateStats();
+        // Prepare API request
+        const payload = {
+            job_title: jobTitle,
+            category_id: parseInt(department),
+            location: location,
+            salary: salary,
+            is_active: status === 'active',
+            requirements: selectedRequirements,
+            custom_requirements: [],
+            employment_type: 'Full-time'
+        };
+
+        try {
+            // Show loading state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
+
+            // Call API
+            const response = await fetch('/api/jobs/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || 'Failed to create job');
+            }
+
+            // Success
+            alert(`✅ ${data.message}\nJob ID: ${data.job_id}\nRequirements: ${data.requirements_count}`);
+
+            // Add to local jobs array for stats
+            jobs.push({
+                id: data.job_id,
+                title: jobTitle,
+                status: status,
+                cvs: 0
+            });
+
+            // Reset form and UI states
+            event.target.reset();
+            selectedRequirements = [];
+            document.getElementById('droppedItems').innerHTML = '';
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('droppedItems').style.display = 'none';
+            
+            updateStats();
+
+        } catch (error) {
+            console.error('Error creating job:', error);
+            alert(`❌ Error: ${error.message}`);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
     }
 
     // --- ACTION BUTTONS (Create / Job List / News) ---
     function initActionButtons() {
         const container = document.querySelector('.action-buttons');
         if (!container) return;
-        const saved = localStorage.getItem('selectedAction');
-
-        // restore saved active state
-        if (saved) {
+        
+        // On Create_job.html page, always make "Create new JD" active
+        const currentPage = window.location.pathname;
+        const isCreatePage = currentPage.includes('Create_job.html');
+        
+        if (isCreatePage) {
+            // Set btn-create as active on Create page
             container.querySelectorAll('button').forEach(b => {
-                if (b.classList.contains(saved)) {
+                b.classList.remove('active');
+                if (b.classList.contains('btn-create')) {
                     b.classList.add('active');
-                } else {
-                    b.classList.remove('active');
                 }
             });
+            localStorage.setItem('selectedAction', 'btn-create');
+        } else {
+            // On other pages, restore saved state or default
+            const saved = localStorage.getItem('selectedAction');
+            if (saved) {
+                container.querySelectorAll('button').forEach(b => {
+                    b.classList.remove('active');
+                    if (b.classList.contains(saved)) {
+                        b.classList.add('active');
+                    }
+                });
+            }
         }
 
         container.querySelectorAll('button').forEach(btn => {
@@ -196,10 +356,9 @@
                     setTimeout(() => { window.location.href = 'Job_list.html'; }, 120);
                 }
                 if (this.classList.contains('btn-news')) {
-                    // Navigate to news page if exists; placeholder behavior otherwise
+                    // Navigate to news page
                     setTimeout(() => { 
-                        // update this path if you have a news page
-                        // window.location.href = 'news.html';
+                        window.location.href = 'Job_list.html?view=news';
                     }, 120);
                 }
                 if (this.classList.contains('btn-create')) {
@@ -264,6 +423,7 @@
         // Make drop zone accept drops
         dropZone.addEventListener('dragover', function (e) {
             e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy'; // Indicate copy operation
             dropZone.classList.add('drag-over');
         });
         dropZone.addEventListener('dragleave', function () {
@@ -275,7 +435,11 @@
             dropZone.classList.remove('drag-over');
 
             const text = e.dataTransfer.getData('text/plain');
-            if (!text) return;
+            console.log('Drop event, text:', text); // Debug log
+            if (!text) {
+                console.log('No text data in drop'); // Debug log
+                return;
+            }
 
             // Create dropped item
             const droppedEl = createDroppedItemElement(text);
@@ -325,6 +489,8 @@
             const textEl = item.querySelector('.requirement-text');
             const text = textEl ? textEl.textContent : item.textContent;
             e.dataTransfer.setData('text/plain', text);
+            e.dataTransfer.effectAllowed = 'copy'; // Allow copy
+            console.log('Drag started for:', text); // Debug log
             // set a custom drag image to avoid odd ghosting behavior
             if (item.cloneNode) {
                 const crt = item.cloneNode(true);
@@ -338,6 +504,7 @@
             item.classList.add('dragging');
         });
         item.addEventListener('dragend', function () {
+            console.log('Drag ended'); // Debug log
             item.classList.remove('dragging');
         });
     }
@@ -398,7 +565,102 @@
         jobDescEl.value = selectedRequirements.join(' | ');
     }
 
-    // --- LANGUAGE MANAGEMENT (Partial Code Provided) ---
+    // --- LANGUAGE MANAGEMENT ---
+
+    const translations = {
+        vi: {
+            jobManagement: 'Quản Lý Công Việc',
+            jobManagementDesc: 'Tạo, quản lý và theo dõi các bài đăng tuyển dụng và hồ sơ ứng viên của bạn.',
+            createNewJD: 'Tạo JD Mới',
+            jobList: 'Danh Sách Công Việc',
+            news: 'Tin Tức',
+            totalJobs: 'Tổng Số Công Việc',
+            activeJobs: 'Công Việc Đang Hoạt Động',
+            totalCVsPaid: 'Tổng CV Đã Trả',
+            avgCVsPerJob: 'Trung Bình CV/Công Việc',
+            createNewJobDesc: 'Tạo Mô Tả Công Việc Mới',
+            jobTitle: 'Tên Công Việc',
+            department: 'Phòng Ban (Danh Mục)',
+            selectCategory: '-- Chọn Danh Mục --',
+            location: 'Địa Điểm',
+            salary: 'Mức Lương',
+            status: 'Trạng Thái',
+            active: 'Đang Hoạt Động',
+            inactive: 'Không Hoạt Động',
+            closed: 'Đã Đóng',
+            cvsPaid: 'CV Đã Trả',
+            jobRequirements: '✨ Yêu Cầu Công Việc',
+            addCustom: 'Thêm Tùy Chỉnh',
+            total: '📋 Tổng: 34',
+            selected: '✅ Đã Chọn:',
+            availableRequirements: '📦 Yêu Cầu Có Sẵn',
+            selectedRequirements: '✅ Yêu Cầu Đã Chọn',
+            dragDropHere: 'Kéo và Thả vào đây',
+            reorderAfterDrop: 'Bạn có thể sắp xếp lại sau khi thả',
+            createJob: 'Tạo Công Việc',
+            addCustomRequirement: 'Thêm Yêu Cầu Tùy Chỉnh',
+            cancel: 'Hủy',
+            add: 'Thêm',
+            navHrLogin: 'Đăng nhập HR',
+            searchRequirements: '🔍 Tìm kiếm yêu cầu...',
+            enterCustomRequirement: 'Nhập yêu cầu tùy chỉnh của bạn...',
+            features: 'Tính Năng',
+            dashboard: 'Bảng Điều Khiển',
+            messages: 'Tin Nhắn',
+            jobs: 'Công Việc',
+            candidates: 'Ứng Viên',
+            resumes: 'Hồ Sơ',
+            report: 'Báo Cáo',
+            notification: 'Thông Báo',
+            logout: 'Đăng Xuất'
+        },
+        en: {
+            jobManagement: 'Job Management',
+            jobManagementDesc: 'Create, manage, and track your job postings and CV applications.',
+            createNewJD: 'Create new JD',
+            jobList: 'Job List',
+            news: 'News',
+            totalJobs: 'Total Jobs',
+            activeJobs: 'Active Jobs',
+            totalCVsPaid: 'Total CVs Paid',
+            avgCVsPerJob: 'Avg CVs per Job',
+            createNewJobDesc: 'Create New Job Description',
+            jobTitle: 'Job Title',
+            department: 'Department (Category)',
+            selectCategory: '-- Select Category --',
+            location: 'Location',
+            salary: 'Salary',
+            status: 'Status',
+            active: 'Active',
+            inactive: 'Inactive',
+            closed: 'Closed',
+            cvsPaid: 'CVs paid',
+            jobRequirements: '✨ Job Requirements',
+            addCustom: 'Add Custom',
+            total: '📋 Total: 34',
+            selected: '✅ Selected:',
+            availableRequirements: '📦 Available Requirements',
+            selectedRequirements: '✅ Selected Requirements',
+            dragDropHere: 'Drag & Drop here',
+            reorderAfterDrop: 'You can reorder after dropping',
+            createJob: 'Create job',
+            addCustomRequirement: 'Add Custom Requirement',
+            cancel: 'Cancel',
+            add: 'Add',
+            navHrLogin: 'HR Login',
+            searchRequirements: '🔍 Search requirements...',
+            enterCustomRequirement: 'Enter your custom requirement...',
+            features: 'Features',
+            dashboard: 'Dashboard',
+            messages: 'Messages',
+            jobs: 'Jobs',
+            candidates: 'Candidates',
+            resumes: 'Resumes',
+            report: 'Report',
+            notification: 'Notification',
+            logout: 'Log Out'
+        }
+    };
 
     let currentLanguage = localStorage.getItem('language') || 'vi';
 
@@ -414,28 +676,150 @@
         if (currentLangSpan) {
             currentLangSpan.textContent = currentLanguage === 'vi' ? '🇻🇳' : '🇺🇸';
         }
-        // Set event listeners for language options
+        // Remove old event listeners and add new ones
         document.querySelectorAll('.lang-option').forEach(option => {
-            option.addEventListener('click', function() {
-                setLanguage(this.getAttribute('data-lang'));
+            // Clone to remove old listeners
+            const newOption = option.cloneNode(true);
+            option.parentNode.replaceChild(newOption, option);
+            
+            newOption.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const lang = this.getAttribute('data-lang');
+                setLanguage(lang);
             });
         });
     }
 
     function translatePage() {
-        // The translations object (translations) is missing in the provided code snippet
-        if (typeof translations === 'undefined') {
-            console.warn("Translation object 'translations' is missing.");
-            return;
-        }
-        const elements = document.querySelectorAll('[data-i18n]');
+        // Translate elements with data-i18n (but skip login button - it's handled by checkLoginStatus)
+        const elements = document.querySelectorAll('[data-i18n]:not(.login-btn)');
         elements.forEach(element => {
             const key = element.getAttribute('data-i18n');
             if (translations[currentLanguage] && translations[currentLanguage][key]) {
-                // The loop was cut off here, assuming it sets text content
-                // element.textContent = translations[currentLanguage][key]; 
+                const text = translations[currentLanguage][key];
+                
+                if (element.tagName === 'OPTION') {
+                    element.textContent = text;
+                } else {
+                    // Handle elements with inner HTML (like buttons with spans)
+                    const spans = element.querySelectorAll('span');
+                    
+                    // Check if this is a menu-item or button with icon + text structure
+                    if (spans.length > 0 && element.classList.contains('menu-item')) {
+                        // For menu items: keep first span (icon), update second span (text)
+                        if (spans.length >= 2) {
+                            spans[1].textContent = text;
+                        } else if (spans.length === 1) {
+                            // Only one span, check if it's text or icon
+                            const spanText = spans[0].textContent.trim();
+                            if (!spanText.match(/^[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u)) {
+                                // Not an emoji, replace it
+                                spans[0].textContent = text;
+                            } else {
+                                // It's an emoji, add text after
+                                element.appendChild(document.createTextNode(' ' + text));
+                            }
+                        }
+                    } else if (spans.length > 0 && element.classList.contains('logout-btn')) {
+                        // For logout button: keep first span (icon), update second span (text)
+                        if (spans.length >= 2) {
+                            spans[1].textContent = ' ' + text;
+                        } else {
+                            element.textContent = text;
+                        }
+                    } else if (spans.length > 0) {
+                        // Other elements with spans - find text span (not emoji)
+                        const textSpans = Array.from(spans).filter(s => {
+                            const txt = s.textContent.trim();
+                            return txt && !txt.match(/^[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u);
+                        });
+                        if (textSpans.length > 0) {
+                            textSpans[0].textContent = text;
+                        } else {
+                            element.textContent = text;
+                        }
+                    } else {
+                        element.textContent = text;
+                    }
+                }
             }
         });
+        
+        // Translate placeholders with data-i18n-placeholder
+        const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+        placeholderElements.forEach(element => {
+            const key = element.getAttribute('data-i18n-placeholder');
+            if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                element.placeholder = translations[currentLanguage][key];
+            }
+        });
+        
+        // Always update login button after translation (but only if user is logged in)
+        // Don't call checkLoginStatus here if user is logged in, as it might override
+        const user = localStorage.getItem('loggedInUser');
+        if (user) {
+            // User is logged in - just update the button text directly without calling full checkLoginStatus
+            const loginBtn = document.querySelector('.login-btn') || document.getElementById('loginBtnHeader');
+            if (loginBtn && loginBtn.textContent !== user) {
+                loginBtn.textContent = user;
+                console.log('translatePage: Updated login button to user name');
+            }
+        } else {
+            // User not logged in - use checkLoginStatus to set translated text
+            checkLoginStatus();
+        }
+    }
+
+    // Check login status and update UI - simplified version like Job_list.html
+    function checkLoginStatus() {
+        const user = localStorage.getItem('loggedInUser');
+        const loginBtn = document.querySelector('.login-btn') || document.getElementById('loginBtnHeader');
+        
+        console.log('checkLoginStatus called, user:', user, 'loginBtn:', loginBtn);
+        
+        if (user && loginBtn) {
+            console.log('Updating login button from "' + loginBtn.textContent + '" to "' + user + '"');
+            loginBtn.textContent = user;
+            loginBtn.href = '#';
+            loginBtn.onclick = null;
+            loginBtn.removeAttribute('onclick');
+            
+            // Setup dropdown hover effect
+            const userMenu = loginBtn.closest('.user-menu');
+            if (userMenu) {
+                // Clone to remove old listeners
+                const newUserMenu = userMenu.cloneNode(true);
+                userMenu.parentNode.replaceChild(newUserMenu, userMenu);
+                
+                // Update login button text again after cloning
+                const newLoginBtn = newUserMenu.querySelector('.login-btn');
+                if (newLoginBtn) {
+                    newLoginBtn.textContent = user;
+                    newLoginBtn.href = '#';
+                }
+                
+                newUserMenu.addEventListener('mouseenter', function() {
+                    const dropdown = this.querySelector('.dropdown');
+                    if (dropdown) dropdown.style.display = 'block';
+                });
+                
+                newUserMenu.addEventListener('mouseleave', function() {
+                    const dropdown = this.querySelector('.dropdown');
+                    if (dropdown) dropdown.style.display = 'none';
+                });
+            }
+            
+            console.log('Login button updated to:', loginBtn.textContent);
+        } else if (loginBtn) {
+            // User is not logged in - show login button with translated text
+            const loginText = translations[currentLanguage]?.navHrLogin || (currentLanguage === 'vi' ? 'Đăng nhập HR' : 'HR Login');
+            loginBtn.textContent = loginText;
+            loginBtn.href = '#';
+            loginBtn.setAttribute('onclick', 'handleHRLogin(event)');
+            loginBtn.onclick = handleHRLogin;
+        } else {
+            console.warn('Login button not found');
+        }
     }
 
     // --- DRAG & DROP LOGIC (Missing Implementation for brevity, but variables are set) ---
