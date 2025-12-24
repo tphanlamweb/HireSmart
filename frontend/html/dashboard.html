@@ -368,9 +368,14 @@
             border-color: #10b981;
         }
 
-        .btn-status.inviting.active {
+        .btn-status.unsuitable.active {
             background: #f59e0b;
             border-color: #f59e0b;
+        }
+
+        .btn-status.hired.active {
+            background: #10b981;
+            border-color: #10b981;
         }
 
         .btn-status.accepted.active {
@@ -506,10 +511,7 @@
             color: #c2410c;
         }
 
-        .status-label.sended_inviting {
-            background: #bfdbfe;
-            color: #1e3a8a;
-        }
+        /* removed legacy sended_inviting styles; use 'unsuitable' instead */
 
         .status-label.accepted {
             background: #d4c8f0;
@@ -769,15 +771,23 @@
         tbody tr {
             border-bottom : 1px solid rgb(60, 59, 59);
         }
-        /* Màu nền cho hàng dựa trên điểm số CV */
-        tbody tr.row-high { background-color: #f0fdf4; }    /* Xanh lá nhạt */
-        tbody tr.row-medium { background-color: #fffbeb; }  /* Vàng nhạt */
-        tbody tr.row-low { background-color: #fef2f2; }     /* Đỏ nhạt */
+        /* Row background by application status */
+        tbody tr.row-suitable { background-color: #dbeafe; }   /* Xanh dương nhạt */
+        tbody tr.row-unsuitable { background-color: #fff7cc; } /* Vàng nhạt */
+        tbody tr.row-accepted { background-color: #efe6ff; }   /* Tím nhạt */
+        tbody tr.row-hired { background-color: #d1fae5; }      /* Xanh lá nhạt */
+        tbody tr.row-rejected { background-color: #fee2e2; }    /* Đỏ nhạt */
+        tbody tr.row-inviting { background-color: #dbeafe; }   /* Xanh dương nhạt */
 
-        /* Giữ màu nền khi di chuột qua */
-        tbody tr.row-high:hover { background-color: #dcfce7; }
-        tbody tr.row-medium:hover { background-color: #fef3c7; }
-        tbody tr.row-low:hover { background-color: #fee2e2; }
+
+        /* Hover variants */
+        tbody tr.row-suitable:hover { background-color: #bfdbfe; }
+        tbody tr.row-unsuitable:hover { background-color: #fff4b3; }
+        tbody tr.row-accepted:hover { background-color: #e9d8ff; }
+        tbody tr.row-hired:hover { background-color: #a7f3d0; }
+        tbody tr.row-rejected:hover { background-color: #fecaca; }
+        tbody tr.row-inviting:hover { background-color: #bfdbfe; }
+
     </style>
 </head>
 
@@ -841,10 +851,10 @@
                     <span>Suitable</span>
                     <span class="status-badge" id="count-suitable">0</span>
                 </button>
-                <button class="btn-status inviting" data-status="sended_inviting">
-                    <span>📧</span>
-                    <span>Sended Inviting</span>
-                    <span class="status-badge" id="count-inviting">0</span>
+                <button class="btn-status unsuitable" data-status="unsuitable">
+                    <span>⚠️</span>
+                    <span>Unsuitable</span>
+                    <span class="status-badge" id="count-unsuitable">0</span>
                 </button>
                 <button class="btn-status accepted" data-status="accepted">
                     <span>🎉</span>
@@ -855,6 +865,11 @@
                     <span>❌</span>
                     <span>Rejected</span>
                     <span class="status-badge" id="count-rejected">0</span>
+                </button>
+                <button class="btn-status hired" data-status="hired">
+                    <span>🏆</span>
+                    <span>Hired</span>
+                    <span class="status-badge" id="count-hired">0</span>
                 </button>
             </div>
             <div class="stats-section">
@@ -868,12 +883,16 @@
                         <div class="stat-value" id="suitableCount">0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Inviting</div>
-                        <div class="stat-value" id="invitingCount">0</div>
+                        <div class="stat-label">Unsuitable</div>
+                        <div class="stat-value" id="unsuitableCount">0</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Accepted</div>
                         <div class="stat-value" id="acceptedCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Hired</div>
+                        <div class="stat-value" id="hiredCount">0</div>
                     </div>
                 </div>
                 <div class="filter-section">
@@ -938,13 +957,13 @@
                                     <th>Tên ứng viên</th>
                                     <th>Điểm CV</th>
                                     <th>Số điện thoại</th>
-                                    <th>Trạng thái</th>
+                                    <th>Địa chỉ</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody id="candidatesBody">
                             {% for user in users %}
-                            <tr>
+                            <tr class="row-{{ user.application_status or 'suitable' }}">
                                 <td class="checkbox-cell"><input type="checkbox" class="candidate-checkbox" data-candidate-id="{{ user.id }}" onchange="updateSelectionState()"></td>
                                 <td class="candidate-name">{{ user.full_name }}</td>
                                 <td>
@@ -953,7 +972,7 @@
                                     </span>
                                 </td>
                                 <td>{{ user.phone or 'N/A' }}</td>
-                                <td>{{ user.application_status or 'suitable' }}</td>
+                                <td>{{ user.address or 'N/A' }}</td>
                                 <td>
                                     <div class="action-buttons-cell">
                                         <button class="table-icon-btn" data-candidate-id="{{ user.id }}" onclick="showDetail({{ user.id }})" title="Chi tiết">📋</button>
@@ -995,11 +1014,11 @@
     </div>
 
     <script>
-        const allCandidates = [{% for user in users %}{ id: {{ user.id }}, full_name: "{{ user.full_name | e }}", overall_cv_score: {{ user.overall_cv_score if user.overall_cv_score else 0 }}, phone: "{{ user.phone | e if user.phone else 'N/A' }}", status: "{{ user.application_status | e if user.application_status else 'suitable' }}" }{% if not loop.last %},{% endif %}{% endfor %}];
+        const allCandidates = [{% for user in users %}{ id: {{ user.id }}, full_name: "{{ user.full_name | e }}", overall_cv_score: {{ user.overall_cv_score if user.overall_cv_score else 0 }}, phone: "{{ user.phone | e if user.phone else 'N/A' }}", status: "{{ user.application_status | e if user.application_status else 'suitable' }}", address: "{{ user.address | e if user.address else 'N/A' }}" }{% if not loop.last %},{% endif %}{% endfor %}];
         const PAGE_SIZE = 20;
         let currentPage = 1, filteredCandidates = [...allCandidates], multiSelectEnabled = false;
         let currentFilter = { status: 'all', searchName: '', minPoints: '', searchPhone: '', sortBy: 'points-desc' };
-        const statusText = { suitable: 'Suitable', unsuitable: 'Unsuitable', sended_inviting: 'Sended Inviting', accepted: 'Accepted', hired: 'Hired', rejected: 'Rejected' };
+        const statusText = { suitable: 'Suitable', unsuitable: 'Unsuitable', accepted: 'Accepted', hired: 'Hired', rejected: 'Rejected' };
 
         document.addEventListener('DOMContentLoaded', function () {
             setupEventListeners();
@@ -1062,9 +1081,6 @@
             switch (t.toLowerCase()) {
                 case 'suitable': return 'suitable';
                 case 'unsuitable': return 'unsuitable';
-                case 'sended_inviting':
-                case 'sended inviting':
-                case 'sended_inviting': return 'sended_inviting';
                 case 'accepted': return 'accepted';
                 case 'hired': return 'hired';
                 case 'rejected': return 'rejected';
@@ -1103,22 +1119,16 @@
 
             // Tìm dòng này trong hàm renderTable:
         tbody.innerHTML = toShow.map(c => {
-            const normalizedStatus = normalizeStatus(c.status);
-            
-            // --- THÊM LOGIC NÀY VÀO ---
-            let rowColorClass = '';
-            if (c.overall_cv_score >= 85) rowColorClass = 'row-high';
-            else if (c.overall_cv_score >= 70) rowColorClass = 'row-medium';
-            else rowColorClass = 'row-low';
-            // -------------------------
+                const normalizedStatus = normalizeStatus(c.status);
+                // Use normalized status to set row background class
+                const rowColorClass = `row-${normalizedStatus}`;
 
-            // Sửa thẻ <tr> bên dưới để nhận class mới:
-            return `<tr data-id="${c.id}" data-status="${normalizedStatus}" class="${rowColorClass}">
+                return `<tr data-id="${c.id}" data-status="${normalizedStatus}" class="${rowColorClass}">
                 <td class="checkbox-cell"><input type="checkbox" class="candidate-checkbox" data-candidate-id="${c.id}" onchange="updateSelectionState()"></td>
                 <td class="candidate-name">${c.full_name}</td>
                 <td><span class="cv-points ${c.overall_cv_score >= 85 ? 'high' : c.overall_cv_score >= 70 ? 'medium' : 'low'}">${c.overall_cv_score}</span></td>
                 <td>${c.phone}</td>
-                <td><span class="status-label ${normalizedStatus}">${statusText[normalizedStatus] || c.status}</span></td>
+                <td>${c.address || 'N/A'}</td>
                 <td><div class="action-buttons-cell">
                     <button class="table-icon-btn" onclick="showDetail(${c.id})" title="Chi tiết">📋</button>
                     <button class="table-icon-btn" onclick="previewCV(${c.id})" title="Xem CV">👁️</button>
@@ -1140,20 +1150,22 @@
         function loadMore() { currentPage++; renderTable(); }
 
         function updateAllCounts() {
-            const counts = { all: allCandidates.length, suitable: 0, unsuitable: 0, sended_inviting: 0, accepted: 0, hired: 0, rejected: 0 };
+            const counts = { all: allCandidates.length, suitable: 0, unsuitable: 0, accepted: 0, hired: 0, rejected: 0 };
             allCandidates.forEach(c => {
                 const normalizedStatus = normalizeStatus(c.status);
                 if (counts.hasOwnProperty(normalizedStatus)) counts[normalizedStatus]++;
             });
             document.getElementById('count-all').textContent = counts.all;
             document.getElementById('count-suitable').textContent = counts.suitable;
-            document.getElementById('count-inviting').textContent = counts.sended_inviting;
+            document.getElementById('count-unsuitable').textContent = counts.unsuitable;
             document.getElementById('count-accepted').textContent = counts.accepted;
             document.getElementById('count-rejected').textContent = counts.rejected;
+            document.getElementById('count-hired').textContent = counts.hired;
             document.getElementById('totalCandidates').textContent = counts.all;
             document.getElementById('suitableCount').textContent = counts.suitable;
-            document.getElementById('invitingCount').textContent = counts.sended_inviting;
+            document.getElementById('unsuitableCount').textContent = counts.unsuitable;
             document.getElementById('acceptedCount').textContent = counts.accepted;
+            document.getElementById('hiredCount').textContent = counts.hired;
         }
 
         function updateStatusCounts() {
@@ -1162,19 +1174,21 @@
             const rows = tbody.querySelectorAll('tr');
             const totalRows = rows.length;
             document.getElementById('count-all').textContent = totalRows;
-            let suitableCount = 0, invitingCount = 0, acceptedCount = 0, rejectedCount = 0;
+            let suitableCount = 0, unsuitableCount = 0, acceptedCount = 0, rejectedCount = 0, hiredCount = 0;
             rows.forEach(row => {
-                const statusLabel = row.querySelector('.status-label');
-                const status = statusLabel ? statusLabel.className.split(' ').slice(-1)[0] : null;
+                const statusAttr = row.getAttribute('data-status');
+                const status = statusAttr ? statusAttr : null;
                 if (status === 'suitable') suitableCount++;
-                else if (status === 'sended_inviting') invitingCount++;
+                else if (status === 'unsuitable') unsuitableCount++;
                 else if (status === 'accepted') acceptedCount++;
                 else if (status === 'rejected') rejectedCount++;
+                else if (status === 'hired') hiredCount++;
             });
             document.getElementById('count-suitable').textContent = suitableCount;
-            document.getElementById('count-inviting').textContent = invitingCount;
+            document.getElementById('count-unsuitable').textContent = unsuitableCount;
             document.getElementById('count-accepted').textContent = acceptedCount;
             document.getElementById('count-rejected').textContent = rejectedCount;
+            document.getElementById('count-hired').textContent = hiredCount;
         }
 
         async function updateStatus(id, newStatus) {
@@ -1287,11 +1301,10 @@
             const ids = getSelectedCandidateIds();
             if (ids.length === 0) { alert('Vui lòng chọn ít nhất 1 ứng viên.'); return; }
 
-            const choice = prompt('Nhập trạng thái mới cho các ứng viên đã chọn (suitable, sended_inviting, accepted, rejected, hired, unsuitable):', 'sended_inviting');
+            const choice = prompt('Nhập trạng thái mới cho các ứng viên đã chọn (suitable, unsuitable, accepted, rejected, hired):', 'suitable');
             if (!choice) return;
             const normalized = normalizeStatus(choice);
-
-            if (!['suitable','sended_inviting','accepted','rejected','hired','unsuitable'].includes(normalized)) {
+            if (!['suitable','unsuitable','accepted','rejected','hired'].includes(normalized)) {
                 alert('Trạng thái không hợp lệ: ' + normalized);
                 return;
             }

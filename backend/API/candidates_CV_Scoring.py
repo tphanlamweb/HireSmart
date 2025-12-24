@@ -15,6 +15,7 @@ import backend.API.scoring.soft_skills_scoring as soft_skills_scoring
 import backend.API.scoring.tools_and_certificates_scoring as tools_and_certificates_scoring
 import backend.API.scoring.similarity_scoring as sim_scoring
 import backend.dataAndModels.candidates_table as candidates_table
+from backend.API.job_routes import build_jd_full_from_db
 
 
 # def clean_text(text: str) -> str:
@@ -205,50 +206,17 @@ def scoring_summary(candidate, jd_full):
 
 
 
-def score_candidate(candidate):
-    
-    jd_full = {
-        "certificates": "We are hiring a Marketing Manager with experience in business management, finance, and digital marketing.",
+def score_candidate(candidate, db=None):
 
-        "experiences": """
-        We are looking for a Backend Developer with experience in PHP, Laravel, and MySQL.
-        The candidate should have knowledge of API development, teamwork, and React integration.
-        """,
+    try:
+        jd_full = build_jd_full_from_db(candidate.get("job_id"), db)
+    except TypeError:
+        # In case upstream helper signature changed, try calling without db
+        jd_full = build_jd_full_from_db(candidate.get("job_id"))
 
-        "technical_skills": {
-            "title": "Senior Backend Developer",
-            "requirements": "Required: PHP, Laravel, MySQL. Prefer: Docker, AWS",
-            "skills": "PHP Laravel MySQL REST API"
-        },
-
-        "soft_skills": "Looking for candidate with strong leadership and communication skills",
-
-        "tools_and_certificates": {
-            "requirements": """
-            Tools:
-            - Version Control (Github, GitLab, Git)
-            - API Testing
-            - Collaboration (Jira)
-            - Design (Figma)
-            
-            Certificates:
-            - AWS Certified Solutions Architect
-            - Certified ScrumMaster (CSM)
-            - PMP Certification
-            - IELTS 5.0
-            """
-        },
-
-        "similarity": {
-            "title": "Senior Backend Developer",
-            "requirements": "PHP, Laravel, MySQL, 5+ years experience, Docker, Leadership skills"
-        }
-    }
-    
-    
     #print(detect_language(json.dumps(candidate, ensure_ascii=False)))
-    
-    return int(scoring_summary(candidate ,jd_full))
+
+    return int(scoring_summary(candidate, jd_full))
     
     
 #main()

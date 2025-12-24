@@ -5,6 +5,9 @@ Module chấm điểm phần Experience của CV
 import re
 from datetime import datetime
 from difflib import SequenceMatcher
+import json
+
+from backend.src.ai import manager as ai_manager
 
 
 def _extract_years_from_experience(experience_text):
@@ -314,7 +317,52 @@ def _calculate_relevance_score(cv_data, jd_data):
 
 
 def score_experience(cv_data, jd_data, max_score=100, weights=None):
-    
+    # If Ollama is available, try AI scoring first (safe fallback to classic logic)
+    USE_AI = ai_manager.ollama_available()
+
+    def ai_score_experience(cv_data, jd_data):
+        try:
+            prompt = (
+                "You are an assistant that scores a candidate's experience against a job description. "
+                "Input: two JSON objects labelled CV and JD. Output: a single JSON object with keys: "
+                "total_score (0-100), relevance_score (0-100), duration_score (0-100), level_score (0-100), "
+                "years_of_experience (float), details (string). Only output valid JSON.\n\n"
+                "CV:\n" + json.dumps(cv_data, ensure_ascii=False) + "\n\n"
+                "JD:\n" + json.dumps(jd_data, ensure_ascii=False) + "\n\n"
+            )
+
+            # Use centralized ai manager to call Ollama (manager reads env for base/model)
+            text = ai_manager.call_ollama(prompt)
+            m = re.search(r"\{[\s\S]*\}", text)
+            raw = m.group(0) if m else text
+            parsed = json.loads(raw)
+
+            total_score = float(parsed.get('total_score', parsed.get('score', 0)))
+            relevance = float(parsed.get('relevance_score', parsed.get('relevance', 0)))
+            duration = float(parsed.get('duration_score', parsed.get('duration', 0)))
+            level = float(parsed.get('level_score', parsed.get('level', 0)))
+            years = float(parsed.get('years_of_experience', parsed.get('years', 0)))
+            details = parsed.get('details', parsed.get('explanation', ''))
+
+            return {
+                'total_score': round(float(total_score), 2),
+                'max_score': max_score,
+                'breakdown': {
+                    'relevance_score': round(float(relevance), 2),
+                    'duration_score': round(float(duration), 2),
+                    'level_score': round(float(level), 2)
+                },
+                'years_of_experience': round(float(years), 1),
+                'details': details
+            }
+        except Exception:
+            return None
+
+    if USE_AI:
+        ai_result = ai_score_experience(cv_data, jd_data)
+        if ai_result:
+            return ai_result
+
     # Thiết lập weights mặc định
     if weights is None:
         weights = {

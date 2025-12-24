@@ -1,16 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import create_engine, MetaData, Table, select
 from sqlalchemy.orm import sessionmaker, Session
+from backend.dataAndModels.config import DATABASE_URL
 
 
-#   mysql+pymysql://<username>:<password>@<host>:<port>/<database_name>
-DB_USER = "root"                # 🧑‍💻 Tên user MySQL
-DB_PASSWORD = "tPhan186%40"          # 🔑 Mật khẩu MySQL
-DB_HOST = "localhost"           # 🖥️  Địa chỉ server (hoặc IP)
-DB_PORT = "3306"                # 🌐 Cổng mặc định của MySQL
-DB_NAME = "HireSmart"  # 📂 Tên cơ sở dữ liệu bạn đã có
 
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Tạo engine kết nối đến MySQL
 engine = create_engine(DATABASE_URL)
@@ -73,7 +67,7 @@ def root():
     """
     Trang chào - liệt kê tất cả các bảng hiện có trong database.
     """
-    return {"database": DB_NAME, "tables": list(metadata.tables.keys())}
+    return {"tables": list(metadata.tables.keys())}
 
 
 datatable = metadata.tables["candidates"]  # ⚠️ Đổi tên bảng ở đây
@@ -81,13 +75,6 @@ print( "candidates tables: \n")  # In ra tên các cột của bảng
 conn = engine.connect()
 for row in conn.execute(select(datatable.c.id,datatable.c.full_name,datatable.c.phone)).fetchall():
     print(row)
-
-
-
-
-
-
-
 
 
 

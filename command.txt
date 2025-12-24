@@ -11,3 +11,7 @@ Lưu ý:
 - Phải chạy từ thư mục gốc của project (D:\Cap 1\HireSmart)
 - Nếu gặp lỗi "No module named 'API'", dùng Cách 1 (run_server.py)
     
+
+API key = {
+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
+}

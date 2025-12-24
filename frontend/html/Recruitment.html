@@ -536,21 +536,7 @@ nav {
 
             <div class="job-list" id="jobListContainer">
                 <h2>Các vị trí đang tuyển dụng</h2>
-                <div class="job-item">
-                    <h3>💼 Senior Backend Developer</h3>
-                    <p>📍 Hà Nội | 💰 Lương: Thỏa thuận | ⏰ Full-time</p>
-                    <button class="view-jd-btn" onclick="showJD('backend')">Xem mô tả công việc</button>
-                </div>
-                <div class="job-item">
-                    <h3>🎨 UI/UX Designer</h3>
-                    <p>📍 Hồ Chí Minh | 💰 Lương: Thỏa thuận | ⏰ Full-time</p>
-                    <button class="view-jd-btn" onclick="showJD('designer')">Xem mô tả công việc</button>
-                </div>
-                <div class="job-item">
-                    <h3>📱 Mobile Developer (React Native)</h3>
-                    <p>📍 Đà Nẵng | 💰 Lương: Thỏa thuận | ⏰ Full-time</p>
-                    <button class="view-jd-btn" onclick="showJD('mobile')">Xem mô tả công việc</button>
-                </div>
+
                 <!-- Dynamically injected items will be appended below -->
             </div>
         </div>
@@ -597,7 +583,7 @@ nav {
 
                 <div class="btn-group">
                     <button class="btn btn-secondary" type ="button" onclick="backToLanding()">Quay lại</button>
-                    <button class="btn btn-primary" type="submit">Nộp đơn ứng tuyển</button>
+                    <button id="submitBtn" class="btn btn-primary" type="button">Nộp đơn ứng tuyển</button>
                 </div>
             </form>
         </div>
@@ -659,7 +645,7 @@ nav {
     
     async function loadJobsFromAPI() {
         try {
-            const response = await fetch('/api/jobs?active_only=true');
+            const response = await fetch('http://127.0.0.1:8000/api/jobs?active_only=true');
             const data = await response.json();
 
             if (!data.data || !Array.isArray(data.data)) return;
@@ -706,7 +692,7 @@ nav {
     // Show job detail in modal
     async function showJobDetail(jobId) {
         try {
-            const response = await fetch(`/api/jobs/${jobId}`);
+            const response = await fetch(`http://127.0.0.1:8000/api/jobs/${jobId}`);
             const data = await response.json();
 
             if (!data.data) return;
@@ -790,7 +776,7 @@ nav {
     
     async function loadPositionsDropdown() {
         try {
-            const response = await fetch('/api/jobs?active_only=true');
+            const response = await fetch('http://127.0.0.1:8000/api/jobs?active_only=true');
             const data = await response.json();
 
             if (!data.data || !Array.isArray(data.data)) return;
@@ -957,6 +943,8 @@ nav {
         form.action = 'javascript:void(0);';
         // remove any inline onsubmit to avoid conflicts
         form.onsubmit = null;
+        // Prevent native form submit (e.g., Enter key) which can reload the page
+        form.addEventListener('submit', function(e){ e.preventDefault(); e.stopPropagation(); }, { capture: true });
 
         async function submitHandler(e) {
             console.log('candidateForm submit handler fired');
@@ -965,7 +953,7 @@ nav {
             // ngăn các handler submit khác
             if (e.stopImmediatePropagation) e.stopImmediatePropagation();
 
-            const submitBtn = form.querySelector('button[type="submit"]');
+            const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn ? submitBtn.textContent : '';
             if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Đang gửi...'; }
 
@@ -989,6 +977,8 @@ nav {
                 formData.append('position', positionText);
                 formData.append('fileName', file.name);
                 formData.append('file', file);
+                // append the selected job_id (option value) so backend can store it
+                formData.append('job_id', positionSelect.value);
 
                 const baseUrl = window.location.origin.includes('8000') ? window.location.origin : 'http://127.0.0.1:8000';
 
@@ -1028,8 +1018,9 @@ nav {
             return false;
         }
 
-        // gắn ở capture để đảm bảo chạy trước các listener khác
-        form.addEventListener('submit', submitHandler, { capture: true });
+        // Attach to the submit button click to fully prevent native form submissions
+        const submitButton = document.getElementById('submitBtn');
+        if (submitButton) submitButton.addEventListener('click', submitHandler, { capture: true });
     });
     // Render created jobs from localStorage under the default list
     (function renderCreatedJobs() {

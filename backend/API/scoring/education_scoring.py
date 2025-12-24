@@ -1,17 +1,12 @@
-from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
 import numpy as np
 from functools import lru_cache
 from typing import List, Tuple
+from backend.src.ai import manager as ai_manager
 
 
-
-"""Tối ưu bằng cách cache model và embeddings"""
-
-model_name: str = "sentence-transformers/LaBSE"
-# ✅ Load model một lần duy nhất
-model = SentenceTransformer(model_name)
+"""Tối ưu bằng cách cache model và embeddings (model được quản lý trong ai.manager)"""
 
 # ✅ Compile regex một lần
 clean_pattern = re.compile(r"[^\w\s]")
@@ -57,13 +52,8 @@ field_list = [
     "sales",
 ]
 
-# ✅ Pre-compute và cache embeddings của tất cả fields
-field_embeddings = model.encode(
-    field_list,
-    batch_size=32,  # Batch processing
-    show_progress_bar=False,
-    convert_to_numpy=True,
-)
+# Pre-compute và cache embeddings của tất cả fields via ai_manager
+field_embeddings = ai_manager.get_embeddings(field_list, batch_size=32)
 
 @lru_cache(maxsize=1000)
 def clean_text(text: str) -> str:
@@ -80,8 +70,8 @@ def generate_relevant_keywords(
     """
     jd_text = clean_text(jd_text)
 
-    # ✅ Encode JD một lần
-    jd_emb = model.encode([jd_text], convert_to_numpy=True)[0]
+    # ✅ Encode JD một lần via ai_manager
+    jd_emb = ai_manager.get_embeddings([jd_text], batch_size=32)[0]
 
     # ✅ Tính similarity với tất cả fields cùng lúc (vectorized)
     similarities = cosine_similarity([jd_emb], field_embeddings)[0]
@@ -117,10 +107,8 @@ def score_education_semantic(cv_text: str, target_description: str) -> float:
     cv_text = clean_text(cv_text)
     target_description = clean_text(target_description)
 
-    # ✅ Batch encode cả 2 texts cùng lúc
-    embeddings = model.encode(
-        [cv_text, target_description], convert_to_numpy=True
-    )
+    # ✅ Batch encode cả 2 texts cùng lúc via ai_manager
+    embeddings = ai_manager.get_embeddings([cv_text, target_description], batch_size=32)
 
     sim = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
     return float(sim * 100)

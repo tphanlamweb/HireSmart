@@ -1,25 +1,34 @@
 import pymysql
 from fastapi import APIRouter
 from backend.dataAndModels.candidates_table import insert_candidates as insert
-
-conn = pymysql.connect(
-    host="127.0.0.1",
-    user="root",
-    password="tPhan186@",
-    database="HireSmart",
-    ssl_disabled=True,
-)
+from sqlalchemy.orm import sessionmaker, Session
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy import create_engine, MetaData, Table, select
+from backend.dataAndModels.config import DATABASE_URL
 
 print("Kết nối thành công!")
+engine = create_engine(DATABASE_URL)
+
 
 router = APIRouter()
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def get_db():
+    """Dependency cung cấp session cho các route FastAPI"""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 
 @router.get("/insert")
-async def insert_test():
+def insert_test(db: Session = Depends(get_db)):
     try:
         test_candidate = {
-            "full_name": "Nguyễn Văn A",
+            "full_name": "Nguyễn Văn BBB",
             "email": "nguyenvana@example.com",
             "phone": "+84901234567",
             "address": "Hanoi, Vietnam",
@@ -43,6 +52,7 @@ async def insert_test():
             # job_id: có thể là int hoặc numeric string; nếu DB không cho NULL, gửi giá trị hợp lệ
             "job_id": 1
         }
-        insert(conn, test_candidate)
+        insert(test_candidate, db)
+        return {"status": "success", "message": f"{test_candidate['full_name']}"}
     except Exception as e:
         return {"status": "error", "message": str(e)}

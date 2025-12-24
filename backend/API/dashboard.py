@@ -94,6 +94,9 @@ def get_candidates_tables(request: Request):
             # Thêm application_status nếu cột tồn tại
             if "application_status" in datatable.c:
                 columns.append(datatable.c.application_status)
+            # Thêm address nếu tồn tại
+            if "address" in datatable.c:
+                columns.append(datatable.c.address)
             
             result = conn.execute(select(*columns)).fetchall()
             
@@ -111,6 +114,11 @@ def get_candidates_tables(request: Request):
                     row_dict["application_status"] = getattr(row, 'application_status', None) or "suitable"
                 else:
                     row_dict["application_status"] = "suitable"  # Mặc định nếu không có cột
+                    # Thêm address nếu có
+                    if "address" in datatable.c:
+                        row_dict["address"] = getattr(row, 'address', None) or ""
+                    else:
+                        row_dict["address"] = ""
                 data.append(row_dict)
         
         print(f"[DEBUG] Loaded {len(data)} candidates")

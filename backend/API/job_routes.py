@@ -417,7 +417,7 @@ from datetime import datetime
 from decimal import Decimal
 import logging
 
-from backend.dataAndModels.config import DATABASE_URL, engine, get_db
+from backend.dataAndModels.config import DATABASE_URL, engine, get_db, SessionLocal
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -512,6 +512,175 @@ def parse_salary(salary_str: str) -> tuple:
             status_code=400,
             detail=f"Invalid salary format: {salary_str}. Use format like '100k' or '100-200k'"
         )
+
+
+def build_jd_full_from_db(job_id: int, db: Session | None = None) -> Dict[str, Any]:
+    """
+    Fetch a job description (JD) and related info blocks/requirements from the DB
+    and assemble a dict that follows the `jd_full` sample structure used by
+    `candidates_CV_Scoring.py`.
+
+    Behaviour / mapping rules:
+    - Info blocks linked to the JD via `job_description_info` are grouped by
+      their `section` value (lowercased) and concatenated.
+    - Category-level `Requirement_for_job` entries are used as fallbacks for
+      technical skills / tools when no info blocks exist.
+    - The function returns a dictionary with keys: `certificates`,
+      `experiences`, `technical_skills`, `soft_skills`, `tools_and_certificates`,
+      `similarity`.
+    """
+    job_descriptions = metadata.tables.get("job_descriptions")
+    information_for_job = metadata.tables.get("Information_for_job")
+    job_description_info = metadata.tables.get("job_description_info")
+    requirement_for_job = metadata.tables.get("Requirement_for_job")
+
+    if job_descriptions is None:
+        raise HTTPException(status_code=500, detail="job_descriptions table missing")
+
+    # If no job_id provided, return a minimal jd_full so scoring can proceed
+    if not job_id:
+        return {
+            "certificates": "",
+            "experiences": "",
+            "technical_skills": {"title": "", "requirements": "", "skills": ""},
+            "soft_skills": "",
+            "tools_and_certificates": {"requirements": ""},
+            "similarity": {"title": "", "requirements": ""},
+        }
+
+    # Ensure we have a DB session; create local if needed
+    created_local = False
+    if db is None:
+        db = SessionLocal()
+        created_local = True
+
+    try:
+        # Load job row
+        job_row = db.execute(
+        select(
+            job_descriptions.c.id,
+            job_descriptions.c.job_title,
+            job_descriptions.c.category_id,
+            job_descriptions.c.location,
+            job_descriptions.c.employment_type,
+        ).where(job_descriptions.c.id == job_id)
+        ).fetchone()
+
+        if not job_row:
+            raise HTTPException(status_code=404, detail=f"Job description {job_id} not found")
+
+        # Fetch linked info blocks (if job_description_info exists)
+        if information_for_job is None:
+            info_rows = []
+        else:
+            if job_description_info is not None:
+                info_query = (
+                    select(
+                        information_for_job.c.Info_title,
+                        information_for_job.c.Info_description,
+                        information_for_job.c.section,
+                    )
+                    .select_from(
+                        information_for_job.join(
+                            job_description_info, information_for_job.c.id == job_description_info.c.info_id
+                        )
+                    )
+                    .where(job_description_info.c.jd_id == job_id)
+                    .order_by(job_description_info.c.sort_order.asc())
+                )
+            else:
+                info_query = (
+                    select(
+                        information_for_job.c.Info_title,
+                        information_for_job.c.Info_description,
+                        information_for_job.c.section,
+                    )
+                    .order_by(information_for_job.c.priority.desc())
+                    .limit(50)
+                )
+
+            info_rows = db.execute(info_query).fetchall()
+
+        # Group info blocks by section
+        from collections import defaultdict
+
+        sections = defaultdict(list)
+        for row in info_rows:
+            title = (row[0] or "").strip()
+            desc = (row[1] or "").strip()
+            section = (row[2] or "").strip().lower()
+            sections[section].append({"title": title, "description": desc})
+
+        # Fetch category requirements (fallback)
+        category_reqs = []
+        if requirement_for_job is not None and job_row.category_id is not None:
+            req_q = select(requirement_for_job.c.title, requirement_for_job.c.description).where(
+                requirement_for_job.c.job_categories_id == job_row.category_id
+            ).order_by(requirement_for_job.c.id.asc())
+            req_rows = db.execute(req_q).fetchall()
+            for r in req_rows:
+                category_reqs.append({"title": (r[0] or "").strip(), "description": (r[1] or "").strip()})
+
+        def join_items(list_of_items):
+            parts = []
+            for it in list_of_items:
+                if it.get("description"):
+                    parts.append(f"{it.get('title')}: {it.get('description')}")
+                else:
+                    parts.append(it.get("title"))
+            return "\n".join(parts).strip()
+
+        # Build fields using available data (prefer linked info blocks, else fallbacks)
+        certificates = "\n".join(
+            [f"{i['title']}: {i['description']}" if i['description'] else i['title'] for i in sections.get("certificates", [])]
+        ).strip()
+
+        experiences = join_items(sections.get("experiences", []) or sections.get("experience", []))
+
+        soft_skills = join_items(sections.get("soft_skills", []) or sections.get("personal_skills", []))
+
+        # Tools and certificates combined
+        tools_section = sections.get("tools", []) + sections.get("tools_and_certificates", [])
+        tools_and_certificates_text = join_items(tools_section) or certificates or join_items(category_reqs)
+
+        # Technical skills: prefer explicit technical_skills section; otherwise fall back to category requirements
+        tech_block = sections.get("technical_skills", [])
+        if tech_block:
+            tech_title = tech_block[0].get("title") or job_row.job_title
+            tech_requirements = join_items(tech_block)
+            tech_skills = " ".join([t.get("title") for t in tech_block if t.get("title")])
+        else:
+            tech_title = job_row.job_title
+            # heuristically select technical-like req titles from category_reqs
+            tech_candidates = [r for r in category_reqs if any(k in r.get("title", "").lower() for k in ("php","python","java","mysql","docker","aws","rest","api","laravel","react","skill"))]
+            if not tech_candidates:
+                tech_candidates = category_reqs
+            tech_requirements = join_items(tech_candidates)
+            tech_skills = " ".join([r.get("title") for r in tech_candidates])
+
+        technical_skills = {
+            "title": tech_title,
+            "requirements": tech_requirements,
+            "skills": tech_skills,
+        }
+
+        similarity = {"title": technical_skills["title"], "requirements": technical_skills["requirements"]}
+
+        jd_full = {
+            "certificates": certificates or tools_and_certificates_text or "",
+            "experiences": experiences or "",
+            "technical_skills": technical_skills,
+            "soft_skills": soft_skills or "",
+            "tools_and_certificates": {"requirements": tools_and_certificates_text},
+            "similarity": similarity,
+        }
+        return jd_full
+    finally:
+        if created_local:
+            try:
+                db.close()
+            except Exception:
+                pass
 
 def get_user_id_from_request() -> int:
     """
@@ -717,179 +886,173 @@ def get_job_detail(
     job_id: int,
     db: Session = Depends(get_db)
 ):
-    """
-    Lấy chi tiết 1 job kèm danh sách requirements và info blocks
-    
-    IMPROVEMENTS:
-    1. ✅ CHỈ lấy info blocks được gán cho job này (qua job_description_info)
-    2. ✅ Sort requirements theo priority DESC
-    3. ✅ Loại bỏ fields không cần (is_active, created_at)
-    4. ✅ Thêm currency, application_deadline, created_by_name
-    5. ✅ Better error handling
-    """
     try:
-        job_descriptions = metadata.tables["job_descriptions"]
-        requirement_for_job = metadata.tables["Requirement_for_job"]
-        job_categories = metadata.tables["job_categories"]
-        information_for_job = metadata.tables["Information_for_job"]
-        users = metadata.tables["users"]
-        
-        # Check if job_description_info exists
+        # ===== LOAD TABLES (SAFE) =====
+        job_descriptions = metadata.tables.get("job_descriptions")
+        job_categories = metadata.tables.get("job_categories")
+        requirement_for_job = metadata.tables.get("Requirement_for_job")
+        information_for_job = metadata.tables.get("Information_for_job")
+        users = metadata.tables.get("users")
         job_description_info = metadata.tables.get("job_description_info")
-        
-        # ===== QUERY 1: Get job details với thông tin HR =====
-        job_query = select(
-            job_descriptions.c.id,
-            job_descriptions.c.job_title,
-            job_descriptions.c.category_id,
-            job_descriptions.c.location,
-            job_descriptions.c.employment_type,
-            job_descriptions.c.salary_min,
-            job_descriptions.c.salary_max,
-            job_descriptions.c.currency,
-            job_descriptions.c.positions_open,
-            job_descriptions.c.current_applications,
-            job_descriptions.c.application_deadline,
-            job_categories.c.category_name,
-            users.c.full_name.label("created_by_name")
-        ).select_from(
-            job_descriptions
-        ).outerjoin(
-            job_categories,
-            job_descriptions.c.category_id == job_categories.c.id
-        ).outerjoin(
-            users,
-            job_descriptions.c.created_by == users.c.id
-        ).where(
-            job_descriptions.c.id == job_id,
-            job_descriptions.c.is_active == 1  # CHỈ lấy job đang active
+
+        if (
+            job_descriptions is None
+            or job_categories is None
+            or requirement_for_job is None
+            or information_for_job is None
+            or users is None
+        ):
+            raise HTTPException(
+                status_code=500,
+                detail="Database table mapping error"
+            )
+            
+
+        # ===== QUERY 1: JOB DETAIL =====
+        job_query = (
+            select(
+                job_descriptions.c.id,
+                job_descriptions.c.job_title,
+                job_descriptions.c.category_id,
+                job_descriptions.c.location,
+                job_descriptions.c.employment_type,
+                job_descriptions.c.salary_min,
+                job_descriptions.c.salary_max,
+                job_descriptions.c.currency,
+                job_descriptions.c.positions_open,
+                job_descriptions.c.current_applications,
+                job_descriptions.c.application_deadline,
+                job_categories.c.category_name,
+                users.c.full_name.label("created_by_name")
+            )
+            .select_from(job_descriptions)
+            .outerjoin(
+                job_categories,
+                job_descriptions.c.category_id == job_categories.c.id
+            )
+            .outerjoin(
+                users,
+                job_descriptions.c.created_by == users.c.id
+            )
+            .where(
+                job_descriptions.c.id == job_id,
+                job_descriptions.c.is_active.is_(True)  # ✅ FIX HERE
+            )
         )
-        
-        with engine.connect() as conn:
-            job_row = conn.execute(job_query).fetchone()
-        
+        job_row = db.execute(job_query).fetchone()
+
         if not job_row:
             raise HTTPException(
                 status_code=404,
                 detail={
                     "error": "Job not found",
-                    "message": f"No active job with ID {job_id}",
                     "job_id": job_id
                 }
             )
-        
-        # ===== QUERY 2: Get info blocks (CHỈ CỦA JOB NÀY) =====
+
+        # ===== QUERY 2: INFO BLOCKS =====
         job_info = {}
-        
+
         if job_description_info is not None:
-            # CÁCH MỚI: Chỉ lấy info được gán cho job này
-            info_query = select(
-                information_for_job.c.Info_title,
-                information_for_job.c.Info_description,
-                information_for_job.c.section,
-                job_description_info.c.sort_order
-            ).select_from(
-                information_for_job
-            ).join(
-                job_description_info,
-                information_for_job.c.id == job_description_info.c.info_id
-            ).where(
-                job_description_info.c.jd_id == job_id
-            ).order_by(
-                job_description_info.c.sort_order.asc()
+            info_query = (
+                select(
+                    information_for_job.c.Info_title,
+                    information_for_job.c.Info_description,
+                    information_for_job.c.section
+                )
+                .select_from(information_for_job)
+                .join(
+                    job_description_info,
+                    information_for_job.c.id == job_description_info.c.info_id
+                )
+                .where(
+                    job_description_info.c.jd_id == job_id
+                )
+                .order_by(
+                    job_description_info.c.sort_order.asc()
+                )
             )
-            
-            logger.info(f"Using job_description_info table for job {job_id}")
         else:
-            # FALLBACK: Nếu chưa có bảng job_description_info, lấy tất cả (cách cũ)
-            info_query = select(
-                information_for_job.c.Info_title,
-                information_for_job.c.Info_description,
-                information_for_job.c.section,
-                information_for_job.c.priority
-            ).order_by(
-                information_for_job.c.section,
-                information_for_job.c.priority.desc()
+            info_query = (
+                select(
+                    information_for_job.c.Info_title,
+                    information_for_job.c.Info_description,
+                    information_for_job.c.section
+                )
+                .order_by(
+                    information_for_job.c.section.asc()
+                )
             )
-            
-            logger.warning(f"job_description_info table not found, using all info blocks (fallback)")
-        
-        with engine.connect() as conn:
-            info_rows = conn.execute(info_query).fetchall()
-        
-        # Group by section
-        # IMPORTANT: Đổi tên section "requirements" → "responsibilities" để tránh nhầm lẫn
+
+        info_rows = db.execute(info_query).fetchall()
+
         for row in info_rows:
-            section = row[2]
-            
-            # Đổi tên section nếu là "requirements"
+            section = row.section
             if section == "requirements":
-                section = "responsibilities"  # hoặc "job_responsibilities"
-            
-            if section not in job_info:
-                job_info[section] = []
-            job_info[section].append({
-                "title": row[0],
-                "description": row[1]
+                section = "responsibilities"
+
+            job_info.setdefault(section, []).append({
+                "title": row.Info_title,
+                "description": row.Info_description
             })
-        
-        # ===== QUERY 3: Get requirements (SORTED BY PRIORITY) =====
-        req_query = select(
-            requirement_for_job.c.id,
-            requirement_for_job.c.title,
-            requirement_for_job.c.description,
-            requirement_for_job.c.priority
-        ).where(
-            requirement_for_job.c.job_categories_id == job_row[2]
-        ).order_by(
-            requirement_for_job.c.priority.desc(),  # ← THÊM SORT
-            requirement_for_job.c.id.asc()
+
+        # ===== QUERY 3: REQUIREMENTS (BY CATEGORY) =====
+        req_query = (
+            select(
+                requirement_for_job.c.id,
+                requirement_for_job.c.title,
+                requirement_for_job.c.description
+            )
+            .where(
+                requirement_for_job.c.job_categories_id == job_row.category_id
+            )
+            .order_by(
+                requirement_for_job.c.id.asc()
+            )
         )
-        
-        with engine.connect() as conn:
-            req_rows = conn.execute(req_query).fetchall()
-        
+
+        req_rows = db.execute(req_query).fetchall()
+
         requirements = [
             {
-                "id": r[0],
-                "title": r[1],
-                "description": r[2],
-                "priority": r[3] if len(r) > 3 else 0
+                "id": r.id,
+                "title": r.title,
+                "description": r.description
             }
             for r in req_rows
         ]
-        
+
         # ===== BUILD RESPONSE =====
         return {
             "status": "success",
             "data": {
-                "id": job_row[0],
-                "job_title": job_row[1],
-                "category_id": job_row[2],
-                "location": job_row[3],
-                "employment_type": job_row[4],
-                "salary_min": float(job_row[5]) if job_row[5] else None,
-                "salary_max": float(job_row[6]) if job_row[6] else None,
-                "currency": job_row[7] if job_row[7] else "VND",
-                "positions_open": job_row[8],
-                "current_applications": job_row[9],
-                "application_deadline": str(job_row[10]) if job_row[10] else None,
-                "category_name": job_row[11],
-                "created_by_name": job_row[12],
+                "id": job_row.id,
+                "job_title": job_row.job_title,
+                "category_id": job_row.category_id,
+                "location": job_row.location,
+                "employment_type": job_row.employment_type,
+                "salary_min": float(job_row.salary_min) if job_row.salary_min else None,
+                "salary_max": float(job_row.salary_max) if job_row.salary_max else None,
+                "currency": job_row.currency or "VND",
+                "positions_open": job_row.positions_open,
+                "current_applications": job_row.current_applications,
+                "application_deadline": str(job_row.application_deadline) if job_row.application_deadline else None,
+                "category_name": job_row.category_name,
+                "created_by_name": job_row.created_by_name,
                 "job_info": job_info,
                 "requirements": requirements
             }
         }
-        
+
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error fetching job {job_id}: {e}")
+        logger.exception("Job detail error")
         raise HTTPException(
             status_code=500,
             detail=f"Error fetching job details: {str(e)}"
         )
-
 @router.get("/categories/list")
 def get_categories(db: Session = Depends(get_db)):
     """

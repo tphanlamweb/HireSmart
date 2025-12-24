@@ -3,6 +3,9 @@ from matplotlib.pylab import record
 from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 import httpx, json, re, pdfplumber, base64, os
+from backend.src.ai import manager as ai_manager
+import asyncio, random
+import time
 from PIL import Image
 import pytesseract
 import docx2txt
@@ -17,20 +20,27 @@ import logging
 
 router = APIRouter()
 
+# Limit concurrent Gemini requests to avoid bursts (tune as needed)
+_GEMINI_SEMAPHORE = asyncio.Semaphore(2)
+_GEMINI_429_COUNT = 0
+_GEMINI_429_THRESHOLD = 5
+_GEMINI_COOLDOWN_SECONDS = 60
+_GEMINI_COOLDOWN_UNTIL = 0.0
+
 CSV_FILE = os.path.join(os.path.dirname(__file__), "..", "results", "demo_data.csv")
 
 # Static
 static_dir = os.path.dirname(os.path.abspath(__file__))
 router.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-GEMINI_API_KEY = os.getenv(
-    "GEMINI_API_KEY",
-    "AIzaSyDbZr4J9HIaALo5gl5MMRpoKV2Jkma-YbY"
-)
-GEMINI_API_URL = (
-    f"https://generativelanguage.googleapis.com/v1beta/models/"
-    f"gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
-)
+
+
+
+# GEMINI API is deprecated in this file. Replaced by local Ollama model (qwen2.5:7b).
+# GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDigUC7KifbZTvp9DJvYeRrHpwIkKlkNCE")
+# GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+
+
 
 def clean_text(text) -> str:
     """Làm sạch chuỗi, xử lý cả list/dict."""
@@ -84,10 +94,92 @@ def ensure_sentence_end(text: str) -> str:
 
 
 KNOWN_SKILLS = [
-    "Laravel Framework", "Back End", "Bootstrap", "React", "Vue.js",
-    "Machine Learning", "Big Data", "PHP", "Node.js",
-    "Microsoft Word", "Microsoft Excel", "Digital Illustration",
-    "Typography", "Branding and Identity Design"
+    # Programming languages
+    "Python", "Java", "JavaScript", "TypeScript", "Go", "Golang", "Rust",
+    "C", "C++", "C#", "PHP", "Ruby", "Swift", "Kotlin", "Scala", "Objective-C",
+    "R", "MATLAB", "Perl", "Haskell", "Elixir", "Erlang", "Dart", "Lua",
+    "Shell", "Bash", "PowerShell",
+
+    # Frontend frameworks / libraries
+    "React", "React.js", "React Native", "Next.js", "Gatsby", "Vue.js", "Nuxt.js",
+    "Angular", "Svelte", "SvelteKit", "Ember.js", "Backbone.js",
+
+    # CSS / UI
+    "HTML", "CSS", "Sass", "Less", "Tailwind CSS", "Bootstrap", "Material UI",
+    "Ant Design", "Chakra UI", "Styled Components", "Semantic UI",
+
+    # Backend frameworks
+    "Node.js", "Express", "Koa", "NestJS", "FastAPI", "Flask", "Django",
+    "Spring", "Spring Boot", "Hibernate", "ASP.NET Core", ".NET", "Laravel",
+    "Symfony", "Ruby on Rails", "Sinatra", "Phoenix", "Play Framework",
+
+    # Mobile
+    "Android", "iOS", "Android SDK", "Xcode", "Flutter", "Ionic", "Cordova",
+    "Xamarin",
+
+    # Databases
+    "MySQL", "PostgreSQL", "SQLite", "MongoDB", "Redis", "Cassandra", "MariaDB",
+    "Oracle", "Microsoft SQL Server", "DynamoDB", "BigQuery", "Elasticsearch",
+
+    # Big data / streaming
+    "Hadoop", "Spark", "Kafka", "Flink", "Hive", "Airflow",
+
+    # Machine learning / data science
+    "TensorFlow", "PyTorch", "scikit-learn", "pandas", "NumPy", "SciPy", "Keras",
+    "XGBoost", "LightGBM", "Hugging Face", "spaCy", "NLTK", "OpenCV", "Dask",
+
+    # DevOps / Cloud / Infra as Code
+    "Docker", "Kubernetes", "Helm", "OpenShift", "EKS", "GKE", "AKS",
+    "Terraform", "Pulumi", "Ansible", "Chef", "Puppet", "Vagrant",
+    "AWS", "Azure", "GCP", "Amazon Web Services", "Google Cloud Platform",
+    "Azure DevOps",
+
+    # CI/CD
+    "Jenkins", "GitHub Actions", "GitLab CI", "CircleCI", "Travis CI", "ArgoCD",
+
+    # Monitoring / logging / observability
+    "Prometheus", "Grafana", "ELK", "Elasticsearch", "Logstash", "Kibana",
+    "Datadog", "Sentry", "New Relic",
+
+    # Messaging / queues
+    "RabbitMQ", "ActiveMQ", "ZeroMQ", "Amazon SQS", "Redis Streams", "NSQ",
+
+    # APIs / protocols
+    "REST", "GraphQL", "gRPC", "WebSocket", "OpenAPI", "Swagger", "JSON", "XML",
+
+    # Security / auth
+    "OAuth2", "OpenID Connect", "JWT", "SAML", "SSL/TLS", "bcrypt", "OWASP",
+
+    # Testing / QA
+    "pytest", "unittest", "Jest", "Mocha", "Chai", "Jasmine", "Selenium",
+    "Cypress", "Playwright", "Puppeteer", "JUnit", "TestNG",
+
+    # Build tools / package managers
+    "npm", "yarn", "pnpm", "pip", "pipenv", "poetry", "maven", "gradle",
+    "composer", "gem", "cargo", "go modules",
+
+    # VCS / collaboration / IDEs
+    "Git", "GitHub", "GitLab", "Bitbucket", "VS Code", "Visual Studio",
+    "IntelliJ IDEA", "PyCharm", "Eclipse", "NetBeans", "Sublime Text", "Vim",
+    "Emacs", "Xcode", "Android Studio",
+
+    # Data engineering / analytics
+    "ETL", "Data Pipelines", "Snowflake", "Redshift", "Presto", "Trino",
+
+    # Other useful stacks and concepts
+    "Microservices", "Serverless", "Lambda", "Cloud Functions", "CDN", "CI/CD",
+    "Infrastructure", "Observability", "Performance Tuning", "Load Balancing",
+    "Caching", "Varnish", "Redis Cache",
+
+    # Design / prototyping / misc
+    "Figma", "Sketch", "Adobe Photoshop", "Adobe Illustrator",
+
+    # Office / docs (OCR helpers)
+    "Microsoft Word", "Microsoft Excel", "Google Docs", "Google Sheets",
+
+    # Fallback generic entries
+    "Back End", "Front End", "Full Stack", "DevOps", "SRE", "Data Science",
+    "Machine Learning Engineer", "AI", "NLP", "Computer Vision"
 ]
 
 def clean_skills_text(raw_text: str) -> str:
@@ -111,15 +203,26 @@ def clean_skills_text(raw_text: str) -> str:
             final.append(s)
     return ", ".join(final)
 
+
+def ocr_image_bytes(image_bytes: bytes, lang: str = "vie+eng") -> str:
+    """Chạy OCR trên hình ảnh (bytes) và trả về text."""
+    try:
+        img = Image.open(BytesIO(image_bytes)).convert("RGB")
+        return pytesseract.image_to_string(img, lang=lang)
+    except Exception as e:
+        logging.warning("ocr_image_bytes failed: %s", e)
+        return ""
+
 # ==========================
 # Gọi Gemini API để trích xuất CV
 # ==========================
 async def extract_cv_with_gemini(full_text: str = "", file_bytes: bytes | None = None, mime_type: str = None) -> dict:
+    # NOTE: This function name is preserved for compatibility but the implementation
+    # now uses a local Ollama model (qwen2.5:7b) via the centralized ai manager.
     system_instruction = """Bạn là trợ lý trích xuất thông tin từ CV tiếng Việt. 
 Hãy phân tích và trả về đúng JSON, KHÔNG có giải thích. 
 Đặc biệt: 
-- Trường 'skills' phải được liệt kê rõ ràng, cách nhau bằng dấu phẩy, không viết liền nhau.
-- Email phải đúng định dạng.
+- Trường 'skills' phải được liệt kê rõ ràng, cách nhau bằng dấu phẩy.
 - Các đoạn văn bản nên giữ đúng câu, không tự ý chèn khoảng trắng sau dấu chấm.
 - phần references mỗi thông tin cách nhau bằng dấu |
 - Chỉ trả về các trường sau(nếu không có dữ liệu thì đặt "n/a"):
@@ -132,67 +235,83 @@ Hãy phân tích và trả về đúng JSON, KHÔNG có giải thích.
     7. certificates
     8. tools
     9. cv_summary
+    10. gender
     """
 
-    json_schema_hint = {
-        "full_name": "",
-        "email": "",
-        "phone": "",
-        "date_of_birth": "",
-        "gender": "",
-        "address": "",
-        "linkedin_url": "",
-        "portfolio_url": "",
-        "career_objective": "",
-        "technical_skills": "",
-        "soft_skills": "",
-        "tools_and_technologies": "",
-        "programming_languages": "",
-        "frameworks_and_libraries": "",
-        "work_experience_summary": "",
-        "education_summary": "",
-        "certifications_summary": "",
-        "expired_certifications": "",
-        "languages_summary": "",
-        "notable_projects": "",
-        "awards_and_honors": "",
-        "publications": "",
-        "volunteer_experience": "",
-        "hobbies_and_interests": "",
-        "cv_summary": "",
-        "skills": ""
-    }
+    # Build a single prompt for Ollama (we avoid sending binary data)
+    prompt = f"{system_instruction}\n\nDưới đây là văn bản CV:\n{full_text[:15000]}"
 
-    parts = [
-        {"text": f"{system_instruction}\n\nDưới đây là văn bản CV:\n{full_text[:15000]}"},
-    ]
+    max_retries = 3
+    backoff_base = 2.0
 
-    if (not full_text or len(full_text.strip()) < 20) and file_bytes and mime_type:
-        parts.append({
-            "inlineData": {
-                "mimeType": mime_type,
-                "data": base64.b64encode(file_bytes).decode("utf-8")
-            }
-        })
+    # reuse existing circuit/counter variables for cooldown behavior
+    global _GEMINI_429_COUNT, _GEMINI_COOLDOWN_UNTIL
+    now = time.time()
+    if _GEMINI_COOLDOWN_UNTIL and now < _GEMINI_COOLDOWN_UNTIL:
+        logging.warning("extract_cv_with_gemini: skipping LLM call due to cooldown until %s", _GEMINI_COOLDOWN_UNTIL)
+        return {}
 
-    payload = {
-        "contents": [{"role": "user", "parts": parts}],
-        "generationConfig": {"responseMimeType": "application/json"}
-    }
+    async with _GEMINI_SEMAPHORE:
+        data = {}
+        for attempt in range(1, max_retries + 1):
+            try:
+                # Call OpenAI Chat Completions API asynchronously
+                openai_key = os.getenv("OPENAI_API_KEY")
+                if not openai_key:
+                    raise RuntimeError("OPENAI_API_KEY not set")
+                model = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    payload = {
+                        "model": model,
+                        "messages": [
+                            {"role": "system", "content": system_instruction},
+                            {"role": "user", "content": full_text[:15000]}
+                        ],
+                        "max_tokens": 700,
+                        "temperature": 0
+                    }
+                    headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
+                    resp = await client.post("https://api.openai.com/v1/chat/completions", json=payload, headers=headers)
+                    resp.raise_for_status()
+                    j = resp.json()
+                    text = j.get("choices", [{}])[0].get("message", {}).get("content", "")
 
-    async with httpx.AsyncClient(timeout=90) as client:
-        resp = await client.post(GEMINI_API_URL, json=payload)
-        resp.raise_for_status()
-        data = resp.json()
+                # Expect the model to output a JSON object; extract the first JSON-looking block
+                fenced = re.search(r"\{[\s\S]*\}", text)
+                raw_json = fenced.group(0) if fenced else text
+                parsed = json.loads(raw_json)
+
+                # Normalize into previous 'data' shape so downstream parsing stays the same
+                data = {"candidates": [{"content": [{"parts": [{"text": raw_json}]}]}]}
+
+                # reset counters on success
+                _GEMINI_429_COUNT = 0
+                _GEMINI_COOLDOWN_UNTIL = 0.0
+                break
+
+            except Exception as e:
+                logging.warning("Ollama request exception on attempt %s: %s", attempt, e)
+                if attempt < max_retries:
+                    wait = backoff_base * (2 ** (attempt - 1)) + random.random()
+                    await asyncio.sleep(wait)
+                    continue
+                logging.error("Ollama request failed after retries: %s", e)
+                data = {}
+                break
+
+    if not isinstance(data, dict) or not data:
+        logging.info("extract_cv_with_gemini: returning empty result after retries")
+        return {}
 
     text = ""
     try:
-        text = data["candidates"][0]["content"]["parts"][0]["text"]
+        text = data["candidates"][0]["content"][0]["parts"][0]["text"]
     except Exception:
         pass
 
     fenced = re.search(r"\{[\s\S]*\}", text)
     raw_json = fenced.group(0) if fenced else text
+    logging.debug("extract_cv_with_gemini raw_json (truncated): %s", (raw_json or "")[:2000])
 
     try:
         return json.loads(raw_json)
@@ -244,6 +363,7 @@ async def upload_cv(
     email : str = Form(...),
     phone : str = Form(...),
     position : str = Form(...),
+    job_id: str = Form(None),
     file: UploadFile = File(...),
     db: Session = Depends(get_db)     # ← thêm dependency
 ):
@@ -257,13 +377,30 @@ async def upload_cv(
     # PDF
     if filename.endswith(".pdf"):
         with pdfplumber.open(BytesIO(file_bytes)) as pdf:
+            # First try native text extraction
             for page in pdf.pages:
                 text_content += (page.extract_text() or "") + "\n"
 
+            # If extracted text is very small, fall back to OCR on each page
+            if not text_content.strip() or len(text_content.strip()) < 50:
+                logging.info("PDF text extraction returned little content; falling back to OCR per page")
+                ocr_text = ""
+                for page in pdf.pages:
+                    try:
+                        pil_img = page.to_image(resolution=150).original
+                        if pil_img is not None:
+                            # ensure RGB
+                            pil_img = pil_img.convert("RGB")
+                            ocr_text += pytesseract.image_to_string(pil_img, lang="vie+eng") + "\n"
+                    except Exception as e:
+                        logging.warning("PDF page OCR failed: %s", e)
+                text_content = ocr_text or text_content
+
+        # parsed_info isn't available yet here; printing moved after LLM call
     # Ảnh
     elif filename.endswith((".png", ".jpg", ".jpeg")):
-        image = Image.open(BytesIO(file_bytes))
-        text_content = pytesseract.image_to_string(image, lang="vie+eng")
+        # Dùng OCR cho file ảnh
+        text_content = ocr_image_bytes(file_bytes, lang="vie+eng")
 
     # DOCX
     elif filename.endswith(".docx"):
@@ -277,17 +414,25 @@ async def upload_cv(
 
     # Làm sạch text trước khi gửi lên Gemini
     text_content = clean_text(text_content)
+    # In ra terminal phần text đã trích xuất từ file để dễ kiểm tra
+    try:
+        print("\n--- Extracted text (start) ---\n")
+        print(text_content)
+        print("\n--- Extracted text (end) ---\n")
+    except Exception:
+        # bảo đảm không làm vỡ luồng nếu in gặp lỗi encoding
+        print("[Warning] Unable to print extracted text due to encoding issues.")
 
     # Gọi Gemini
     parsed_info = {}  # <-- ensure defined even if API call fails
     try:
         parsed_info = await extract_cv_with_gemini(text_content, file_bytes, mime_type)
     except httpx.HTTPStatusError as e:
-        print("Gemini HTTP error:", e)
+        print("\n\n\n\n\n\n\n\n\n\n\nGemini HTTP error:", e)
         parsed_info = {}
     except Exception as e:
         # Bắt thêm các lỗi khác (mạng, timeout, parsing...)
-        print("Gemini unexpected error:", e)
+        print("\n\n\n\n\n\n\n\n\n\n\nGemini unexpected error:", e)
         parsed_info = {}
     fallback_info = extract_with_regex(text_content)
     clear_phone = normalize_phone_number(phone)
@@ -307,7 +452,8 @@ async def upload_cv(
         "full_name": fullName,
         "email": email,
         "phone": clear_phone,
-        "position": position
+        "position": position,
+        "job_id": job_id
     }
 
     for k, v in parsed_info.items():
@@ -341,6 +487,7 @@ async def upload_cv(
         for k, v in record.items():
             f.write(f"{k}: {v}\n")
         f.write("-" * 40 + "\n")
+        
 
     return {
         "message": f"Đã trích xuất thông tin từ {filename}",

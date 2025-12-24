@@ -72,6 +72,7 @@ app.include_router(email_renderer, prefix="/email", tags=["email"])
 app.include_router(email_sender, prefix="/email", tags=["email"])
 app.include_router(email_verifier, tags=["email"])
 app.include_router(job_router)
+app.include_router(test)
 
 
 # Route gốc trả về Recruitment.html

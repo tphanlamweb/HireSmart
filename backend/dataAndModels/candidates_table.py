@@ -145,18 +145,15 @@ def getStatus(overall_score: float | int | None) -> str:
     # Accept scores on 0-100 scale too (convert to 0-1000)
     if score <= 100:
         score = score * 10
+        
+
 
     # Clamp
     score = max(0.0, min(1000.0, score))
-    if score >= 900:
-        return "excellent"
-    if score >= 750:
-        return "good"
-    if score >= 500:
-        return "average"
+
     if score >= 300:
-        return "weak"
-    return "unsuitable"
+        return "Suitable"
+    return "Unsuitable"
 
 
 def insert_candidates(candidate: dict, db: Session | None = None):
@@ -178,9 +175,10 @@ def insert_candidates(candidate: dict, db: Session | None = None):
             raise HTTPException(status_code=500, detail="Table 'candidates' not found")
 
         cols = set(table.c.keys())
-        data: Dict[str, object] = {}
+        data = {}
         
         candidate_for_scoring = {
+            'job_id': candidate.get('job_id'),
             'hard_skills': candidate.get('hard_skills', ''),
             'experience': candidate.get('experience', ''),
             'cv_summary': candidate.get('cv_summary', ''),
@@ -190,7 +188,7 @@ def insert_candidates(candidate: dict, db: Session | None = None):
             'soft_skills': candidate.get('soft_skills', '')
         }
         
-        overall_score = score_candidate(candidate_for_scoring)
+        overall_score = score_candidate(candidate_for_scoring, db)
 
 
             
