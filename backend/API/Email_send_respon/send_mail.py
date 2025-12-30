@@ -18,13 +18,16 @@ from .render_mail import BulkEmailRequest, render_bulk_emails
 
 router = APIRouter()
 
+
 # ==============================
 # SMTP configuration
 # ==============================
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
+# Khuyến khích dùng cổng 465 (SSL) cho các script tự động để ổn định hơn
+SMTP_PORT = int(os.getenv("SMTP_PORT", 465))
 SENDER_EMAIL = os.getenv("SMTP_EMAIL", "hiresmart2525@gmail.com")
-APP_PASSWORD = os.getenv("SMTP_PASSWORD", "kefh hlov mtjc oiis")
+# App Password: Nên là chuỗi 16 ký tự viết liền, không khoảng trắng
+APP_PASSWORD = os.getenv("SMTP_PASSWORD", "iwtuukfzcxkafmoy").replace(" ", "")
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +45,7 @@ def _build_message(to_email: str, subject: str, content: str):
     msg["To"] = to_email
     msg["Subject"] = subject or "(No Subject)"
 
+    # Tạo nội dung text thuần bằng cách loại bỏ các tag HTML
     plain = re.sub(r"<[^>]+>", "", content or "")
     msg.attach(MIMEText(plain, "plain"))
 
@@ -65,7 +69,6 @@ def send_email(server: smtplib.SMTP, to_email: str, subject: str, content: str):
 def send_bulk_emails(payload: BulkEmailRequest):
     """
     Gửi email cho nhiều ứng viên dựa trên template đã chọn.
-    Payload giống với /email/render-bulk (template_id, candidate_ids, extra_context).
     """
     render_result = render_bulk_emails(payload)
     emails = render_result.get("emails", [])
@@ -80,8 +83,16 @@ def send_bulk_emails(payload: BulkEmailRequest):
     context = ssl.create_default_context()
 
     try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=15) as server:
-            server.starttls(context=context)
+        # KIẾM TRA CỔNG ĐỂ CHỌN PHƯƠNG THỨC KẾT NỐI PHÙ HỢP
+        if SMTP_PORT == 465:
+            # Kết nối Implicit SSL (Bảo mật ngay từ đầu)
+            smtp_conn = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, context=context, timeout=20)
+        else:
+            # Kết nối Explicit TLS (Cổng 587 - Cần STARTTLS)
+            smtp_conn = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=20)
+            smtp_conn.starttls(context=context)
+
+        with smtp_conn as server:
             server.login(SENDER_EMAIL, APP_PASSWORD)
 
             for email in emails:
@@ -90,16 +101,18 @@ def send_bulk_emails(payload: BulkEmailRequest):
                 body = email.get("body", "")
                 try:
                     send_email(server, to, subject, body)
-                except Exception as exc:  # pylint: disable=broad-except
+                except Exception as exc:
                     logger.exception("Failed to send to %s", to)
-                    failed.append(
-                        {
-                            "candidate_id": email.get("candidate_id"),
-                            "email": to,
-                            "error": str(exc),
-                        }
-                    )
+                    failed.append({
+                        "candidate_id": email.get("candidate_id"),
+                        "email": to,
+                        "error": str(exc),
+                    })
+                    
+    except smtplib.SMTPAuthenticationError:
+        raise HTTPException(status_code=500, detail="SMTP Authentication failed. Check App Password.")
     except Exception as conn_exc:
+        logger.error(f"SMTP Error: {conn_exc}")
         raise HTTPException(status_code=500, detail=f"SMTP connection failed: {conn_exc}")
 
     sent_count = len(emails) - len(failed)

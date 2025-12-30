@@ -15,7 +15,7 @@
                 <span>HireSmart</span>
             </div>
             <ul>
-                <li><a href="Home.html">Trang chủ</a></li>
+                <li><a href="Home.html">Home</a></li>
                 <li><a href="Recruitment.html">Jobs</a></li>
                 <li><a href="Create_job.html" class="active">Dashboard HR</a></li>
                 <li class="language-menu">
@@ -28,11 +28,11 @@
                     </div>
                 </li>
                 <li class="user-menu"><a href="#" class="login-btn" onclick="handleHRLogin(event)"
-                        data-i18n="nav.hr_login">Đăng nhập HR</a>
+                        data-i18n="nav.hr_login">HR Login</a>
                     <div class="dropdown" id="dropdownMenu">
-                        <a href="#">Tài Khoản Của Tôi</a>
+                        <a href="#">My Account</a>
                         <a href="Create_job.html" id="dashboardBtn">Dashboard HR</a>
-                        <a href="#" id="logoutBtn">Đăng Xuất</a>
+                        <a href="#" id="logoutBtn">Logout</a>
                     </div>
                 </li>
             </ul>
@@ -56,36 +56,24 @@
                 </div>
             </div>
             <div class="features-title">Features</div>
-            <div class="menu-item">
-                <span>📊</span>
-                <span>Dashboard</span>
-            </div>
-            <div class="menu-item">
-                <span>✉️</span>
-                <span>Messages</span>
-                <span class="badge">18</span>
-            </div>
-            <div class="menu-item active">
-                <span>💼</span>
-                <span>Jobs</span>
-            </div>
-            <div class="menu-item">
-                <span>👥</span>
-                <span>Candidates</span>
-            </div>
-            <div class="menu-item">
-                <span>📄</span>
-                <span>Resumes</span>
-            </div>
-            <div class="menu-item">
-                <span>📈</span>
-                <span>Report</span>
-            </div>
-            <div class = "menu-item">
-                <span>🔔</span>
-                <span>Notification</span>
-            </div>
-            <button class="logout-btn">
+            <div class="menu">
+                <div class="menu-item" onclick="window.location.href='http://127.0.0.1:8000/dashboard'">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item" onclick="window.location.href='http://127.0.0.1:5500/frontend/html/Create_job.html'">
+                    <span class="icon">💼</span>
+                    <span>Jobs</span>
+                </div>
+                <div class="menu-item active" onclick="window.location.href='http://127.0.0.1:5500/frontend/html/profile.html'">
+                    <span class="icon">📄</span>
+                    <span>Profile</span>
+                </div>
+                <div class="menu-item">
+                    <span class="icon">📈</span>
+                    <span>Report</span>
+                </div>
+            </div>            <button class="logout-btn">
                 <span>🔓</span>
                 <span>Log Out</span>
             </button>

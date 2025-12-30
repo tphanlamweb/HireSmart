@@ -3,7 +3,7 @@
     function initPage() {
         const user = localStorage.getItem('loggedInUser');
         if (!user) {
-            alert('Bạn cần đăng nhập HR để truy cập Dashboard!');
+            alert('You need login to access Dashboard!');
             window.location.href = '../html/Login.html';
             return;
         }
@@ -99,7 +99,7 @@
     // --- LOAD REQUIREMENTS BY CATEGORY ---
     async function loadRequirementsByCategory(categoryId) {
         try {
-            const response = await fetch(`/api/jobs/requirements/by-category/${categoryId}`);
+            const response = await fetch(`api/jobs/requirements/by-category/${categoryId}`);
             const data = await response.json();
 
             if (!data.data) return;
@@ -115,7 +115,7 @@
             // For now, put all in one section
             const section = document.createElement('div');
             section.className = 'category-section';
-            section.innerHTML = '<div class="category-title">📋 Yêu Cầu Có Sẵn</div>';
+            section.innerHTML = '<div class="category-title">📋 Available requirement</div>';
 
             data.data.forEach(req => {
                 const item = document.createElement('div');

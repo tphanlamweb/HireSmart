@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Công Việc</title>
+    <title>Job Management</title>
     <link rel="stylesheet" href="../Styles/Create_job.css">
     <!-- <script src="../Styles/Create_job.js" ></script> -->
 </head>
@@ -12,13 +12,13 @@
     <header class="header">
         <nav>
             <div class="logo-container">
-                <img src="/templates/logo-2.png" alt="Logo">
+                <img src="../templates/logo-2.png" alt="Logo">
                 <span>HireSmart</span>
             </div>
             <ul>
-                <li><a href="Home.html">Trang chủ</a></li>
+                <li><a href="Home.html">Home</a></li>
                 <li><a href="Recruitment.html">Jobs</a></li>
-                <li><a href="Create_job.html" class="active">Tạo Job</a></li>
+                <li><a href="Create_job.html" class="active">Create Job</a></li>
                 <li class="language-menu">
                     <div class="language-selector">
                         <span id="currentLang">🇻🇳</span>
@@ -29,11 +29,11 @@
                     </div>
                 </li>
                 <li class="user-menu">
-                    <a href="#" class="login-btn" id="loginBtnHeader">Đăng nhập HR</a>
+                    <a href="#" class="login-btn" id="loginBtnHeader">HR Login</a>
                     <div class="dropdown" id="dropdownMenu">
-                        <a href="#">Tài Khoản Của Tôi</a>
-                        <a href="Create_job.html" id="dashboardBtn">Tạo Job</a>
-                        <a href="#" id="logoutBtn">Đăng Xuất</a>
+                        <a href="#">My Account</a>
+                        <a href="Create_job.html" id="dashboardBtn">Create Job</a>
+                        <a href="#" id="logoutBtn">Logout</a>
                     </div>
                 </li>
             </ul>
@@ -56,16 +56,26 @@
                 </div>
             </div>
 
-            <div class="features-title" data-i18n="features">Tính Năng</div>
-            <div class="menu-item active"><span>📊</span><span data-i18n="dashboard">Bảng Điều Khiển</span></div>
-            <div class="menu-item"><span>✉️</span><span data-i18n="messages">Tin Nhắn</span><span class="badge">3</span></div>
-            <div class="menu-item"><span>💼</span><span data-i18n="jobs">Công Việc</span></div>
-            <div class="menu-item"><span>👥</span><span data-i18n="candidates">Ứng Viên</span></div>
-            <div class="menu-item"><span>📄</span><span data-i18n="resumes">Hồ Sơ</span></div>
-            <div class="menu-item"><span>📈</span><span data-i18n="report">Báo Cáo</span></div>
-            <div class="menu-item"><span>🔔</span><span data-i18n="notification">Thông Báo</span></div>
-
-            <button class="logout-btn"><span>🔓</span><span data-i18n="logout"> Đăng Xuất</span></button>
+            <div class="features-title" data-i18n="features">Features</div>
+            <div class="menu">
+                <div class="menu-item" onclick="window.location.href='http://127.0.0.1:8000/dashboard'">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item active" onclick="window.location.href='http://127.0.0.1:5500/frontend/html/Create_job.html'">
+                    <span class="icon">💼</span>
+                    <span>Jobs</span>
+                </div>
+                <div class="menu-item" onclick="window.location.href='http://127.0.0.1:5500/frontend/html/profile.html'">
+                    <span class="icon">📄</span>
+                    <span>Profile</span>
+                </div>
+                <div class="menu-item">
+                    <span class="icon">📈</span>
+                    <span>Report</span>
+                </div>
+            </div>
+            <button class="logout-btn"><span>🔓</span><span data-i18n="logout"> Logout</span></button>
         </div>
 
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -73,148 +83,143 @@
         <div class="main-content" id="mainContent">
             <div class="top-bar">
                 <button class="menu-toggle" id="menuToggle">☰</button>
-                <div class="icon-buttons">
-                    <button class="icon-btn notification">🔔<span class="badge">3</span></button>
-                    <button class="icon-btn settings">✏️</button>
-                    <button class="icon-btn messages">✉️<span class="badge">3</span></button>
-                </div>
+
             </div>
 
             <div class="stats-section">
                 <div class="stats-header">
-                    <h2 data-i18n="jobManagement">Quản Lý Công Việc</h2>
-                    <p data-i18n="jobManagementDesc">Tạo, quản lý và theo dõi các bài đăng tuyển dụng và hồ sơ ứng viên của bạn.</p>
+                    <h2 data-i18n="jobManagement">Job Management</h2>
+                    <p data-i18n="jobManagementDesc">Create, manage, and track job postings and candidate resumes.</p>
                 </div>
 
                 <div class="action-buttons">
-                    <button class="btn-create active" onclick="toggleForm()" data-i18n="createNewJD">Tạo JD Mới</button>
-                    <button class="btn-list" onclick="window.location.href='Job_list.html'" data-i18n="jobList">Danh Sách Công Việc</button>
-                    <button class="btn-news" onclick="window.location.href='Job_list.html?view=news'" data-i18n="news">Tin Tức</button>
+                    <button class="btn-create active" onclick="toggleForm()" data-i18n="createNewJD">Create new JD</button>
+                    <button class="btn-list" onclick="window.location.href='Job_list.html'" data-i18n="jobList">Job List</button>
+                    <button class="btn-news" onclick="window.location.href='Job_list.html?view=news'" data-i18n="news">News</button>
                 </div>
 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-label" data-i18n="totalJobs">Tổng Số Công Việc</div>
+                        <div class="stat-label" data-i18n="totalJobs">Total jobs</div>
                         <div class="stat-value" id="totalJobs">3</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label" data-i18n="activeJobs">Công Việc Đang Hoạt Động</div>
+                        <div class="stat-label" data-i18n="activeJobs">Active Jobs</div>
                         <div class="stat-value" id="activeJobs">3</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label" data-i18n="totalCVsPaid">Tổng CV Đã Trả</div>
+                        <div class="stat-label" data-i18n="totalCVsPaid">Total CVs Paid</div>
                         <div class="stat-value" id="totalCVs">10</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label" data-i18n="avgCVsPerJob">Trung Bình CV/Công Việc</div>
+                        <div class="stat-label" data-i18n="avgCVsPerJob">Average CVs/Job</div>
                         <div class="stat-value" id="avgCVs">3</div>
                     </div>
                 </div>
 
                 <div class="form-section" id="jobForm">
-                    <h3 data-i18n="createNewJobDesc">Tạo Mô Tả Công Việc Mới</h3>
+                    <h3 data-i18n="createNewJobDesc">Create new details</h3>
                     <form onsubmit="handleSubmit(event)">
                         <div class="form-grid">
-                            <div class="form-group"><label data-i18n="jobTitle">Tên Công Việc</label><input type="text" id="jobTitle" required></div>
+                            <div class="form-group"><label data-i18n="jobTitle">Job Title</label><input type="text" id="jobTitle" required></div>
                             <div class="form-group">
-                                <label data-i18n="department">Phòng Ban (Danh Mục)</label>
+                                <label data-i18n="department">Department (Category)</label>
                                 <select id="department" required>
-                                    <option value="" data-i18n="selectCategory">-- Chọn Danh Mục --</option>
+                                    <option value="" data-i18n="selectCategory">-- Select Category --</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label data-i18n="location">Địa Điểm</label><input type="text" id="location" required style="width: 100%;"></div>
-                            <div class="form-group"><label data-i18n="salary">Mức Lương</label><input type="text" id="salary" placeholder="VD: 100k hoặc 100-200k" required></div>
+                            <div class="form-group"><label data-i18n="location">Location</label><input type="text" id="location" required style="width: 100%;"></div>
+                            <div class="form-group"><label data-i18n="salary">Salary</label><input type="text" id="salary" placeholder="e.g., 100k or 100-200k" required></div>
                             <div class="form-group">
-                                <label data-i18n="status">Trạng Thái</label>
+                                <label data-i18n="status">Status</label>
                                 <select id="status">
-                                    <option value="active" data-i18n="active">Đang Hoạt Động</option>
-                                    <option value="inactive" data-i18n="inactive">Không Hoạt Động</option>
-                                    <option value="closed" data-i18n="closed">Đã Đóng</option>
+                                    <option value="active" data-i18n="active">Active</option>
+                                    <option value="inactive" data-i18n="inactive">Inactive</option>
+                                    <option value="closed" data-i18n="closed">Closed</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label data-i18n="cvsPaid">CV Đã Trả</label><input type="number" id="cvsPaid" value="0" required></div>
-
+                            <div class="form-group"><label data-i18n="cvsPaid">CV ammount</label><input type="number" id="cvsPaid" value="0" required></div>
                             <div class="form-group full-width">
                                 <div class="jd-section">
                                     <div class="jd-header">
-                                        <h3 data-i18n="jobRequirements">✨ Yêu Cầu Công Việc</h3>
+                                        <h3 data-i18n="jobRequirements">✨ Job Requirements</h3>
                                         <button type="button" class="add-custom-btn" onclick="openCustomModal()">
-                                            <span>➕</span><span data-i18n="addCustom">Thêm Tùy Chỉnh</span>
+                                            <span>➕</span><span data-i18n="addCustom">Add Custom</span>
                                         </button>
                                     </div>
 
                                     <div class="jd-stats">
-                                        <div class="stat-badge"><span data-i18n="total">📋 Tổng: 34</span></div>
-                                        <div class="stat-badge"><span data-i18n="selected">✅ Đã Chọn: <span id="selectedCount">0</span></span></div>
+                                        <div class="stat-badge"><span data-i18n="total">📋 Total: 34</span></div>
+                                        <div class="stat-badge"><span data-i18n="selected">✅ Selected: <span id="selectedCount">0</span></span></div>
                                     </div>
 
                                     <div class="search-container">
-                                        <input type="text" id="searchInput" data-i18n-placeholder="searchRequirements" placeholder="🔍 Tìm kiếm yêu cầu...">
+                                        <input type="text" id="searchInput" data-i18n-placeholder="searchRequirements" placeholder="🔍 Search requirements...">
                                     </div>
 
                                     <div class="drag-drop-wrapper">
                                         <div class="requirements-pool" id="requirementsPool">
-                                            <h4 data-i18n="availableRequirements">📦 Yêu Cầu Có Sẵn</h4>
+                                            <h4 data-i18n="availableRequirements">📦 Available Requirements</h4>
                                             
                                             <div class="category-section">
                                                 <div class="category-title">🎓 Education</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎓</span><span class="requirement-text">Bachelor's degree in related field</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎓</span><span class="requirement-text">Master's degree is a plus</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">📜</span><span class="requirement-text">Professional certifications</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎯</span><span class="requirement-text">GPA 3.0 or higher</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Bachelor's degree in related field</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Master's degree is a plus</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Professional certifications</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">GPA 3.0 or higher</span></div>
                                             </div>
 
                                             <div class="category-section">
                                                 <div class="category-title">💼 Experience</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🌟</span><span class="requirement-text">Fresh graduates welcome</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⭐</span><span class="requirement-text">1-2 years of experience</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⭐⭐</span><span class="requirement-text">3-5 years of experience</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⭐⭐⭐</span><span class="requirement-text">5+ years of experience</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🚀</span><span class="requirement-text">Startup experience</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Fresh graduates welcome</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">1-2 years of experience</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">3-5 years of experience</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">5+ years of experience</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Startup experience</span></div>
                                             </div>
 
                                             <div class="category-section">
                                                 <div class="category-title">💻 Technical Skills</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⚛️</span><span class="requirement-text">React / React Native / Vue.js</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🐍</span><span class="requirement-text">Python, Django/Flask</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">📗</span><span class="requirement-text">Node.js, Express.js</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🗄️</span><span class="requirement-text">SQL, MongoDB, PostgreSQL</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">☁️</span><span class="requirement-text">AWS / Azure / Google Cloud</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🐳</span><span class="requirement-text">Docker, Kubernetes, CI/CD</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🔒</span><span class="requirement-text">Security & encryption knowledge</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">📱</span><span class="requirement-text">Mobile Development (iOS/Android)</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎨</span><span class="requirement-text">HTML, CSS, JavaScript, TypeScript</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🔧</span><span class="requirement-text">Git, Agile/Scrum methodology</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">React / React Native / Vue.js</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Python, Django/Flask</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Node.js, Express.js</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">SQL, MongoDB, PostgreSQL</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">AWS / Azure / Google Cloud</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Docker, Kubernetes, CI/CD</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Security & encryption knowledge</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Mobile Development (iOS/Android)</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">HTML, CSS, JavaScript, TypeScript</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Git, Agile/Scrum methodology</span></div>
                                             </div>
 
                                             <div class="category-section">
                                                 <div class="category-title">🤝 Soft Skills</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">👥</span><span class="requirement-text">Effective teamwork</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">💬</span><span class="requirement-text">Excellent communication skills</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">⏰</span><span class="requirement-text">Time management</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎯</span><span class="requirement-text">Problem-solving mindset</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">👔</span><span class="requirement-text">Self-motivated and independent</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎓</span><span class="requirement-text">Quick learner</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">💡</span><span class="requirement-text">Creative thinking</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🎭</span><span class="requirement-text">Work well under pressure</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Effective teamwork</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Excellent communication skills</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Time management</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Problem-solving mindset</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Self-motivated and independent</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Quick learner</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Creative thinking</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Work well under pressure</span></div>
                                             </div>
 
                                             <div class="category-section">
                                                 <div class="category-title">🌐 Languages</div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇬🇧</span><span class="requirement-text">Basic English communication</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇬🇧</span><span class="requirement-text">Fluent English (TOEIC 750+)</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇯🇵</span><span class="requirement-text">Japanese N3 or higher</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇰🇷</span><span class="requirement-text">Korean is a plus</span></div>
-                                                <div class="requirement-item" draggable="true"><span class="requirement-icon">🇨🇳</span><span class="requirement-text">Chinese is a plus</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Basic English communication</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Fluent English (TOEIC 750+)</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Japanese N3 or higher</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Korean is a plus</span></div>
+                                                <div class="requirement-item" draggable="true"><span class="requirement-icon"></span><span class="requirement-text">Chinese is a plus</span></div>
                                             </div>
                                         </div>
 
                                         <div class="drop-zone" id="dropZone">
-                                            <h4 data-i18n="selectedRequirements">✅ Yêu Cầu Đã Chọn</h4>
+                                            <h4 data-i18n="selectedRequirements">Selected Requirements</h4>
                                             <div class="drop-zone-empty" id="emptyState">
                                                 <div class="icon">👆</div>
-                                                <div><strong data-i18n="dragDropHere">Kéo và Thả vào đây</strong></div>
-                                                <div style="font-size: 14px; margin-top: 10px;" data-i18n="reorderAfterDrop">Bạn có thể sắp xếp lại sau khi thả</div>
+                                                <div><strong data-i18n="dragDropHere">Drag and Drop Here</strong></div>
+                                                <div style="font-size: 14px; margin-top: 10px;" data-i18n="reorderAfterDrop">You can reorder after dropping</div>
                                             </div>
                                             <div class="dropped-items" id="droppedItems" style="display: none;"></div>
                                         </div>
@@ -222,7 +227,7 @@
                                     <input type="hidden" id="jobDescription" required>
                                 </div>
                             </div>
-                            <button type="submit" class="btn-submit" data-i18n="createJob">Tạo Công Việc</button>
+                            <button type="submit" class="btn-submit" data-i18n="createJob">Create JD</button>
                         </div>
                     </form>
                 </div>
@@ -232,11 +237,11 @@
 
     <div class="modal" id="customModal">
         <div class="modal-content">
-            <h3 data-i18n="addCustomRequirement">Thêm Yêu Cầu Tùy Chỉnh</h3>
-            <input type="text" id="customRequirement" data-i18n-placeholder="enterCustomRequirement" placeholder="Nhập yêu cầu tùy chỉnh của bạn...">
+            <h3 data-i18n="addCustomRequirement">Add requirement</h3>
+            <input type="text" id="customRequirement" data-i18n-placeholder="enterCustomRequirement" placeholder="Enter your custom requirement...">
             <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeCustomModal()" data-i18n="cancel">Hủy</button>
-                <button class="btn-add" onclick="addCustomRequirement()" data-i18n="add">Thêm</button>
+                <button class="btn-cancel" onclick="closeCustomModal()" data-i18n="cancel">Cancel</button>
+                <button class="btn-add" onclick="addCustomRequirement()" data-i18n="add">Add</button>
             </div>
         </div>
     </div>
@@ -249,7 +254,7 @@
     function initPage() {
         const user = localStorage.getItem('loggedInUser');
         if (!user) {
-            alert('Bạn cần đăng nhập HR để truy cập Dashboard!');
+            alert('You need to log in as HR to access the Dashboard!');
             window.location.href = '../html/Login.html';
             return;
         }
@@ -315,7 +320,7 @@
     // --- LOAD CATEGORIES ---
     async function loadCategories() {
         try {
-            const response = await fetch('/api/jobs/categories/list');
+            const response = await fetch('http://127.0.0.1:8000/api/jobs/categories/list');
             const data = await response.json();
 
             if (!data.data) return;
@@ -339,13 +344,14 @@
             });
         } catch (error) {
             console.error('Failed to load categories:', error);
+
         }
     }
 
     // --- LOAD REQUIREMENTS BY CATEGORY ---
     async function loadRequirementsByCategory(categoryId) {
         try {
-            const response = await fetch(`/api/jobs/requirements/by-category/${categoryId}`);
+            const response = await fetch(`http://127.0.0.1:8000/api/jobs/requirements/by-category/${categoryId}`);
             const data = await response.json();
 
             if (!data.data) return;
@@ -361,7 +367,7 @@
             // For now, put all in one section
             const section = document.createElement('div');
             section.className = 'category-section';
-            section.innerHTML = '<div class="category-title">📋 Yêu Cầu Có Sẵn</div>';
+            section.innerHTML = '<div class="category-title">📋 Available requirement</div>';
 
             data.data.forEach(req => {
                 const item = document.createElement('div');
@@ -510,19 +516,21 @@
             submitBtn.textContent = 'Creating...';
 
             // Call API
-            const response = await fetch('/api/jobs/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
+          const response = await fetch('http://127.0.0.1:8000/api/jobs/create', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload)
+});
 
-            const data = await response.json();
+const text = await response.text();
+const data = text ? JSON.parse(text) : {};
 
-            if (!response.ok) {
-                throw new Error(data.detail || 'Failed to create job');
-            }
+if (!response.ok) {
+    throw new Error(data.detail || 'Failed to create job');
+}
+
 
             // Success
             alert(`✅ ${data.message}\nJob ID: ${data.job_id}\nRequirements: ${data.requirements_count}`);

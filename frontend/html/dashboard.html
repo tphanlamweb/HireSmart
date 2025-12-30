@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -471,24 +471,20 @@
         .cv-points {
             display: inline-block;
             padding: 6px 12px;
-            background: #dbeafe;
             color: #1e40af;
             border-radius: 6px;
             font-weight: 600;
         }
 
         .cv-points.high {
-            background: #d1fae5;
             color: #065f46;
         }
 
         .cv-points.medium {
-            background: #fef3c7;
             color: #92400e;
         }
 
         .cv-points.low {
-            background: #fee2e2;
             color: #991b1b;
         }
 
@@ -800,11 +796,9 @@
             </div>
             <ul>
                 <li>
-                    <a href="Home.html">Trang chủ</a>
+                    <a href="Home.html">Home</a>
                 </li>
-                <li>
-                    <a href="Recruitment.html">Jobs</a>
-                </li>
+
                 <li>
                     <a href="Create_job.html" class="active">Dashboard HR</a>
                 </li>
@@ -826,13 +820,25 @@
                 </div>
             </div>
             <div class="features-title">Features</div>
-            <div class="menu-item active"><span>📊</span><span>Dashboard</span></div>
-            <div class="menu-item"><span>✉️</span><span>Messages</span><span class="badge">18</span></div>
-            <div class="menu-item"><span>💼</span><span>Jobs</span></div>
-            <div class="menu-item"><span>👥</span><span>Candidates</span></div>
-            <div class="menu-item"><span>📄</span><span>Resumes</span></div>
-            <div class="menu-item"><span>📈</span><span>Report</span></div><button
-                class="logout-btn"><span>🔓</span><span>Log Out</span></button>
+            <div class="menu">
+                <div class="menu-item active" onclick="window.location.href='http://127.0.0.1:8000/dashboard'">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item" onclick="window.location.href='http://127.0.0.1:5500/frontend/html/Create_job.html'">
+                    <span class="icon">💼</span>
+                    <span>Jobs</span>
+                </div>
+                <div class="menu-item" onclick="window.location.href='http://127.0.0.1:5500/frontend/html/profile.html'">
+                    <span class="icon">📄</span>
+                    <span>Profile</span>
+                </div>
+                <div class="menu-item">
+                    <span class="icon">📈</span>
+                    <span>Report</span>
+                </div>
+            </div>
+            <button class="logout-btn"><span>🔓</span><span>Log Out</span></button>
         </div>
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <div class="main-content" id="mainContent">
@@ -843,7 +849,7 @@
             <div class="status-buttons">
                 <button class="btn-status all active" data-status="all">
                     <span>📋</span>
-                    <span>Tất cả</span>
+                    <span>All</span>
                     <span class="status-badge" id="count-all">0</span>
                 </button>
                 <button class="btn-status suitable" data-status="suitable">
@@ -897,53 +903,53 @@
                 </div>
                 <div class="filter-section">
                     <div class="filter-header">
-                        <h3>🔍 Bộ lọc & Tìm kiếm</h3>
+                        <h3>🔍 Filters & Search</h3>
                         <button class="clear-filters" onclick="clearFilters()">
-                            Xóa bộ lọc
+                            Clear filters
                         </button>
                     </div>
                     <div class="filter-grid">
                         <div class="filter-item">
-                            <label>Tìm kiếm theo tên</label>
+                            <label>Search by name</label>
                             <input type="text" id="searchName"
-                                   placeholder="Nhập tên ứng viên...">
+                                   placeholder="Enter candidate name...">
                         </div>
                         <div class="filter-item">
-                            <label>Điểm CV tối thiểu</label>
+                            <label>Minimum CV Score</label>
                             <input type="number" id="minPoints"
-                                   placeholder="VD: 70" min="0" max="100">
+                                   placeholder="e.g. 70" min="0" max="100">
                         </div>
                         <div class="filter-item">
-                            <label>Số điện thoại</label>
+                            <label>Phone</label>
                             <input type="text" id="searchPhone"
-                                   placeholder="VD: 0901...">
+                                   placeholder="e.g. 0901...">
                         </div>
                         <div class="filter-item">
-                            <label>Sắp xếp theo</label>
+                            <label>Sort by</label>
                             <select id="sortBy">
-                                <option value="points-desc">Điểm CV (Cao → Thấp)</option>
-                                <option value="points-asc">Điểm CV (Thấp → Cao)</option>
-                                <option value="name-asc">Tên (A → Z)</option>
-                                <option value="name-desc">Tên (Z → A)</option>
+                                <option value="points-desc">CV Score (High → Low)</option>
+                                <option value="points-asc">CV Score (Low → High)</option>
+                                <option value="name-asc">Name (A → Z)</option>
+                                <option value="name-desc">Name (Z → A)</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <div class="table-section">
                     <div class="table-header">
-                        <h2>Danh sách ứng viên</h2>
+                        <h2>Candidate List</h2>
                         <div>
-                            <span class="results-count" id="resultsCount">Hiển thị 0 kết quả</span>
+                            <span class="results-count" id="resultsCount">Showing 0 results</span>
                             |
-                            Đã chọn:
+                            Selected:
                             <span id="selectedCount">0</span>
                         </div>
                     </div>
 
                     <div style="padding: 15px 25px;">
-                        <button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">🔘 Chọn nhiều</button>
-                        <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>📧 Gửi email</button>
-                        <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>📥 Xuất dữ liệu</button>
+                        <button class="action-btn-bulk" onclick="toggleMultiSelect()" id="multiSelectBtn">🔘 Multi-select</button>
+                        <button class="action-btn-bulk" onclick="sendEmailToSelected()" id="sendEmailBtn" disabled>📧 Send Email</button>
+                        <button class="action-btn-bulk" onclick="exportSelectedData()" id="exportBtn" disabled>📥 Export Data</button>
                     </div>
 
                     <div class="table-container">
@@ -954,11 +960,11 @@
                                         <input type="checkbox" id="selectAllCheckbox"
                                                onclick="toggleSelectAllRows(this)">
                                     </th>
-                                    <th>Tên ứng viên</th>
-                                    <th>Điểm CV</th>
-                                    <th>Số điện thoại</th>
-                                    <th>Địa chỉ</th>
-                                    <th>Hành động</th>
+                                    <th>Candidate Name</th>
+                                    <th>CV Score</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="candidatesBody">
@@ -987,13 +993,13 @@
 
                     <div id="emptyState" class="empty-state" style="display:none;">
                         <div class="empty-state-icon">🔍</div>
-                        <h3>Không tìm thấy ứng viên</h3>
-                        <p>Thử điều chỉnh bộ lọc</p>
+                        <h3>No candidates found</h3>
+                        <p>Try adjusting your filters</p>
                     </div>
                     <div class="load-more-container">
                         <button class="load-more-btn" id="loadMoreBtn"
                                 onclick="loadMore()">
-                            Xem thêm
+                            Load more
                         </button>
                         <p id="loadMoreInfo" style="margin-top:10px;color:#6b7280;"></p>
                     </div>
@@ -1005,7 +1011,7 @@
     <div class="modal" id="detailModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>📋 Chi tiết ứng viên</h3>
+                <h3>📋 Candidate Details</h3>
                 <button class="close-modal"
                         onclick="closeModal('detailModal')">&times;</button>
             </div>
@@ -1025,7 +1031,7 @@
             applyFiltersAndRender();
             updateStatusCounts();
             updateAllCounts();
-            // Auto refresh mỗi 30 giây để cập nhật trạng thái từ database
+            // Auto refresh every 30 seconds to update status from database
             setInterval(reloadCandidatesData, 30000);
         });
 
@@ -1034,7 +1040,7 @@
             try {
                 const response = await fetch("/candidates");
                 if (!response.ok) {
-                    console.error("Lỗi khi reload dữ liệu:", response.statusText);
+                    console.error("Error reloading data:", response.statusText);
                     return;
                 }
                 
@@ -1049,15 +1055,16 @@
                     full_name: c.full_name,
                     overall_cv_score: c.overall_cv_score || 0,
                     phone: c.phone || 'N/A',
-                    status: c.application_status || 'suitable'
+                    status: c.application_status || 'suitable',
+                    address: c.address || 'N/A'
                 }));
 
                 applyFiltersAndRender();
                 updateStatusCounts();
                 updateAllCounts();
-                console.log("[DEBUG] Đã reload dữ liệu từ database");
+                console.log("[DEBUG] Reloaded data from database");
             } catch (error) {
-                console.error("Lỗi khi reload dữ liệu:", error);
+                console.error("Error reloading data:", error);
             }
         }
 
@@ -1137,12 +1144,12 @@
         }).join('');
 
             document.getElementById('emptyState').style.display = toShow.length === 0 ? 'block' : 'none';
-            document.getElementById('resultsCount').textContent = `Hiển thị ${toShow.length} / ${filteredCandidates.length} kết quả`;
+            document.getElementById('resultsCount').textContent = `Showing ${toShow.length} / ${filteredCandidates.length} results`;
 
             const btn = document.getElementById('loadMoreBtn');
             const info = document.getElementById('loadMoreInfo');
             btn.style.display = displayCount >= filteredCandidates.length ? 'none' : 'inline-block';
-            info.textContent = displayCount >= filteredCandidates.length ? `Đã hiển thị tất cả ${filteredCandidates.length} ứng viên` : `Còn ${filteredCandidates.length - displayCount} ứng viên chưa hiển thị`;
+            info.textContent = displayCount >= filteredCandidates.length ? `Showing all ${filteredCandidates.length} candidates` : `There are ${filteredCandidates.length - displayCount} more candidates not shown`;
 
             updateSelectionState();
         }
@@ -1201,19 +1208,19 @@
 
                 if (!response.ok) {
                     const error = await response.json().catch(() => ({}));
-                    console.error("Lỗi cập nhật trạng thái:", error);
-                    alert(error.detail || "Cập nhật trạng thái thất bại.");
+                    console.error("Error updating status:", error);
+                    alert(error.detail || "Status update failed.");
                     return;
                 }
 
                 const result = await response.json();
-                console.log("Cập nhật thành công:", result);
+                console.log("Status updated:", result);
                 updateStatusCounts();
                 updateAllCounts();
                 if (currentFilter.status !== 'all') { applyFiltersAndRender(); }
             } catch (error) {
-                console.error("Lỗi gọi API /update-status:", error);
-                alert("Có lỗi khi kết nối tới server.");
+                console.error("Error calling API /update-status:", error);
+                alert("Error connecting to server.");
             }
         }
 
@@ -1221,7 +1228,7 @@
             const c = allCandidates.find(x => x.id === id);
             if (!c) return;
             const normalized = normalizeStatus(c.status);
-            document.getElementById('detailModalBody').innerHTML = `<div class="detail-grid"><div class="detail-item"><div class="detail-label">ID:</div><div class="detail-value">#${c.id}</div></div><div class="detail-item"><div class="detail-label">Họ tên:</div><div class="detail-value">${c.full_name}</div></div><div class="detail-item"><div class="detail-label">Số điện thoại:</div><div class="detail-value">${c.phone}</div></div><div class="detail-item"><div class="detail-label">Điểm CV:</div><div class="detail-value"><span class="cv-points">${c.overall_cv_score}</span></div></div><div class="detail-item"><div class="detail-label">Trạng thái:</div><div class="detail-value">${statusText[normalized] || c.status}</div></div><div style="margin-top:20px;"><button onclick="closeModal('detailModal')" style="width:100%;padding:12px;background:#6b7280;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:500;">Đóng</button></div></div>`;
+            document.getElementById('detailModalBody').innerHTML = `<div class="detail-grid"><div class="detail-item"><div class="detail-label">ID:</div><div class="detail-value">#${c.id}</div></div><div class="detail-item"><div class="detail-label">Full name:</div><div class="detail-value">${c.full_name}</div></div><div class="detail-item"><div class="detail-label">Phone:</div><div class="detail-value">${c.phone}</div></div><div class="detail-item"><div class="detail-label">CV Score:</div><div class="detail-value"><span class="cv-points">${c.overall_cv_score}</span></div></div><div class="detail-item"><div class="detail-label">Address:</div><div class="detail-value">${c.address || 'N/A'}</div></div><div class="detail-item"><div class="detail-label">Status:</div><div class="detail-value">${statusText[normalized] || c.status}</div></div><div style="margin-top:20px;"><button onclick="closeModal('detailModal')" style="width:100%;padding:12px;background:#6b7280;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:500;">Close</button></div></div>`;
             document.getElementById('detailModal').classList.add('active');
         }
 
@@ -1248,7 +1255,7 @@
                 document.querySelectorAll('.candidate-checkbox').forEach(cb => cb.checked = false);
                 document.getElementById('selectAllCheckbox').checked = false;
             }
-            btn.textContent = multiSelectEnabled ? '✔️ Đang chọn nhiều' : '🔘 Chọn nhiều';
+            btn.textContent = multiSelectEnabled ? '✔️ Multi-select active' : '🔘 Multi-select';
             updateSelectionState();
         }
 
@@ -1268,24 +1275,24 @@
 
         async function sendEmailToSelected() {
             const ids = getSelectedCandidateIds();
-            if (ids.length === 0) { alert("Vui lòng chọn ít nhất 1 ứng viên."); return; }
+            if (ids.length === 0) { alert("Please select at least 1 candidate."); return; }
             const btn = document.getElementById('sendEmailBtn');
-            if (btn) { btn.disabled = true; btn.textContent = 'Đang chuẩn bị...'; }
+            if (btn) { btn.disabled = true; btn.textContent = 'Preparing...'; }
             try {
                 const response = await fetch("/create_tokens", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ candidate_ids: ids }) });
-                if (!response.ok) { const err = await response.json().catch(() => ({})); alert(err.detail || "Tạo token thất bại."); return; }
+                if (!response.ok) { const err = await response.json().catch(() => ({})); alert(err.detail || "Token creation failed."); return; }
                 window.location.href = `/bulk-email?ids=${ids.join(",")}`;
-            } catch (error) { console.error("Lỗi:", error); alert("Có lỗi khi kết nối tới server."); }
-            finally { if (btn) { btn.disabled = false; btn.textContent = '📧 Gửi email'; } }
+            } catch (error) { console.error("Error:", error); alert("Error connecting to server."); }
+            finally { if (btn) { btn.disabled = false; btn.textContent = '📧 Send Email'; } }
         }
 
         function exportSelectedData() {
             const ids = getSelectedCandidateIds();
-            if (ids.length === 0) { alert("Vui lòng chọn ít nhất 1 ứng viên."); return; }
+            if (ids.length === 0) { alert("Please select at least 1 candidate."); return; }
             const data = allCandidates.filter(c => ids.includes(c.id));
-            const csv = "ID,Họ tên,Điểm CV,Số điện thoại,Trạng thái\n" + data.map(c => {
+            const csv = "ID,Full Name,CV Score,Phone,Address,Status\n" + data.map(c => {
                 const normalizedStatus = normalizeStatus(c.status);
-                return `${c.id},"${c.full_name}",${c.overall_cv_score},"${c.phone}","${statusText[normalizedStatus] || c.status}"`;
+                return `${c.id},"${c.full_name}",${c.overall_cv_score},"${c.phone}","${c.address || 'N/A'}","${statusText[normalizedStatus] || c.status}"`;
             }).join("\n");
             const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'candidates_export.csv'; link.click();
@@ -1293,23 +1300,23 @@
 
         function previewCV(id) {
             console.log("Preview CV for candidate ID:", id);
-            alert("Chức năng xem CV - ID: " + id);
+            alert("Preview CV - ID: " + id);
         }
 
         // Bulk status change for selected candidates
         async function changeStatusBulk() {
             const ids = getSelectedCandidateIds();
-            if (ids.length === 0) { alert('Vui lòng chọn ít nhất 1 ứng viên.'); return; }
+            if (ids.length === 0) { alert('Please select at least 1 candidate.'); return; }
 
-            const choice = prompt('Nhập trạng thái mới cho các ứng viên đã chọn (suitable, unsuitable, accepted, rejected, hired):', 'suitable');
+            const choice = prompt('Enter new status for selected candidates (suitable, unsuitable, accepted, rejected, hired):', 'suitable');
             if (!choice) return;
             const normalized = normalizeStatus(choice);
             if (!['suitable','unsuitable','accepted','rejected','hired'].includes(normalized)) {
-                alert('Trạng thái không hợp lệ: ' + normalized);
+                alert('Invalid status: ' + normalized);
                 return;
             }
 
-            const confirmMsg = `Bạn có chắc muốn đổi trạng thái ${ids.length} ứng viên sang "${normalized}" không?`;
+            const confirmMsg = `Are you sure you want to change status of ${ids.length} candidates to "${normalized}"?`;
             if (!confirm(confirmMsg)) return;
 
             // Call updateStatus for each selected id (sequential to avoid overwhelming server)
@@ -1317,13 +1324,13 @@
                 try {
                     await updateStatus(id, normalized);
                 } catch (e) {
-                    console.error('Lỗi khi cập nhật id', id, e);
+                    console.error('Error updating id', id, e);
                 }
             }
 
             // Refresh list after updates
             await reloadCandidatesData();
-            alert('Hoàn thành thay đổi trạng thái.');
+            alert('Status change completed.');
         }
     </script>
 </body>

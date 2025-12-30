@@ -476,12 +476,9 @@ async def upload_cv(
     for key in ["objective", "cv_summary", "experience", "education"]:
         if record.get(key):
             record[key] = ensure_sentence_end(record[key])
-    
+
     print_candidate(record)
-    
-    logging.debug("upload_cv: incoming candidate record keys: %s", list(record.keys()))
-    logging.debug("upload_cv: sample fields: full_name=%r, email=%r, phone=%r, job_id=%r", record.get("full_name"), record.get("email"), record.get("phone"), record.get("job_id"))
-    insert(record,db)  # Insert vào bảng candidates
+    insert(record, db)  # Insert vào bảng candidates
     # Ghi CSV theo dạng key,value dễ đọc
     with open(CSV_FILE, "a", encoding="utf-8") as f:
         for k, v in record.items():

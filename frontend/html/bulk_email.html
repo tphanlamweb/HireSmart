@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gửi email hàng loạt</title>
+    <title>Send Bulk Email</title>
     <style>
         :root {
             color-scheme: light;
@@ -515,12 +515,12 @@
 <body>
     <div class="page">
         <header>
-            <h1> Gửi email hàng loạt</h1>
+            <h1> Send Email</h1>
             <!-- <button class="secondary" onclick="window.close()">Đóng</button> -->
         </header>
 
         <section class="section">
-            <h2>Ứng viên đã chọn ({{ selected_candidates | length }})</h2>
+            <h2>Candidate selected ({{ selected_candidates | length }})</h2>
             {% if selected_candidates %}
             <div class="chip-list">
                 {% for candidate in selected_candidates %}
@@ -530,15 +530,15 @@
                 {% endfor %}
             </div>
             {% else %}
-            <p class="warning">Không có ứng viên nào. Hãy quay lại dashboard và chọn tối thiểu 1 ứng viên.</p>
+            <p class="warning">There are no candidates selected. Please comback to dashboard and choose at least 1 candidate.</p>
             {% endif %}
         </section>
 
         <section class="section">
-            <h2>Chọn mẫu email</h2>
+            <h2>Select email templates</h2>
             <label for="templateSelect">Template</label>
             <select id="templateSelect">
-                <option value="">-- Chọn mẫu email --</option>
+                <option value="">-- Select template --</option>
                 {% for tpl in email_templates %}
                 <option value="{{ tpl.id }}" data-template-type="{{ tpl.template_type }}">
                     {{ tpl.template_name }} ({{ tpl.template_type }})
@@ -546,21 +546,21 @@
                 {% endfor %}
             </select>
             {% if email_templates|length == 0 %}
-            <p class="warning" style="margin-top:12px;">Chưa có template nào trong bảng <code>email_templates</code>.</p>
+            <p class="warning" style="margin-top:12px;">There are no template in the tabale <code>email_templates</code>.</p>
             {% endif %}
         </section>
 
         <section class="section">
-            <h2>Thông tin bổ sung</h2>
+            <h2>Additional Information</h2>
             <p id="fieldDescription" style="color: #64748b; font-size: 14px; margin-bottom: 16px;">
-                Vui lòng chọn mẫu email để hiển thị các trường phù hợp.
+                Please select an email template to display the appropriate fields.
             </p>
             
             <!-- Trường chung cho tất cả các loại template -->
             <div class="field-group" data-field-group="common">
                 <div class="grid">
                     <div>
-                        <label for="jobTitle">Vị trí / Chức danh</label>
+                        <label for="jobTitle">Position</label>
                         <input id="jobTitle" placeholder="VD: Backend Engineer">
                     </div>
                     <!-- <div>
@@ -576,7 +576,7 @@
                     <div>
                         <label for="interviewDate">
                             <span style="display: inline-flex; align-items: center; gap: 4px;">
-                                📅 Ngày phỏng vấn
+                                📅 Interview Date
                                 <span style="color: #ef4444; font-weight: normal;">*</span>
                             </span>
                         </label>
@@ -585,7 +585,7 @@
                     <div>
                         <label for="interviewTime">
                             <span style="display: inline-flex; align-items: center; gap: 4px;">
-                                🕐 Giờ phỏng vấn
+                                🕐 Interview Time
                                 <span style="color: #ef4444; font-weight: normal;">*</span>
                             </span>
                         </label>
@@ -594,16 +594,16 @@
                     <div>
                         <label for="interviewLocation">
                             <span style="display: inline-flex; align-items: center; gap: 4px;">
-                                📍 Địa điểm
+                                📍 Address
                                 <span style="color: #ef4444; font-weight: normal;">*</span>
                             </span>
                         </label>
-                        <input id="interviewLocation" placeholder="VD: Trụ sở chính / Google Meet / Zoom..." required>
+                        <input id="interviewLocation" placeholder="EX: Headquarters / Google Meet / Zoom..." required>
                     </div>
                 </div>
                 <div style="margin-top: 20px; padding: 14px 16px; background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 10px; border: 1px solid #bfdbfe;">
                     <p style="margin: 0; font-size: 13px; color: #1e40af; line-height: 1.6;">
-                        <strong>💡 Lưu ý:</strong> Phần "Ghi chú thêm" sẽ được tự động thêm vào email. Các trường "Format" và "Interviewer" đã được loại bỏ khỏi template.
+                        <strong>💡 Hint:</strong> The "Additional Notes" section will be automatically added to the email. The "Format" and "Interviewer" fields have been removed from the template.
                     </p>
                 </div>
             </div>
@@ -611,12 +611,12 @@
             <!-- Trường cho rejection -->
             <div class="field-group hidden" data-field-group="rejection">
                 <div style="margin-top: 16px;">
-                    <label for="rejectionReason">Lý do từ chối</label>
-                    <textarea id="rejectionReason" rows="2" placeholder="VD: Không phù hợp với yêu cầu vị trí..."></textarea>
+                    <label for="rejectionReason">Rejection Reason</label>
+                    <textarea id="rejectionReason" rows="2" placeholder="e.g., Not suitable for the position..."></textarea>
                 </div>
                 <div style="margin-top: 16px;">
-                    <label for="feedback">Phản hồi cho ứng viên</label>
-                    <textarea id="feedback" rows="3" placeholder="Nhận xét hoặc gợi ý cho ứng viên..."></textarea>
+                    <label for="feedback">Feedback for Candidate</label>
+                    <textarea id="feedback" rows="3" placeholder="Feedback and suggest..."></textarea>
                 </div>
             </div>
 
@@ -624,21 +624,21 @@
             <div class="field-group hidden" data-field-group="offer">
                 <div class="grid" style="margin-top: 16px;">
                     <div>
-                        <label for="startDate">Ngày bắt đầu làm việc</label>
+                        <label for="startDate">Start Date</label>
                         <input id="startDate" type="date">
                     </div>
                     <div>
-                        <label for="salary">Mức lương</label>
-                        <input id="salary" placeholder="VD: 15,000,000 VNĐ">
+                        <label for="salary">Salary</label>
+                        <input id="salary" placeholder="e.g., 15,000,000 VNĐ">
                     </div>
                     <div>
-                        <label for="responseDeadline">Hạn chấp nhận</label>
+                        <label for="responseDeadline">Response Deadline</label>
                         <input id="responseDeadline" type="date">
                     </div>
                 </div>
                 <div style="margin-top: 16px;">
-                    <label for="offerDetails">Chi tiết đề nghị</label>
-                    <textarea id="offerDetails" rows="3" placeholder="Mô tả chi tiết về đề nghị công việc..."></textarea>
+                    <label for="offerDetails">Offer Details</label>
+                    <textarea id="offerDetails" rows="3" placeholder="Detailed description of the job offer..."></textarea>
                 </div>
             </div>
 
@@ -646,17 +646,17 @@
             <div class="field-group hidden" data-field-group="acceptance">
                 <div class="grid" style="margin-top: 16px;">
                     <div>
-                        <label for="acceptanceStartDate">Ngày bắt đầu</label>
+                        <label for="acceptanceStartDate">Start date</label>
                         <input id="acceptanceStartDate" type="date">
                     </div>
                     <div>
-                        <label for="contactPerson">Người liên hệ</label>
+                        <label for="contactPerson">Contact Person</label>
                         <input id="contactPerson" placeholder="VD: Nguyễn Văn A - HR Manager">
                     </div>
                 </div>
                 <div style="margin-top: 16px;">
-                    <label for="onboardingInfo">Thông tin onboarding</label>
-                    <textarea id="onboardingInfo" rows="3" placeholder="Hướng dẫn về quy trình onboarding..."></textarea>
+                    <label for="onboardingInfo">Onboarding Information</label>
+                    <textarea id="onboardingInfo" rows="3" placeholder="Guidance on the onboarding process..."></textarea>
                 </div>
             </div>
 
@@ -664,12 +664,12 @@
             <div class="field-group hidden" data-field-group="welcome">
                 <div class="grid" style="margin-top: 16px;">
                     <div>
-                        <label for="welcomeStartDate">Ngày bắt đầu làm việc</label>
+                        <label for="welcomeStartDate">Start Date</label>
                         <input id="welcomeStartDate" type="date">
                     </div>
                     <div>
-                        <label for="workLocation">Địa điểm làm việc</label>
-                        <input id="workLocation" placeholder="VD: Tầng 5, 123 Nguyễn Huệ, Q1, HCM">
+                        <label for="workLocation">Work Location</label>
+                        <input id="workLocation" placeholder="e.g., Floor 5, 123 Nguyen Hue, District 1, HCM">
                     </div>
                 </div>
             </div>
@@ -679,28 +679,28 @@
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
                     <label for="customMessage">
                         <span style="display: inline-flex; align-items: center; gap: 4px;">
-                            📝 Ghi chú thêm
+                            📝 Extend note
                         </span>
                     </label>
-                    <textarea id="customMessage" rows="4" placeholder="VD: Ứng viên cần mang theo laptop, CV bản cứng, giấy tờ tùy thân...&#10;&#10;Hoặc bất kỳ thông tin bổ sung nào khác cần truyền đạt đến ứng viên."></textarea>
+                    <textarea id="customMessage" rows="4" placeholder="e.g., Candidate needs to bring laptop, hard copy CV, personal documents...&#10;&#10;Or any additional information you want to convey to the candidate."></textarea>
                     <p style="margin: 8px 0 0; font-size: 12px; color: #64748b;">
-                        Ghi chú này sẽ được tự động thêm vào email để ứng viên có thêm thông tin cần thiết.
+                        This note will be automatically added to the email so candidates have all necessary information.
                     </p>
                 </div>
             </div>
         </section>
 
         <div class="actions">
-            <button class="secondary" onclick="history.back()">← Quay lại dashboard</button>
-            <button class="primary" id="previewBtn">Tạo nội dung email</button>
+            <button class="secondary" onclick="history.back()">← Back to dashboard</button>
+            <button class="primary" id="previewBtn">Create email content</button>
             <!-- Thêm nút gửi (disabled cho tới khi preview được tạo) -->
-            <button class="primary" id="sendBtn" disabled style="background:linear-gradient(135deg,#10b981,#06b6d4);">Gửi email</button>
+            <button class="primary" id="sendBtn" disabled style="background:linear-gradient(135deg,#10b981,#06b6d4);">Send email</button>
         </div>
 
         <section class="section hidden" id="previewSection">
-            <h2> Kết quả render email</h2>
+            <h2> Result of email rendering</h2>
             <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
-                Xem trước nội dung email trước khi gửi. Email sẽ được hiển thị chính xác như khi ứng viên nhận được.
+                Preview the email content before sending. The email will be displayed exactly as the candidate receives it.
             </p>
             <div id="previewList"></div>
             <p id="skipInfo" class="warning hidden"></p>
@@ -788,19 +788,19 @@
             const descEl = document.getElementById('fieldDescription');
             if (templateType && templateFieldsMap[templateType]) {
                 const fieldNames = {
-                    'interview_invitation': 'Thư mời phỏng vấn',
-                    'rejection': 'Thư từ chối',
-                    'offer': 'Thư đề nghị công việc',
-                    'acceptance': 'Thư chấp nhận',
-                    'welcome': 'Thư chào mừng',
+                    'interview_invitation': 'Interview Invitation',
+                    'rejection': 'Rejection Letter',
+                    'offer': 'Job Offer Letter',
+                    'acceptance': 'Acceptance Letter',
+                    'welcome': 'Welcome Letter',
                 };
-                descEl.textContent = `Đang sử dụng template: ${fieldNames[templateType] || templateType}. Vui lòng điền thông tin phù hợp.`;
+                descEl.textContent = `Using template: ${fieldNames[templateType] || templateType}. Please fill in the appropriate information.`;
                 descEl.style.color = '#2563eb';
             } else if (templateType) {
-                descEl.textContent = `Template type: ${templateType}. Sử dụng các trường chung.`;
+                descEl.textContent = `Template type: ${templateType}. Using common fields.`;
                 descEl.style.color = '#64748b';
             } else {
-                descEl.textContent = 'Vui lòng chọn mẫu email để hiển thị các trường phù hợp.';
+                descEl.textContent = 'Please select an email template to display the appropriate fields.';
                 descEl.style.color = '#64748b';
             }
         }
@@ -878,16 +878,16 @@
         async function renderEmails() {
             const templateId = document.getElementById('templateSelect').value;
             if (!templateId) {
-                alert('Vui lòng chọn mẫu email.');
+                alert('Please select an email template.');
                 return;
             }
             if (candidateIds.length === 0) {
-                alert('Không có ứng viên nào được chọn.');
+                alert('No candidates selected.');
                 return;
             }
 
             previewBtn.disabled = true;
-            previewBtn.textContent = 'Đang tạo nội dung...';
+            previewBtn.textContent = 'Creating email content...';
             sendBtn.disabled = true;
 
             const extraContext = collectExtraContext();
@@ -906,7 +906,7 @@
 
                 if (!response.ok) {
                     const err = await response.json().catch(() => ({}));
-                    throw new Error(err.detail || 'Không thể render email.');
+                    throw new Error(err.detail || 'Cannot render email.');
                 }
 
                 const data = await response.json();
@@ -916,7 +916,7 @@
                 previewList.innerHTML = '';
 
                 if (!data.emails || data.emails.length === 0) {
-                    previewList.innerHTML = "<p class='warning'>Không render được email nào.</p>";
+                    previewList.innerHTML = "<p class='warning'>No emails could be rendered.</p>";
                     sendBtn.disabled = true;
                 } else {
                     data.emails.forEach(item => {
@@ -965,7 +965,7 @@
                             
                             // Format Interview Details section - tìm và format phần này
                             formattedBody = formattedBody.replace(
-                                /(Interview Details:)\s*\n?\s*(.+?)(?=Please confirm|Best regards|Xác nhận|$)/gis,
+                                /(Interview Details:)\s*\n?\s*(.+?)(?=Please confirm|Best regards|Confirm|$)/gis,
                                 function(match, title, details) {
                                     // Format các dòng trong Interview Details
                                     const formattedDetails = details
@@ -1029,7 +1029,7 @@
                                 <div class="preview-footer">
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                         <p class="send-status" style="margin: 0;">
-                                            <span class="status-badge">Chưa gửi</span>
+                                            <span class="status-badge">Didn't send. Or copy link after this:</span>
                                         </p>
                                         <span style="font-size: 12px; color: #64748b;">ID: ${item.candidate_id || 'N/A'}</span>
                                     </div>
@@ -1043,29 +1043,29 @@
 
                 if (data.skipped_candidate_ids && data.skipped_candidate_ids.length > 0) {
                     skipInfo.classList.remove('hidden');
-                    skipInfo.textContent = `Bỏ qua ${data.skipped_candidate_ids.length} ứng viên do thiếu email: ${data.skipped_candidate_ids.join(', ')}`;
+                    skipInfo.textContent = `Skipped ${data.skipped_candidate_ids.length} candidates due to missing email: ${data.skipped_candidate_ids.join(', ')}`;
                 } else {
                     skipInfo.classList.add('hidden');
                     skipInfo.textContent = '';
                 }
             } catch (error) {
-                alert(error.message || 'Có lỗi xảy ra.');
+                alert(error.message || 'An error occurred.');
                 sendBtn.disabled = true;
             } finally {
                 previewBtn.disabled = false;
-                previewBtn.textContent = 'Tạo nội dung email';
+                previewBtn.textContent = 'Create email content';
             }
         }
 
         async function sendEmails() {
             if (!lastPayload) {
-                alert('Vui lòng tạo nội dung email trước khi gửi.');
+                alert('Please create email content before sending.');
                 return;
             }
-            if (!confirm('Bạn có chắc muốn gửi email tới các ứng viên đã chọn không?')) return;
+            if (!confirm('Are you sure you want to send emails to the selected candidates?')) return;
 
             sendBtn.disabled = true;
-            sendBtn.textContent = 'Đang gửi...';
+            sendBtn.textContent = 'Sending...';
             previewBtn.disabled = true;
 
             try {
@@ -1077,14 +1077,14 @@
 
                 if (!response.ok) {
                     const err = await response.json().catch(() => ({}));
-                    throw new Error(err.detail || 'Gửi email thất bại.');
+                    throw new Error(err.detail || 'Failed to send email.');
                 }
 
                 const result = await response.json();
                 // result giả định: { sent_count: n, failed: [{id, email, error}], skipped_candidate_ids: [...] }
                 const sentCount = result.sent_count ?? (result.sent ? result.sent.length : 0);
                 const failed = result.failed ?? [];
-                alert(`Hoàn tất. Đã gửi: ${sentCount}. Thất bại: ${failed.length}`);
+                alert(`Done. Sent: ${sentCount}. Failed: ${failed.length}`);
 
                 // Cập nhật UI trạng thái gửi trên previewList
                 const cards = previewList.querySelectorAll('.preview-card');
@@ -1093,19 +1093,19 @@
                     const statusEl = card.querySelector('.send-status');
                     const fail = failed.find(f => f.candidate_id == cid || f.email == cid);
                     if (fail) {
-                        statusEl.textContent = `Trạng thái: thất bại — ${fail.error || 'Lỗi'}`;
+                        statusEl.textContent = `Status: failed — ${fail.error || 'Error'}`;
                         statusEl.style.color = '#b91c1c';
                     } else {
-                        statusEl.textContent = 'Trạng thái: đã gửi';
+                        statusEl.textContent = 'Status: sent';
                         statusEl.style.color = '#10b981';
                     }
                 });
 
             } catch (err) {
-                alert(err.message || 'Có lỗi khi gửi mail.');
+                alert(err.message || 'An error occurred while sending emails.');
             } finally {
                 sendBtn.disabled = false;
-                sendBtn.textContent = 'Gửi email';
+                sendBtn.textContent = 'Send email';
                 previewBtn.disabled = false;
             }
         }

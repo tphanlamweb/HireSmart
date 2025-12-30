@@ -881,6 +881,9 @@ def get_all_jobs(
             detail=f"Error fetching jobs: {str(e)}"
         )
 
+
+
+
 @router.get("/{job_id}")
 def get_job_detail(
     job_id: int,
@@ -1044,7 +1047,6 @@ def get_job_detail(
             }
         }
 
-
     except HTTPException:
         raise
     except Exception as e:
@@ -1053,6 +1055,13 @@ def get_job_detail(
             status_code=500,
             detail=f"Error fetching job details: {str(e)}"
         )
+        
+        
+        
+        
+        
+
+
 @router.get("/categories/list")
 def get_categories(db: Session = Depends(get_db)):
     """

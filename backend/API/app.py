@@ -12,6 +12,7 @@ from backend.API.Email_send_respon.send_mail import router as email_sender
 from backend.API.Email_send_respon.verify_mail import router as email_verifier
 from backend.dataAndModels.test_dtb import router as test
 from backend.API.job_routes import router as job_router
+from backend.dataAndModels.test_data_scoring import router as test_scoring
 # Import router từ file Scan_CV (giả sử scan router khai báo: router = APIRouter() trong Scan_CV.py)
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # d:\Cap 1\HireSmart
@@ -73,6 +74,7 @@ app.include_router(email_sender, prefix="/email", tags=["email"])
 app.include_router(email_verifier, tags=["email"])
 app.include_router(job_router)
 app.include_router(test)
+app.include_router(test_scoring)
 
 
 # Route gốc trả về Recruitment.html

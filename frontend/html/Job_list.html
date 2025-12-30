@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Điều Khiển Quản Lý Công Việc</title>
+    <title>Job Management Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -893,9 +893,9 @@
                 <span>HireSmart</span>
             </div>
             <ul>
-                <li><a href="Home.html">Trang chủ</a></li>
-                <li><a href="Recruitment.html" class="active">Công Việc</a></li>
-                <li><a href="Create_job.html">Tạo Job</a></li>
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="Recruitment.html" class="active">Jobs</a></li>
+                <li><a href="Create_job.html">Create Job</a></li>
                 <li class="language-menu">
                     <div class="language-selector">
                         <span id="currentLang">🇻🇳</span>
@@ -906,11 +906,11 @@
                     </div>
                 </li>
                 <li class="user-menu">
-                    <a href="#" class="login-btn" onclick="handleHRLogin(event)" data-i18n="nav.hr_login">Đăng nhập HR</a>
+                    <a href="#" class="login-btn" onclick="handleHRLogin(event)" data-i18n="nav.hr_login">HR Login</a>
                     <div class="dropdown" id="dropdownMenu">
-                        <a href="#">Tài Khoản Của Tôi</a>
-                        <a href="Create_job.html" id="dashboardBtn">Tạo Job</a>
-                        <a href="#" id="logoutBtn">Đăng Xuất</a>
+                        <a href="#">My Account</a>
+                        <a href="Create_job.html" id="dashboardBtn">Create Job</a>
+                        <a href="#" id="logoutBtn">Logout</a>
                     </div>
                 </li>
             </ul>
@@ -931,33 +931,24 @@
             </div>
             <div class="features">Features</div>
             <div class="menu">
-                <div class="menu-item" onclick="window.location.href='dashboard.html'">
+                <div class="menu-item" onclick="window.location.href='http://127.0.0.1:8000/dashboard'">
                     <span class="icon">📊</span>
-                    <span>Bảng Điều Khiển</span>
+                    <span>Dashboard</span>
                 </div>
-                <div class="menu-item">
-                    <span class="icon">✉️</span>
-                    <span>Tin Nhắn</span>
-                    <span class="badge">3</span>
-                </div>
-                <div class="menu-item active" onclick="window.location.href='Job_list.html'">
+                <div class="menu-item active" onclick="window.location.href='http://127.0.0.1:5500/frontend/html/Create_job.html'">
                     <span class="icon">💼</span>
-                    <span>Công Việc</span>
+                    <span>Jobs</span>
                 </div>
-                <div class="menu-item">
-                    <span class="icon">👥</span>
-                    <span>Ứng Viên</span>
-                </div>
-                <div class="menu-item">
+                <div class="menu-item" onclick="window.location.href='http://127.0.0.1:5500/frontend/html/profile.html'">
                     <span class="icon">📄</span>
-                    <span>Hồ Sơ</span>
+                    <span>Profile</span>
                 </div>
                 <div class="menu-item">
                     <span class="icon">📈</span>
-                    <span>Báo Cáo</span>
+                    <span>Report</span>
                 </div>
             </div>
-            <button class="logout-btn">🔓 Đăng Xuất</button>
+            <button class="logout-btn">🔓 Logout</button>
         </div>
 
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -968,39 +959,35 @@
             <div id="jobListView">
                 <div class="top-bar">
                     <button class="menu-toggle" id="menuToggle">☰</button>
-                    <div class="icon-buttons">
-                        <button class="icon-btn notification">🔔<span class="badge">3</span></button>
-                        <button class="icon-btn settings">✏️</button>
-                        <button class="icon-btn messages">✉️<span class="badge">3</span></button>
-                    </div>
+
                 </div>
 
                 <div class="dashboard-grid">
                     <div class="quick-actions">
-                        <div class="action-card" onclick="window.location.href='Create_job.html'" data-i18n="createNewJD">Tạo JD Mới</div>
-                        <div class="action-card yellow" onclick="showJobList()" data-i18n="jobList">Danh Sách Công Việc</div>
-                        <div class="action-card blue" onclick="showNews()" data-i18n="news">Tin Tức</div>
+                        <div class="action-card" onclick="window.location.href='Create_job.html'" data-i18n="createNewJD">Create New JD</div>
+                        <div class="action-card yellow" onclick="showJobList()" data-i18n="jobList">Job List</div>
+                        <div class="action-card blue" onclick="showNews()" data-i18n="news">News</div>
                     </div>
 
                     <div class="job-section">
-                        <h2 data-i18n="jobManagement">Quản Lý Công Việc</h2>
-                        <p data-i18n="jobManagementDesc">Tạo, quản lý và theo dõi các bài đăng tuyển dụng và hồ sơ ứng viên của bạn.</p>
+                        <h2 data-i18n="jobManagement">Job Management</h2>
+                        <p data-i18n="jobManagementDesc">Create, manage, and track job postings and candidate profiles.</p>
 
                         <div class="stats-grid">
                             <div class="stat-card">
-                                <h4 data-i18n="totalJobs">Tổng Số Công Việc</h4>
+                                <h4 data-i18n="totalJobs">Total Jobs</h4>
                                 <div class="number">3</div>
                             </div>
                             <div class="stat-card">
-                                <h4 data-i18n="activeJobs">Công Việc Đang Hoạt Động</h4>
+                                <h4 data-i18n="activeJobs">Active Jobs</h4>
                                 <div class="number">3</div>
                             </div>
                             <div class="stat-card">
-                                <h4 data-i18n="totalCVsPaid">Tổng CV Đã Trả</h4>
+                                <h4 data-i18n="totalCVsPaid">Total CVs Paid</h4>
                                 <div class="number">10</div>
                             </div>
                             <div class="stat-card">
-                                <h4 data-i18n="avgCVsPerJob">Trung Bình CV/Công Việc</h4>
+                                <h4 data-i18n="avgCVsPerJob">Average CVs/Job</h4>
                                 <div class="number">3</div>
                             </div>
                         </div>
@@ -1089,11 +1076,7 @@
             <div id="jobDetailsView" class="hidden">
                 <div class="top-bar">
                     <button class="menu-toggle" id="menuToggle">☰</button>
-                    <div class="icon-buttons">
-                        <button class="icon-btn notification">🔔<span class="badge">3</span></button>
-                        <button class="icon-btn settings">✏️</button>
-                        <button class="icon-btn messages">✉️<span class="badge">3</span></button>
-                    </div>
+
                 </div>
 
                 <div class="dashboard-grid">
@@ -1145,11 +1128,7 @@
             <div id="newsView" class="hidden">
                 <div class="top-bar">
                     <button class="menu-toggle" id="menuToggle">☰</button>
-                    <div class="icon-buttons">
-                        <button class="icon-btn notification">🔔<span class="badge">3</span></button>
-                        <button class="icon-btn settings">✏️</button>
-                        <button class="icon-btn messages">✉️<span class="badge">3</span></button>
-                    </div>
+
                 </div>
 
                 <div class="dashboard-grid">
@@ -1160,7 +1139,7 @@
                     </div>
 
                     <div class="news-section">
-                        <h2 data-i18n="latestNews">Tin Tức & Cập Nhật Mới Nhất</h2>
+                        <h2 data-i18n="latestNews">News & Updates</h2>
                         
                         <div class="news-grid">
                             <div class="news-card">

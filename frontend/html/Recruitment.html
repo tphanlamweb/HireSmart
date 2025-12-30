@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tuyển dụng - Ứng tuyển ngay</title>
+    <title>Recruitment - Apply Now</title>
 </head>
 
 
@@ -517,11 +517,11 @@ nav {
                 <img src="../templates/logo-2.png" alt="Logo" class="logo-icon">
             </div>
             <ul class="nav-menu">
-                <li><a href="Home.html">Trang chủ</a></li>
-                <li><a href="Home.html#about">Giới thiệu</a></li>
-                <li><a href="Home.html#highlights">Hoạt động</a></li>
+                <li><a href="http://127.0.0.1:5500/frontend/html/Home.html">Home</a></li>
+                <li><a href="Home.html#about">About</a></li>
+                <li><a href="Home.html#highlights">Highlights</a></li>
                 <li><a href="recruitment.html" class="active">Jobs</a></li>
-                <li><a href="Home.html#contact">Liên hệ</a></li>
+                <li><a href="Home.html#contact">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -529,13 +529,13 @@ nav {
         <!-- Landing Page -->
         <div id="landingPage" class="landing-page">
             <div class="hero">
-                <h1>Chào mừng đến với Công ty HireSmart</h1>
-                <p>Tìm kiếm cơ hội nghề nghiệp tuyệt vời và phát triển cùng chúng tôi!</p>
-                <button class="cta-button" onclick="showApplicationForm()">Ứng tuyển ngay</button>
+                <h1>Welcome to HireSmart</h1>
+                <p>Find great career opportunities and grow with us!</p>
+                <button class="cta-button" onclick="showApplicationForm()">Apply now</button>
             </div>
 
             <div class="job-list" id="jobListContainer">
-                <h2>Các vị trí đang tuyển dụng</h2>
+                <h2>Opening Position</h2>
 
                 <!-- Dynamically injected items will be appended below -->
             </div>
@@ -543,11 +543,11 @@ nav {
 
         <!-- Application Form -->
         <div id="applicationForm" class="application-form">
-            <h2>📝 Form Ứng Tuyển</h2>
+            <h2>📝 Application Form</h2>
             <form id="candidateForm" action="javascript:void(0);">
                 <div class="form-group">
-                    <label>Họ và tên <span class="required">*</span></label>
-                    <input type="text" id="fullName" required placeholder="Nhập họ tên đầy đủ" >
+                    <label>Full Name <span class="required">*</span></label>
+                    <input type="text" id="fullName" required placeholder="Enter your full name" >
                 </div>
 
                 <div class="form-group">
@@ -556,16 +556,16 @@ nav {
                 </div>
 
                 <div class="form-group">
-                    <label>Số điện thoại (Zalo) <span class="required">*</span></label>
+                    <label>Phone Number (Zalo) <span class="required">*</span></label>
                     <input type="tel" id="phone" pattern="[0-9]{10}"
                         required placeholder="0123456789" >
                 </div>
 
 
                 <div class="form-group">
-                    <label>Vị trí ứng tuyển <span class="required">*</span></label>
+                    <label>Position Applied For <span class="required">*</span></label>
                     <select id="position" required>
-                        <option value="">-- Đang tải vị trí --</option>
+                        <option value="">-- Loading positions --</option>
                     </select>
                 </div>
 
@@ -573,7 +573,7 @@ nav {
                     <label>Upload CV (PDF/DOCX) <span class="required">*</span></label>
                     <div class="file-upload">
                         <label for="cvFile" class="file-upload-label" >
-                            📎 Chọn file CV của bạn
+                            📎 Choose your CV file
                         </label>
                         <input type="file" id="cvFile" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" required onchange="displayFileName()">
 
@@ -582,8 +582,8 @@ nav {
                 </div>
 
                 <div class="btn-group">
-                    <button class="btn btn-secondary" type ="button" onclick="backToLanding()">Quay lại</button>
-                    <button id="submitBtn" class="btn btn-primary" type="button">Nộp đơn ứng tuyển</button>
+                    <button class="btn btn-secondary" type ="button" onclick="backToLanding()">Back</button>
+                    <button id="submitBtn" class="btn btn-primary" type="button">Submit Application</button>
                 </div>
             </form>
         </div>
@@ -591,14 +591,13 @@ nav {
         <!-- Confirmation Page -->
         <div id="confirmationPage" class="confirmation-page">
             <div class="success-icon">✓</div>
-            <h2>Nộp CV thành công!</h2>
-            <p>Cảm ơn bạn đã ứng tuyển vào công ty chúng tôi. Chúng tôi sẽ xem xét hồ sơ và liên hệ với bạn trong thời
-                gian sớm nhất.</p>
+            <h2>CV submitted successfully!</h2>
+            <p>Thank you for applying to our company. We will review your application and contact you as soon as possible.</p>
 
             <div class="review-section">
-                <h3>Thông tin ứng tuyển của bạn</h3>
+                <h3>Your Application Details</h3>
                 <div class="review-item">
-                    <div class="review-label">Họ và tên:</div>
+                    <div class="review-label">Full Name:</div>
                     <div class="review-value" id="reviewName"></div>
                 </div>
                 <div class="review-item">
@@ -606,15 +605,15 @@ nav {
                     <div class="review-value" id="reviewEmail"></div>
                 </div>
                 <div class="review-item">
-                    <div class="review-label">Số điện thoại:</div>
+                    <div class="review-label">Phone Number:</div>
                     <div class="review-value" id="reviewPhone"></div>
                 </div>
                 <div class="review-item">
-                    <div class="review-label">Địa chỉ:</div>
+                    <div class="review-label">Address:</div>
                     <div class="review-value" id="reviewAddress"></div>
                 </div>
                 <div class="review-item">
-                    <div class="review-label">Vị trí ứng tuyển:</div>
+                    <div class="review-label">Position Applied For:</div>
                     <div class="review-value" id="reviewPosition"></div>
                 </div>
                 <div class="review-item">
@@ -623,7 +622,7 @@ nav {
                 </div>
             </div>
 
-            <button class="cta-button" onclick="backToLanding()">Quay về trang chủ</button>
+            <button class="cta-button" onclick="backToLanding()">Back to Homepage</button>
         </div>
     </div>
 
@@ -668,8 +667,8 @@ nav {
                 
                 div.innerHTML = `
                     <h3>💼 ${job.job_title}</h3>
-                    <p>📍 ${job.location} | 💰 Lương: ${salaryText} | ⏰ ${job.employment_type}</p>
-                    <button class="view-jd-btn" onclick="showJobDetail(${job.id})">Xem mô tả công việc</button>
+                    <p>📍 ${job.location} | 💰 Salary: ${salaryText} | ⏰ ${job.employment_type}</p>
+                    <button class="view-jd-btn" onclick="showJobDetail(${job.id})">View job details</button>
                 `;
                 container.appendChild(div);
             });
@@ -677,7 +676,7 @@ nav {
             // Add a note if no jobs
             if (data.data.length === 0) {
                 const note = document.createElement('p');
-                note.textContent = 'Hiện tại không có vị trí tuyển dụng. Vui lòng kiểm tra lại sau.';
+                note.textContent = 'Currently, there are no job openings. Please check back later.';
                 note.style.textAlign = 'center';
                 note.style.color = '#999';
                 container.appendChild(note);
@@ -705,14 +704,14 @@ nav {
             let jobInfoHTML = '';
             if (job.job_info) {
                 const sectionTitles = {
-                    'description': 'Mô tả công việc',
-                    'requirements': 'Yêu cầu công việc',
-                    'benefits': 'Quyền lợi',
-                    'location': 'Địa điểm làm việc',
-                    'working_hours': 'Thời gian làm việc',
+                    'description': 'Job Description',
+                    'requirements': 'Job Requirements',
+                    'benefits': 'Benefits',
+                    'location': 'Work Location',
+                    'working_hours': 'Working Hours',
                     'technical': 'Tech Stack',
-                    'environment': 'Môi trường làm việc',
-                    'career': 'Cơ hội phát triển'
+                    'environment': 'Work Environment',
+                    'career': 'Career Development'
                 };
                 
                 for (const [section, items] of Object.entries(job.job_info)) {
@@ -736,7 +735,7 @@ nav {
 
             let requirementsHTML = '';
             if (job.requirements && job.requirements.length > 0) {
-                requirementsHTML = '<h3>Yêu cầu:</h3><ul>';
+                requirementsHTML = '<h3>Requirements:</h3><ul>';
                 job.requirements.forEach(req => {
                     requirementsHTML += `<li>${req.title}</li>`;
                 });
@@ -745,14 +744,14 @@ nav {
 
             document.getElementById('jdTitle').textContent = job.job_title;
             document.getElementById('jdContent').innerHTML = `
-                <h3>Thông tin chung:</h3>
+                <h3>General Information:</h3>
                 <ul>
-                    <li><strong>Vị trí:</strong> ${job.job_title}</li>
-                    <li><strong>Địa điểm:</strong> ${job.location}</li>
-                    <li><strong>Mức lương:</strong> ${salaryText}</li>
-                    <li><strong>Loại hình:</strong> ${job.employment_type}</li>
-                    <li><strong>Số lượng cần tuyển:</strong> ${job.positions_open}</li>
-                    ${job.application_deadline ? `<li><strong>Hạn nộp hồ sơ:</strong> ${new Date(job.application_deadline).toLocaleDateString('vi-VN')}</li>` : ''}
+                    <li><strong>Position:</strong> ${job.job_title}</li>
+                    <li><strong>Location:</strong> ${job.location}</li>
+                    <li><strong>Salary:</strong> ${salaryText}</li>
+                    <li><strong>Employment Type:</strong> ${job.employment_type}</li>
+                    <li><strong>Number of Openings:</strong> ${job.positions_open}</li>
+                    ${job.application_deadline ? `<li><strong>Application Deadline:</strong> ${new Date(job.application_deadline).toLocaleDateString('vi-VN')}</li>` : ''}
                 </ul>
                 ${jobInfoHTML}
                 ${requirementsHTML}
@@ -760,7 +759,7 @@ nav {
             document.getElementById('jdModal').style.display = 'block';
         } catch (error) {
             console.error('Failed to load job details:', error);
-            alert('Không thể tải chi tiết công việc');
+            alert('Cannot load job details at this time.');
         }
     }
 
@@ -785,7 +784,7 @@ nav {
             if (!select) return;
 
             // Clear default option
-            select.innerHTML = '<option value="">-- Chọn vị trí --</option>';
+            select.innerHTML = '<option value="">-- Select Position --</option>';
 
             // Add jobs as options
             data.data.forEach(job => {
@@ -797,14 +796,14 @@ nav {
 
             // Show message if no jobs
             if (data.data.length === 0) {
-                select.innerHTML = '<option value="">Hiện tại không có vị trí tuyển dụng</option>';
+                select.innerHTML = '<option value="">Currently no job openings</option>';
             }
 
         } catch (error) {
             console.error('Failed to load positions:', error);
             const select = document.getElementById('position');
             if (select) {
-                select.innerHTML = '<option value="">Lỗi tải vị trí</option>';
+                select.innerHTML = '<option value="">Error loading positions</option>';
             }
         }
     }
@@ -814,78 +813,78 @@ nav {
         backend: {
             title: "Senior Backend Developer",
             content: `
-                    <h3>Mô tả công việc:</h3>
+                    <h3>Job Description:</h3>
                     <ul>
-                        <li>Thiết kế và phát triển các API RESTful/GraphQL</li>
-                        <li>Tối ưu hiệu suất hệ thống và database</li>
-                        <li>Xây dựng kiến trúc microservices</li>
-                        <li>Code review và mentor các thành viên junior</li>
+                        <li>Design and develop RESTful/GraphQL APIs</li>
+                        <li>Optimize system and database performance</li>
+                        <li>Build microservices architecture</li>
+                        <li>Code review and mentor junior team members</li>
                     </ul>
-                    <h3>Yêu cầu:</h3>
+                    <h3>Requirements:</h3>
                     <ul>
-                        <li>5+ năm kinh nghiệm Backend Development</li>
-                        <li>Thành thạo Node.js, Python hoặc Java</li>
-                        <li>Kinh nghiệm với PostgreSQL, MongoDB, Redis</li>
-                        <li>Hiểu biết về Docker, Kubernetes</li>
+                        <li>5+ years of Backend Development experience</li>
+                        <li>Proficiency in Node.js, Python or Java</li>
+                        <li>Experience with PostgreSQL, MongoDB, Redis</li>
+                        <li>Knowledge of Docker, Kubernetes</li>
                     </ul>
-                    <h3>Quyền lợi:</h3>
+                    <h3>Benefits:</h3>
                     <ul>
-                        <li>Lương cạnh tranh, thưởng theo hiệu suất</li>
-                        <li>Bảo hiểm đầy đủ, khám sức khỏe định kỳ</li>
-                        <li>Môi trường làm việc hiện đại, chuyên nghiệp</li>
-                        <li>Cơ hội thăng tiến rõ ràng</li>
+                        <li>Competitive salary, performance-based bonus</li>
+                        <li>Full insurance, annual health check-up</li>
+                        <li>Modern, professional work environment</li>
+                        <li>Clear career advancement opportunities</li>
                     </ul>
                 `
         },
         designer: {
             title: "UI/UX Designer",
             content: `
-                    <h3>Mô tả công việc:</h3>
+                    <h3>Job Description:</h3>
                     <ul>
-                        <li>Thiết kế giao diện website và mobile app</li>
-                        <li>Nghiên cứu user experience và user behavior</li>
-                        <li>Tạo wireframe, prototype và mockup</li>
-                        <li>Làm việc chặt chẽ với team development</li>
+                        <li>Design website and mobile app interfaces</li>
+                        <li>Research user experience and user behavior</li>
+                        <li>Create wireframes, prototypes and mockups</li>
+                        <li>Work closely with development team</li>
                     </ul>
-                    <h3>Yêu cầu:</h3>
+                    <h3>Requirements:</h3>
                     <ul>
-                        <li>3+ năm kinh nghiệm UI/UX Design</li>
-                        <li>Thành thạo Figma, Adobe XD, Sketch</li>
-                        <li>Hiểu biết về Design System và Material Design</li>
-                        <li>Portfolio ấn tượng</li>
+                        <li>3+ years of UI/UX Design experience</li>
+                        <li>Proficiency in Figma, Adobe XD, Sketch</li>
+                        <li>Knowledge of Design System and Material Design</li>
+                        <li>Impressive portfolio</li>
                     </ul>
-                    <h3>Quyền lợi:</h3>
+                    <h3>Benefits:</h3>
                     <ul>
-                        <li>Lương thỏa thuận theo năng lực</li>
-                        <li>Làm việc với các dự án quốc tế</li>
-                        <li>Đào tạo và phát triển kỹ năng liên tục</li>
-                        <li>Team building, du lịch hàng năm</li>
+                        <li>Competitive salary, performance-based bonus</li>
+                        <li>Full insurance, annual health check-up</li>
+                        <li>Modern, professional work environment</li>
+                        <li>Clear career advancement opportunities</li>
                     </ul>
                 `
         },
         mobile: {
             title: "Mobile Developer (React Native)",
             content: `
-                    <h3>Mô tả công việc:</h3>
+                    <h3>Job Description:</h3>
                     <ul>
-                        <li>Phát triển ứng dụng mobile đa nền tảng với React Native</li>
-                        <li>Tích hợp API và third-party services</li>
-                        <li>Tối ưu hiệu suất ứng dụng</li>
-                        <li>Fix bug và maintain code</li>
+                        <li>Develop cross-platform mobile applications with React Native</li>
+                        <li>Integrate APIs and third-party services</li>
+                        <li>Optimize application performance</li>
+                        <li>Fix bugs and maintain code</li>
                     </ul>
-                    <h3>Yêu cầu:</h3>
+                    <h3>Requirements:</h3>
                     <ul>
-                        <li>2+ năm kinh nghiệm React Native</li>
-                        <li>Thành thạo JavaScript/TypeScript</li>
-                        <li>Kinh nghiệm với Redux, Context API</li>
-                        <li>Hiểu biết về iOS và Android native</li>
+                        <li>2+ years of React Native experience</li>
+                        <li>Proficiency in JavaScript/TypeScript</li>
+                        <li>Experience with Redux, Context API</li>
+                        <li>Knowledge of iOS and Android native</li>
                     </ul>
-                    <h3>Quyền lợi:</h3>
+                    <h3>Benefits:</h3>
                     <ul>
-                        <li>Mức lương hấp dẫn</li>
-                        <li>Làm việc remote linh hoạt</li>
-                        <li>Trang thiết bị làm việc hiện đại</li>
-                        <li>Phụ cấp ăn trưa, xăng xe</li>
+                        <li>Competitive salary, performance-based bonus</li>
+                        <li>Flexible remote work</li>
+                        <li>Modern, professional work environment</li>
+                        <li>Lunch allowance, fuel allowance</li>
                     </ul>
                 `
         }
@@ -966,7 +965,7 @@ nav {
                 const file = document.getElementById('cvFile').files[0];
 
                 if (!file) {
-                    alert("Vui lòng chọn file CV trước khi nộp.");
+                    alert("Please upload CV before submit.");
                     return false;
                 }
 
@@ -989,7 +988,7 @@ nav {
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || `Upload thất bại: ${response.statusText}`);
+                    throw new Error(errorData.message || `Upload failed: ${response.statusText}`);
                 }
 
                 const data = await response.json();
@@ -1006,7 +1005,7 @@ nav {
                 document.getElementById('confirmationPage').style.display = 'block';
 
             } catch (error) {
-                alert("Lỗi khi gửi dữ liệu: " + error.message);
+                alert("Error submitting data: " + error.message);
                 console.error(error);
             } finally {
                 if (submitBtn) {
@@ -1034,22 +1033,22 @@ nav {
                 div.className = 'job-item';
                 div.innerHTML = `
                         <h3>💼 ${job.title}</h3>
-                        <p>📍 ${job.location || ''} | 💰 Lương: ${job.salary || 'Thỏa thuận'} | ⏰ ${job.status === 'active' ? 'Active' : 'Status: ' + (job.status || 'N/A')}</p>
-                        <button class="view-jd-btn">Xem mô tả công việc</button>
+                        <p>📍 ${job.location || ''} | 💰 Salary: ${job.salary || 'Deal'} | ⏰ ${job.status === 'active' ? 'Active' : 'Status: ' + (job.status || 'N/A')}</p>
+                        <button class="view-jd-btn">View job description</button>
                     `;
                 const btn = div.querySelector('.view-jd-btn');
                 btn.addEventListener('click', function () {
                     // Show JD modal with dynamic content
                     document.getElementById('jdTitle').textContent = job.title;
                     document.getElementById('jdContent').innerHTML = `
-                            <h3>Mô tả công việc:</h3>
+                            <h3>Job Description:</h3>
                             <p>${(job.description || '').replace(/\n/g, '<br>')}</p>
-                            <h3>Thông tin:</h3>
+                            <h3>Information:</h3>
                             <ul>
-                                <li>Phòng ban: ${job.department || 'N/A'}</li>
-                                <li>Địa điểm: ${job.location || 'N/A'}</li>
-                                <li>Mức lương: ${job.salary || 'Thỏa thuận'}</li>
-                                <li>Trạng thái: ${job.status || 'N/A'}</li>
+                                <li>Department: ${job.department || 'N/A'}</li>
+                                <li>Location: ${job.location || 'N/A'}</li>
+                                <li>Salary: ${job.salary || 'Deal'}</li>
+                                <li>Status: ${job.status || 'N/A'}</li>
                             </ul>
                         `;
                     document.getElementById('jdModal').style.display = 'block';

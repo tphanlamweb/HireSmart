@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Đăng nhập - Smart Recruitment</title>
+    <title>Login - Smart Recruitment</title>
     <link rel="stylesheet" href="../Styles/login.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -21,8 +21,8 @@
                 <h2 class="signin-title">HR Login</h2>
                 
                 <div class="register-prompt">
-                    <p>Đăng nhập để truy cập Dashboard HR</p>
-                    <p>User thường có thể xem <a href="Home.html" class="register-link">Jobs tại đây</a></p>
+                    <p>Log in to access the HR Dashboard</p>
+                    <p>Users can view <a href="Home.html" class="register-link">Jobs here</a></p>
                 </div>
 
                 <form class="login-form">
@@ -52,7 +52,7 @@
                         <a href="#" class="forgot-password">Forgot Password?</a>
                     </div>
 
-                    <button type="submit" class="login-btn">Đăng nhập HR</button>
+                    <button type="submit" class="login-btn">HR Login</button>
 
                     <div class="social-login">
                         <p class="or-text">or continue with</p>
@@ -96,20 +96,20 @@
             const password = document.getElementById('password').value.trim();
         
             // Kiểm tra thông tin đăng nhập mẫu
-            if (email === "admin@gmail.com" && password === "123456") {
+                if (email === "admin@gmail.com" && password === "123456") {
                 // Lưu thông tin đăng nhập vào localStorage
                 localStorage.setItem('loggedInUser', email);
                 console.log('Saved user to localStorage:', email); // Debug log
-                alert("Đăng nhập thành công!");
+                alert("Login successful!");
                 window.location.href = "../html/Home.html";
             } else if (email && password) {
                 // Lưu thông tin đăng nhập vào localStorage cho bất kỳ email/password nào
                 localStorage.setItem('loggedInUser', email);
                 console.log('Saved user to localStorage:', email); // Debug log
-                alert("Đăng nhập thành công!");
+                alert("Login successful!");
                 window.location.href = "../html/Home.html";
             } else {
-                alert("Vui lòng nhập đầy đủ thông tin!");
+                alert("Please enter all required information!");
             }
         });
 

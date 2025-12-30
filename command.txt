@@ -15,3 +15,59 @@ Lưu ý:
 API key = {
 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
 }
+
+
+job_id INT NOT NULL,
+	application_status ENUM (
+		'Suitable',
+		'Unsuitable',
+		'Sended_Inviting',
+		'Accepted',
+		'hired',
+		'rejected' 
+	),
+	color_classification ENUM ( 'blue', 'orange', 'green', 'red', 'white' ),-- BASIC PERSONAL INFO
+	email VARCHAR ( 255 ) NOT NULL UNIQUE,
+	full_name VARCHAR ( 255 ) NOT NULL,
+	phone VARCHAR ( 20 ),
+	date_of_birth DATE,
+	gender ENUM ( 'male', 'female', 'other' ),
+	address TEXT,
+	linkedin_url VARCHAR ( 500 ),
+	portfolio_url VARCHAR ( 500 ),-- ===== CV PARSED & SUMMARIZED INFORMATION =====
+-- SKILLS SUMMARY (từ CV parsing)
+	technical_skills TEXT,-- "Python (5 years), Java (3 years), React (2 years), MySQL (4 years), Docker (1 year)"
+	soft_skills TEXT,-- "Leadership, Communication, Problem Solving, Team Management, Project Management"
+	tools_and_technologies TEXT,-- "Git, Jenkins, AWS, Kubernetes, Jira, Confluence, Figma, Photoshop"
+	programming_languages TEXT,-- "Python: Expert, Java: Advanced, JavaScript: Intermediate, C++: Basic"
+	frameworks_and_libraries TEXT,-- "Django, FastAPI, React, Angular, Spring Boot, Express.js"
+-- EXPERIENCE SUMMARY (từ CV parsing)
+	work_experience_summary TEXT,-- "5+ years in software development. Led team of 8 developers at ABC Corp (2020-2023). Full-stack developer at XYZ Inc (2018-2020). Internship at DEF Ltd (2017-2018)."
+-- EDUCATION SUMMARY (từ CV parsing)
+	education_summary TEXT,-- "Bachelor of Computer Science - University of Technology (2014-2018), GPA: 8.2/10. High School - Specialized School (2011-2014)"
+-- CERTIFICATIONS SUMMARY (từ CV parsing)
+	certifications_summary TEXT,-- "AWS Solutions Architect (2023), PMP (2022), Scrum Master (2021), IELTS 7.5 (2020)"
+	expired_certifications TEXT,-- "IELTS 7.5 (expired 2023)"
+-- LANGUAGES SUMMARY (từ CV parsing)
+	languages_summary TEXT,-- "Vietnamese: Native, English: Fluent (IELTS 7.5), Japanese: Basic (N4), Chinese: Conversational"
+-- PROJECTS SUMMARY (từ CV parsing)
+	notable_projects TEXT,-- "E-commerce Platform (React, Node.js, MongoDB) - Led team of 5, 50K+ users. AI Chatbot (Python, TensorFlow) - Personal project, 10K+ downloads."
+-- ADDITIONAL INFO (từ CV parsing)
+	awards_and_honors TEXT,-- "Best Employee 2022, Innovation Award 2021, Dean's List 2016-2018"
+	publications TEXT,-- "Published 3 papers on Machine Learning, Speaker at 2 tech conferences"
+	volunteer_experience TEXT,-- "Coding mentor at CoderDojo (2019-2021), Blood donation volunteer"
+	hobbies_and_interests TEXT,-- "Photography, Travel, Guitar, Chess, Open Source Contributing"
+-- CV METADATA & PROCESSING INFO
+	filename VARCHAR ( 255 ),-- Tên file CV gốc
+	filedata LONGBLOB,
+	mimetype VARCHAR ( 100 ),
+	cv_summary TEXT,-- Tóm tắt tổng quan về ứng viên từ CV
+	overall_cv_score DECIMAL ( 5, 2 ) DEFAULT 0,-- Tổng điểm (0-100)
+	matching_percentage DECIMAL ( 5, 2 ) DEFAULT 0,-- Phần trăm phù hợp
+	file_size BIGINT NOT NULL,
+	scored_at TIMESTAMP DEFAULT NULL,
+	scoring_algorithm VARCHAR ( 50 ) DEFAULT 'all-MiniLM-L6-v2',-- SYSTEM INFO
+	is_active BOOLEAN DEFAULT TRUE,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
+);

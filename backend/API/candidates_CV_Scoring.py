@@ -181,22 +181,22 @@ def scoring_summary(candidate, jd_full):
 
         # lấy kết quả (sẽ chờ nếu chưa xong)
         education = f_education.result()["total_score"]
-        print("Tổng điểm học vấn: ", json.dumps(education, ensure_ascii=False, indent=4), "/ 100đ")
+        print("Tổng điểm học vấn: ", json.dumps(education, ensure_ascii=False, indent=4), "/ 100đ","\nEducation:", candidate.get("education"))
 
         experience = f_experience.result()["total_score"]
-        print("Tổng điểm kinh nghiệm: ", json.dumps(experience, ensure_ascii=False, indent=4), "/ 250đ")
+        print("Tổng điểm kinh nghiệm: ", json.dumps(experience, ensure_ascii=False, indent=4), "/ 250đ","\nExperience:", candidate.get("experience"))
 
         technical = f_technical.result()["total_score"]
-        print("Tổng điểm Kỹ năng chuyên môn: ", json.dumps(technical, ensure_ascii=False, indent=4), "/ 250đ")
+        print("Tổng điểm Kỹ năng chuyên môn: ", json.dumps(technical, ensure_ascii=False, indent=4), "/ 250đ","\nHard Skills:", candidate.get("hard_skills"))
 
         soft = f_soft.result()["total_score"]
-        print("Tổng điểm kỹ năng mềm: ", json.dumps(soft, ensure_ascii=False, indent=4), "/ 150đ")
+        print("Tổng điểm kỹ năng mềm: ", json.dumps(soft, ensure_ascii=False, indent=4), "/ 150đ","\nSoft Skills:", candidate.get("soft_skills"))
 
         tools = f_tools.result()["total_score"]
-        print("Tổng điểm Công cụ và chứng chỉ: ", json.dumps(tools, ensure_ascii=False, indent=4), "/ 150đ")
+        print("Tổng điểm Công cụ và chứng chỉ: ", json.dumps(tools, ensure_ascii=False, indent=4), "/ 150đ","\nTools:", candidate.get("tools"), "Certificates:", candidate.get("certificates"))
 
         sim = f_sim.result()["total_score"]
-        print("Tổng điểm Tương đồng AI: ", json.dumps(sim, ensure_ascii=False, indent=4), "/ 150đ")
+        print("Tổng điểm Tương đồng AI: ", json.dumps(sim, ensure_ascii=False, indent=4), "/ 150đ","\nSummary", candidate.get("cv_summary"))
 
     total_score = education + experience + technical + soft + tools + sim
     print("\n=== TỔNG ĐIỂM ỨNG VIÊN ===")
