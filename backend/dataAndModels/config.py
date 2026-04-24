@@ -7,7 +7,11 @@ import os
 # Ưu tiên đọc cấu hình DB từ biến môi trường nếu có,
 # nếu không thì fallback về giá trị mặc định bên dưới.
 DB_USER = "root"                # 🧑‍💻 Tên user MySQL
+<<<<<<< Updated upstream
 DB_PASSWORD = "123456"          # 🔑 Mật khẩu MySQL
+=======
+DB_PASSWORD = "123456"     # 🔑 Mật khẩu MySQL
+>>>>>>> Stashed changes
 DB_HOST = "localhost"           # 🖥️  Địa chỉ server (hoặc IP)
 DB_PORT = "3306"                # 🌐 Cổng mặc định của MySQL
 DB_NAME = "HireSmart"  # 📂 Tên cơ sở dữ liệu bạn đã có
